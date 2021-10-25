@@ -6,22 +6,23 @@ export default class ToolBar extends React.Component {
     constructor(props){
         super(props);
     }
-
+    
     render(){  
+        console.log(this.props.titleAlign)
         return (
-            <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:54}]}>        
+            <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}>  
                 <View style={styles.leftContainer}>
                     {this.props.myLeftContainer}      
                 </View>
-
+                                  
                 <Title style={styles.middleContainer}>
                     {this.props.title}
                 </Title>
-        
+                
                 <View style={styles.rightContainer}>
                     {this.props.myRightContainer}
                     {this.props.complement}
-                </View>
+                </View>                
             </BarComponent>
         );
   }

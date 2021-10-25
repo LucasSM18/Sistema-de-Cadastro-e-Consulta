@@ -38,8 +38,8 @@ export default class CardFactory extends React.Component {
                         }}
                     >
                         <View style={{flex:1}}>
-                            <Title>{this.props.content.title}</Title>
-                            <Subfont>{this.props.content.group}</Subfont>
+                            <Title>{this.props.name}</Title>
+                            <Subfont>{this.props.complement}</Subfont>
                         </View> 
                               
                         <TouchableOpacity>
@@ -53,7 +53,7 @@ export default class CardFactory extends React.Component {
                             paddingHorizontal:20
                         }}
                     >
-                        <Font>{this.props.content.lyrics}</Font>
+                        <Font>{this.props.content}</Font>
                     </CollapseBody>                          
                 </Collapse>
 

@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import Themes from '../themes/Themes';
 import SearchBar from '../components/SearchBar'
 import actualDimensions from '../dimensions/Dimensions';
-import { Flatlist, Subfont, Icons_Ionicons, SearchView } from '../components/Styles';
+import { Flatlist, Subfont, Icons_Ionicons, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, Image, useColorScheme, Platform } from 'react-native';
 
 
@@ -39,21 +39,21 @@ const Louvores = ({ filter }) => {
         <Flatlist
             style={styles.pageBody}
             data={louvores} 
-            renderItem={({item}) => <Card content={item}/>} 
+            renderItem={({item}) => <Card name={item.title} complement={item.group} content={item.lyrics}/>} 
             keyExtractor={item=>item.id.toString()}
         />        
     );
 };   
 
-const Favoritos = () =>{
+const Favoritos = () => {
     return (        
-        <SearchView style={ styles.pageBody, { height:"100%" }}>
+        <CustomView style={styles.pageBody}>
             <Subfont style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Subfont>
-        </SearchView>
+        </CustomView>
     );
 };    
 
-export default function HomeScreen({navigation, route}) {
+export default function LouvoresScreen({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.dark;
     const logo = {
@@ -82,13 +82,13 @@ export default function HomeScreen({navigation, route}) {
                 ):
                 (
                     <Header
-                        title="Igreja Cristã Mundial" 
+                        title="Músicas" 
                         myLeftContainer={(
-                            <View style={{paddingLeft:5, resizeMode:'contain'}}>
+                            <TouchableOpacity style={{paddingLeft:5, resizeMode:'contain'}}>
                                 <Image 
                                     style={{width:logo.size, height:logo.size, margin:logo.margim}}
                                     source={logo.image}/>
-                            </View>   
+                            </TouchableOpacity>   
                         )}
                         myRightContainer={
                             <TouchableOpacity 
@@ -113,7 +113,8 @@ export default function HomeScreen({navigation, route}) {
                 type='ionicon'
                 filter={filter}
                 theme={deviceTheme} 
-                customButtomRoute={navigation}                
+                navigation={navigation}
+                customButtomRoute='Importar'                
                 icon={[route.params.platform + '-heart-outline', route.params.platform + '-musical-note-outline']}
                 iconOnFocus={[route.params.platform + '-heart', route.params.platform + '-musical-note']}                
             />
@@ -126,9 +127,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         resizeMode: 'contain'
     },
+   
     pageBody: {
         flex:1,
-        padding:15
+        padding:15,
+        height:"100%"
     },
 
     webStyle: {
