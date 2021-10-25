@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
-import { BarComponent, SearchView, Search, Icons_FontAwesome, Icons_entypo } from './Styles';
+import { BarComponent, CustomView, Search, Icons_FontAwesome, Icons_entypo } from './Styles';
 
 
 export default class SearchBar extends React.Component {
@@ -15,11 +15,16 @@ export default class SearchBar extends React.Component {
 
     render(){
         return (
-        <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:54}]}> 
-            <View style={styles.leftContainer}>               
-                {this.props.leftComponent}
-            </View>                 
-            <SearchView style={styles.rightContainer}>               
+        <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}> 
+            {
+                this.props.leftComponent?(
+                    <View style={styles.leftContainer}>               
+                        {this.props.leftComponent}
+                    </View>
+                ):null
+            }
+                 
+            <CustomView style={styles.rightContainer}>               
                 <Search
                     style={[styles.searchStyle, Platform.OS==='web'?{ outline:'none' }:null]}
                     placeholderTextColor={this.props.placeholderTextColor}     
@@ -38,7 +43,7 @@ export default class SearchBar extends React.Component {
                 <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>   
                     <Icons_FontAwesome size={25} name="microphone"/>
                 </TouchableOpacity>
-            </SearchView>
+            </CustomView>
         </BarComponent>
     )
     }

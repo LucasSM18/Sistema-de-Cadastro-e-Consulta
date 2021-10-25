@@ -19,7 +19,7 @@ const CustomAddButtom = function(props) {
                 height:60,
                 display:'flex'
             }}
-            onPress={() => {props.navigation.navigate('AddLouvores')}}
+            onPress={() => {props.navigation.navigate(props.route)}}
         >              
            <Icon size={60} name="pluscircle" type="antdesign" color={props.badgeColor}/> 
         </TouchableOpacity>
@@ -90,7 +90,8 @@ export default class TabBar extends React.Component {
                     <CustomAddButtom 
                         badgeColor={Theme.badge} 
                         backColor={Theme.badgeItem} 
-                        navigation={this.props.customButtomRoute}
+                        navigation={this.props.navigation}
+                        route={this.props.customButtomRoute}
                     />
                 ):null}
             </View>            

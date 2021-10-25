@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import { FlatList } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 import { Ionicons, FontAwesome5, FontAwesome, Entypo } from "@expo/vector-icons";
 
 export const BarComponent = styled.View`
@@ -24,13 +24,17 @@ export const Subfont = styled.Text`
     color: ${props => props.theme.subColor};    
 `;
 
+export const CustomView = styled.View`
+    background: ${props => props.theme.body};
+`;
+
 export const Search = styled.TextInput`
     background: ${props => props.theme.body};
     color: ${props => props.theme.color};
 `;
 
-export const SearchView = styled.View`
-    background: ${props => props.theme.body};
+export const CustomButtom = styled(TouchableOpacity)`
+    background: ${props => props.theme.barComponent};
 `;
 
 export const Icons_Ionicons = styled(Ionicons)`
