@@ -8,7 +8,6 @@ export default class ToolBar extends React.Component {
     }
     
     render(){  
-        console.log(this.props.titleAlign)
         return (
             <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}>  
                 <View style={styles.leftContainer}>

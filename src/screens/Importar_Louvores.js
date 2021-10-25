@@ -100,7 +100,7 @@ export default function ImportaLouvores({navigation, route}) {
             <Header
                 title="Importar Músicas"
                 myLeftContainer={(
-                    <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.navigate('Home')}>
+                    <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.navigate('Músicas')}>
                         <Icons_Ionicons size={30} name={route.params.platform + '-arrow-back-outline'}/>
                     </TouchableOpacity>
                 )}
