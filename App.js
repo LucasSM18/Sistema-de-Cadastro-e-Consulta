@@ -1,6 +1,6 @@
 import React from 'react';
-import Home from './src/screens/Home';
-import AddLouvores from './src/screens/AddLouvores';
+import Louvores from './src/screens/Louvores';
+import Importa_Louvores from './src/screens/Importar_Louvores';
 import Themes from './src/themes/Themes';
 import { ThemeProvider } from 'styled-components/native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -21,8 +21,8 @@ export default function App(){
         <ThemeProvider theme={theme}>
           <StatusBar translucent backgroundColor='transparent' barStyle={theme.style}/>
           <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
-            <Stack.Screen name="Home" component={Home} initialParams={{platform:platformManager()}}/>
-            <Stack.Screen name="AddLouvores" component={AddLouvores} initialParams={{platform:platformManager()}}/>
+            <Stack.Screen name="Home" component={Louvores} initialParams={{platform:platformManager()}}/>
+            <Stack.Screen name="Importar" component={Importa_Louvores} initialParams={{platform:platformManager()}}/>
           </Stack.Navigator>
         </ThemeProvider>
       </NavigationContainer>
