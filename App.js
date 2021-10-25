@@ -20,7 +20,7 @@ export default function App(){
       <NavigationContainer theme={{colors:{background:theme.body}}}>
         <ThemeProvider theme={theme}>
           <StatusBar translucent backgroundColor='transparent' barStyle={theme.style}/>
-          <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
+          <Stack.Navigator initialRouteName="Louvores" screenOptions={{headerShown:false}}>
             <Stack.Screen name="Louvores" component={Louvores} initialParams={{platform:platformManager()}}/>
             <Stack.Screen name="Importar" component={Importa_Louvores} initialParams={{platform:platformManager()}}/>
           </Stack.Navigator>
