@@ -98,7 +98,7 @@ export default function ImportaLouvores({navigation, route}) {
     return (
         <View style={Platform.OS==='web'?styles.webStyle:styles.mobileStyle}>
             <Header
-                title="Importar Músicas"
+                title="IMPORTAR MÚSICAS"
                 myLeftContainer={(
                     <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.navigate('Músicas')}>
                         <Icons_Ionicons size={30} name={route.params.platform + '-arrow-back-outline'}/>

@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
   middleContainer: {
         flex: 2,
         flexDirection: 'row',
+        fontWeight:'bold',
         fontSize: 18,
         marginLeft: 10,
         marginRight: 10          
