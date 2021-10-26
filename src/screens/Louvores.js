@@ -82,9 +82,9 @@ export default function LouvoresScreen({navigation, route}) {
                 ):
                 (
                     <Header
-                        title="Músicas" 
+                        title="MÚSICAS" 
                         myLeftContainer={(
-                            <TouchableOpacity style={{paddingLeft:5, resizeMode:'contain'}}>
+                            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{paddingLeft:5, resizeMode:'contain'}}>
                                 <Image 
                                     style={{width:logo.size, height:logo.size, margin:logo.margim}}
                                     source={logo.image}/>
