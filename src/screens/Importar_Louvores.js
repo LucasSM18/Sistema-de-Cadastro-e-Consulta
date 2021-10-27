@@ -9,7 +9,7 @@ import { StyleSheet, TouchableOpacity, Platform, useColorScheme, View } from 're
 const Internet = (Platform,Theme) => {
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
-    const api_key = "b002d29b365f405ba68f1c2ed126840b";
+     //const api_key = chave para a API
     const url = "https://api.vagalume.com.br/search.excerpt?q="+result+"&limit=5";
 
     useEffect(() => {            
