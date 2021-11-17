@@ -1,16 +1,19 @@
 import React from 'react';
+import { Icon } from 'react-native-elements';
 import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
-import { BarComponent, CustomView, Search, Icons_FontAwesome, Icons_entypo } from './Styles';
+import { BarComponent, SearchContainer, Searchbar } from './Styles';
 
 
 export default class SearchBar extends React.Component {
     constructor(props){
         super(props);
-        this.state = { result: '', hasSupport: true };           
+        this.input = null;
+        this.state = { result: '', component: null, hasSupport: false };           
     }  
 
     eraseAll = () => {
         this.setState({result:''});
+        this.input.focus()
     }
 
     render(){
@@ -24,12 +27,13 @@ export default class SearchBar extends React.Component {
                 ):null
             }
                  
-            <CustomView style={styles.rightContainer}>               
-                <Search
+            <SearchContainer style={styles.rightContainer}>               
+                <Searchbar
                     style={[styles.searchStyle, Platform.OS==='web'?{ outline:'none' }:null]}
-                    placeholderTextColor={this.props.placeholderTextColor}     
+                    placeholderTextColor='#a6a6a6'     
                     placeholder="Pesquisar..." 
                     autoFocus={true}
+                    ref={(input) => {this.input = input}}
                     onChangeText={text => this.setState({result: text}, () => {
                         if(this.props.onChange) this.props.onChange(this.state.result)
                     })}
@@ -37,13 +41,23 @@ export default class SearchBar extends React.Component {
                 />
 
                 <TouchableOpacity onPress={this.eraseAll} style={{ display:this.state.result?'flex':'none' }}>
-                    <Icons_entypo size={25} name="cross"/>
+                    <Icon
+                        name='cross' 
+                        type='entypo'
+                        color='#a6a6a6'
+                        size={25}
+                    />
                 </TouchableOpacity>
                 
-                <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>   
-                    <Icons_FontAwesome size={25} name="microphone"/>
+                <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>  
+                    <Icon
+                        name='microphone' 
+                        type='font-awesome'
+                        color='#a6a6a6'
+                        size={25}
+                    />
                 </TouchableOpacity>
-            </CustomView>
+            </SearchContainer>
         </BarComponent>
     )
     }

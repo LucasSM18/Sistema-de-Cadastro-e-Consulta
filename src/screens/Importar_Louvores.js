@@ -1,12 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import TabBar from '../components/TabBar';
 import Themes from '../themes/Themes';
-import actualDimensions from '../dimensions/Dimensions';
-import { CustomView, Search, CustomButtom, Flatlist, Subfont, Font, Icons_Ionicons, Icons_entypo } from '../components/Styles';
+import Header from '../components/Header';
+import { Icon } from 'react-native-elements';
+import * as DocumentPicker from 'expo-document-picker';
+import { CustomView, Search, Flatlist } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, Platform, useColorScheme, View } from 'react-native';
 
-const Internet = (Platform,Theme) => {
+
+// const CadastrarLouvores = (louvor) => {
+//     console.log(louvor)
+//     fetch("http://127.0.0.1:5000/", {
+//         method: 'POST',
+//         headers: {
+//             Accept: 'application/json', 
+//             'Content-Type': 'application/json;' 
+//         },
+//         body: JSON.stringify(louvor)
+//     })
+//     .then((response) => response.json())
+//     .catch(err => { console.log(err) });
+    
+// }
+
+// const autoIncrement = () => {
+//     const [ID, setID] = useState()
+//     useEffect(() => {            
+//         fetch("http://127.0.0.1:5000/").then(response =>
+//             response.json().then(data => {
+//                 setID(Math.max.apply(null, data.map(data => data.id)) + 1)                          
+//             })  
+//         ).catch(err => {
+//             console.log(err);
+//         });
+//     },[]);   
+
+//     return ID;
+// }
+
+const UploadFile = async () => {
+    let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
+    console.log(res);
+    alert("Sucesso");
+}
+
+export default function ImportaLouvores({navigation, route}) {
+    const deviceTheme = useColorScheme();
+    const Theme = Themes[deviceTheme].subColor || Themes.dark.subColor;
+    const { platform } = route.params;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
      //const api_key = chave para a API
@@ -26,95 +66,49 @@ const Internet = (Platform,Theme) => {
         });
     },[result]);
 
-    return (        
-        <CustomView style={styles.pageBody}>
-            <View style={[styles.search, {borderBottomColor:Theme.subColor}]}>
-                <Search
-                    style={[{ flex:3, fontSize:16 },Platform.OS==='web'?{ outline:'none' }:null]}
-                    placeholderTextColor={Theme.subColor}
-                    placeholder="Digite aqui sua pesquisa..." 
-                    autoFocus={true}
-                    onChangeText={text => setResult(text)}
-                    value={result}
-                />
-
-                <TouchableOpacity onPress={() => setResult('')} style={{ display:result?'flex':'none' }}>
-                    <Icons_entypo size={25} name="cross"/>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={{ paddingLeft:16 }}>   
-                    <Icons_Ionicons size={25} name={ Platform + '-search' }/>
-                </TouchableOpacity>
-            </View>
-
-            {/* <Flatlist
-                data={louvores} 
-                renderItem={({item}) => <Card name={item.title} complement={item.group} content={item.lyrics}/>} 
-                keyExtractor={item=>item.id.toString()}
-            />         */}
-        </CustomView>
-    );
-};    
-
-const Manual = (Theme) => { 
-    const Inputs = ["Louvor...", "Artista/Banda...", "Youtube (Opcional)..."]
-    return (        
-        <CustomView style={styles.formArea}>  
-            {Inputs.map((elements, index) => (
-                <Search
-                    key={index}
-                    style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor }, Platform.OS==='web'?{ outline:'none' }:null ]}   
-                    placeholderTextColor={Theme.subColor}
-                    placeholder={elements}                       
-                />
-            ))}
-
-            <Search
-                style={[ 
-                    styles.textInput, 
-                    { height:200, borderBottomColor:Theme.subColor, textAlignVertical:'top' }, 
-                    Platform.OS==='web'?{ outline:'none' }:null 
-                ]}   
-                placeholderTextColor={Theme.subColor}
-                placeholder={"Letra da Musica..."}
-                multiline={true}                     
-            />
-
-            <TouchableOpacity style={{ alignSelf:'center', marginBottom:20 }} onPress={() => console.log('Teste')}>    
-                <Subfont style={{fontWeight: 'bold', textDecorationLine: 'underline'}}>Importar Arquivo</Subfont>
-            </TouchableOpacity>
-
-            <CustomButtom style={[ styles.button, Platform.OS==='web'?{ width:170, alignSelf:'flex-end' }:null ]}>                    
-                <Font>Cadastrar Louvor</Font>                       
-            </CustomButtom>                              
-        </CustomView>
-    );
-};    
-
-export default function ImportaLouvores({navigation, route}) {
-    const deviceTheme = useColorScheme();
-    const Theme = Themes[deviceTheme] || Themes.dark;
-
     return (
-        <View style={Platform.OS==='web'?styles.webStyle:styles.mobileStyle}>
+        <View style={styles.bodyStyle}>
             <Header
                 title="IMPORTAR MÚSICAS"
                 myLeftContainer={(
                     <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.navigate('Músicas')}>
-                        <Icons_Ionicons size={30} name={route.params.platform + '-arrow-back-outline'}/>
+                        <Icon name={platform + '-arrow-back-outline'} type='ionicon' color='#a6a6a6' size={30}/>
+                    </TouchableOpacity>
+                )}
+                myRightContainer={(
+                    <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
+                        <Icon name='addfile' type='antdesign' color='#a6a6a6' size={25}/>
                     </TouchableOpacity>
                 )}
             />
 
-            <TabBar 
-                name={['Manual','Internet']} 
-                route={[() => Manual(Theme),() => Internet(route.params.platform,Theme)]} 
-                type='ionicon'
-                theme={deviceTheme}                                 
-                icon={[route.params.platform + '-clipboard-outline', route.params.platform + '-globe-outline']}
-                iconOnFocus={[route.params.platform + '-clipboard', route.params.platform + '-globe']}                
-            />
-            
+            <CustomView style={styles.pageBody}>
+                <View style={[styles.search, {borderBottomColor:Theme}]}>
+                    <Search
+                        style={[{ flex:3, fontSize:16 },Platform.OS==='web'?{ outline:'none' }:null]}
+                        placeholderTextColor={Theme}
+                        placeholder="Digite aqui sua pesquisa..." 
+                        autoFocus={true}
+                        onChangeText={text => setResult(text)}
+                        value={result}
+                    />
+
+                    <TouchableOpacity onPress={() => setResult('')} style={{ display:result?'flex':'none' }}>
+                        <Icon name='cross' type='entypo' color={Theme} size={25}/>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ paddingLeft:16 }}>   
+                        <Icon name={platform + '-search'} type='ionicon' color={Theme} size={25}/>
+                    </TouchableOpacity>
+                </View>
+
+                {/* <Flatlist
+                    data={louvores} 
+                    renderItem={({item}) => <Card name={item.title} complement={item.group} content={item.lyrics}/>} 
+                    keyExtractor={item=>item.id.toString()}
+                    />
+                */}
+            </CustomView>    
         </View>        
     )
 }
@@ -131,11 +125,6 @@ const styles = StyleSheet.create({
         height:"100%"
     },
 
-    customView: {
-        padding:10,
-        paddingHorizontal:15,
-    },
-
     search: {
         padding:10,
         paddingHorizontal:15,
@@ -145,33 +134,7 @@ const styles = StyleSheet.create({
         justifyContent:'space-between'
     },
 
-    formArea: {
-        padding:20,
-        paddingHorizontal:15,
-    },
-
-    textInput: {        
-        padding:10,
-        marginBottom:30,
-        fontSize:16, 
-        borderBottomWidth:1, 
-    },
-
-    button: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        borderRadius: 4,
-        elevation: 3,
-    },
-
-    webStyle: {
-        height:actualDimensions.height,
-        width:actualDimensions.width
-    },
-
-    mobileStyle: {
+    bodyStyle: {
         flex:1
     }
 })

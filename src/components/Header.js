@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
-import { BarComponent, Title } from './Styles';
+import { StyleSheet, View, Text, Platform } from 'react-native';
+import { BarComponent } from './Styles';
 
 export default class ToolBar extends React.Component {
     constructor(props){
@@ -14,9 +14,9 @@ export default class ToolBar extends React.Component {
                     {this.props.myLeftContainer}      
                 </View>
                                   
-                <Title style={styles.middleContainer}>
+                <Text style={styles.middleContainer}>
                     {this.props.title}
-                </Title>
+                </Text>
                 
                 <View style={styles.rightContainer}>
                     {this.props.myRightContainer}
@@ -48,6 +48,8 @@ const styles = StyleSheet.create({
         flex: 2,
         flexDirection: 'row',
         fontWeight:'bold',
+        justifyContent:'center',
+        color:'#fff',
         fontSize: 18,
         marginLeft: 10,
         marginRight: 10          
