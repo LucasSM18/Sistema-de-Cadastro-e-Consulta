@@ -22,7 +22,7 @@
       "supportsTablet": true
     },
     "androidNavigationBar":{
-      "backgroundColor": "#a6a6a6"
+      "backgroundColor": "#191919"
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",

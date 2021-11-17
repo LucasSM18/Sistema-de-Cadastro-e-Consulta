@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import { Title, Font , Subfont, Icons_FontAwesome5, Icons_entypo, BarComponent } from './Styles';
+import { BarComponent } from './Styles';
+import { Icon } from 'react-native-elements';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 
 
@@ -38,22 +39,54 @@ export default class CardFactory extends React.Component {
                         }}
                     >
                         <View style={{flex:1}}>
-                            <Title>{this.props.name}</Title>
-                            <Subfont>{this.props.complement}</Subfont>
+                            <Text style={{ color:'#fff', fontSize:18 }}>{this.props.name}</Text>
+                            <Text style={{ color:'#a6a6a6' }}>{this.props.complement}</Text>
                         </View> 
                               
                         <TouchableOpacity>
-                            <Icons_entypo size={25} name="controller-play"/>    
+                            <Icon
+                                name='controller-play'
+                                type='entypo'
+                                color='#a6a6a6'
+                                size={25}
+                            />  
                         </TouchableOpacity>                               
                     </CollapseHeader>      
 
                     <CollapseBody 
                         style={{
-                            flexDirection:'row',
-                            paddingHorizontal:20
+                            paddingHorizontal:30
                         }}
                     >
-                        <Font>{this.props.content}</Font>
+                        <View style={{flexDirection:'row', marginVertical:10, justifyContent:'space-between', width:120}}>
+                            {this.props.editableRoute?
+                                <TouchableOpacity 
+                                    onPress={() => 
+                                        this.props.editableRoute.navigate('Editar', 
+                                        {
+                                            title:this.props.name,
+                                            group:this.props.complement,
+                                            lyrics:this.props.content,
+                                            link:this.props.link
+                                        })
+                                    }
+                                >
+                                    
+                                    <Text style={styles.link}>Editar</Text>
+                                </TouchableOpacity>
+                                :
+                                null
+                            }
+                            {this.props.link?
+                                <TouchableOpacity>                                    
+                                    <Text style={styles.link}>Youtube</Text>
+                                </TouchableOpacity>
+                                :
+                                null
+                            }
+                        </View>
+                        
+                        <Text style={{ color:'#fff' }}>{this.props.content}</Text>
                     </CollapseBody>                          
                 </Collapse>
 
@@ -65,10 +98,24 @@ export default class CardFactory extends React.Component {
                         flexDirection:'row'
                     }}
                 >
-                    <Icons_FontAwesome5 size={25} name={icon}/>
+                    <Icon
+                        name={icon} 
+                        type='font-awesome-5'
+                        color='#a6a6a6'
+                        size={25}
+                    />
                 </TouchableOpacity>       
             </BarComponent>            
                
         )
     }
 }
+
+const styles = StyleSheet.create({
+    link: {
+        color:'#00ffff', 
+        fontSize:17, 
+        fontWeight:'bold', 
+        textDecorationLine: 'underline'
+    }
+})

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Themes from '../themes/Themes';
+import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { View, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -10,10 +10,9 @@ const CustomAddButtom = function(props) {
     return(
         <TouchableOpacity
             style={{
-                bottom:'3%',
+                bottom:20,
                 alignSelf:'center',
                 position:'absolute',
-                backgroundColor:props.backColor,
                 borderRadius:30,
                 width:60,
                 height:60,
@@ -21,7 +20,7 @@ const CustomAddButtom = function(props) {
             }}
             onPress={() => {props.navigation.navigate(props.route)}}
         >              
-           <Icon size={60} name="pluscircle" type="antdesign" color={props.badgeColor}/> 
+           <Icon size={60} name="pluscircle" type="antdesign" color='#cccccc'/> 
         </TouchableOpacity>
     )
 }
@@ -46,33 +45,42 @@ export default class TabBar extends React.Component {
     }    
 
     render() {         
-        const Theme = Themes[this.props.theme]  
         return (       
-            <View style={{flex: 1, backgroundColor: Theme.barComponent}}>
+            <BarComponent style={{flex: 1}}>
                 <Tab.Navigator 
                     initialRouteName={this.props.name[-1]}
                     tabBarPosition="bottom"
                     screenOptions={{
                         tabBarStyle: {backgroundColor: 'transparent'},
-                        tabBarPressColor: Theme.color,
-                        tabBarActiveTintColor: Theme.color,   
-                        tabBarInactiveTintColor: Theme.subColor                                                
+                        tabBarPressColor: '#fff',
+                        tabBarActiveTintColor: '#fff',   
+                        tabBarInactiveTintColor: '#a6a6a6',  
+                        swipeEnabled: !this.props.disable                                      
                     }}
+                    screenListeners={
+                        this.props.disable?{
+                            tabPress: e => {
+                                // Prevent default action
+                                e.preventDefault();
+                            },
+                        }:null
+                    }
                 >{      
                     this.state.tab.map((elements, index) =>(
                         <Tab.Screen
                             key={index} 
-                            name={elements.name} 
-                            options={{
+                            name={elements.name}
+                            options={{  
                                 tabBarIcon: ({focused}) => (
                                     <Icon
                                         type={elements.type}
                                         name={focused === true ? elements.iconOnFocus : elements.icon} 
                                         size={25} 
-                                        color={focused === true ? Theme.color : Theme.subColor}
+                                        color={focused === true ? '#fff' : '#a6a6a6'}
                                         active={focused} 
                                     />
                                 ),
+                                
                             }}
                         >
                             {() => 
@@ -88,13 +96,11 @@ export default class TabBar extends React.Component {
 
                 {this.props.customButtomRoute?(
                     <CustomAddButtom 
-                        badgeColor={Theme.badge} 
-                        backColor={Theme.badgeItem} 
                         navigation={this.props.navigation}
                         route={this.props.customButtomRoute}
                     />
                 ):null}
-            </View>            
+            </BarComponent>            
         );
     }
 }
