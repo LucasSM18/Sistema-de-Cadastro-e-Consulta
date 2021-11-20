@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Subfont, CustomView } from '../components/Styles';
-import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
 
 
 export default function LouvoresScreen({navigation, route}) {
@@ -40,25 +40,29 @@ export default function LouvoresScreen({navigation, route}) {
         },[filter]);
         
         return (        
-            <Flatlist
-                style={styles.pageBody}
-                data={louvores} 
-                renderItem={({item}) => <Card name={item.title} complement={item.group} content={item.lyrics} editableRoute={navigation}/>} 
-                keyExtractor={item=>item.id.toString()}
-            />        
+            <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
+                <Flatlist
+                    style={styles.pageBody}
+                    data={louvores} 
+                    renderItem={({item}) => <Card keyID={item.id} name={item.title} complement={item.group} content={item.lyrics} editableRoute={navigation}/>} 
+                    keyExtractor={item=>item.id.toString()}
+                />        
+            </TouchableWithoutFeedback>
         );
     };   
     
     const Favoritos = () => {
-        return (        
-            <CustomView style={styles.pageBody}>
-                <Subfont style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Subfont>
-            </CustomView>
+        return (                   
+            <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
+                <CustomView style={styles.pageBody}>
+                    <Subfont style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Subfont>
+                </CustomView>
+            </TouchableWithoutFeedback>
         );
     };    
 
     return (
-        <View style={styles.bodyStyle}>       
+        <View style={{flex:1}}>       
             {shouldShow? 
                 (
                     <SearchBar 
@@ -108,8 +112,7 @@ export default function LouvoresScreen({navigation, route}) {
                         }            
                     />     
                 )
-            }
-            
+            }            
             <TabBar 
                 name={['Favoritos','Louvores']} 
                 route={[Favoritos,Louvores]} 
@@ -135,10 +138,6 @@ const styles = StyleSheet.create({
         flex:1,
         padding:15,
         height:"100%"
-    },
-
-    bodyStyle: {
-        flex:1
     }
 })
 

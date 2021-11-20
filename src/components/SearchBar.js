@@ -17,49 +17,49 @@ export default class SearchBar extends React.Component {
     }
 
     render(){
-        return (
-        <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}> 
-            {
-                this.props.leftComponent?(
-                    <View style={styles.leftContainer}>               
-                        {this.props.leftComponent}
-                    </View>
-                ):null
-            }
+        return(
+            <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}> 
+                {
+                    this.props.leftComponent?(
+                        <View style={styles.leftContainer}>               
+                            {this.props.leftComponent}
+                        </View>
+                    ):null
+                }
                  
-            <SearchContainer style={styles.rightContainer}>               
-                <Searchbar
-                    style={[styles.searchStyle, Platform.OS==='web'?{ outline:'none' }:null]}
-                    placeholderTextColor='#a6a6a6'     
-                    placeholder="Pesquisar..." 
-                    autoFocus={true}
-                    ref={(input) => {this.input = input}}
-                    onChangeText={text => this.setState({result: text}, () => {
-                        if(this.props.onChange) this.props.onChange(this.state.result)
-                    })}
-                    value={this.state.result}
-                />
+                <SearchContainer style={styles.rightContainer}>               
+                    <Searchbar
+                        style={styles.searchStyle}
+                        placeholderTextColor='#a6a6a6'     
+                        placeholder="Pesquisar..." 
+                        autoFocus={true}
+                        ref={(input) => {this.input = input}}
+                        onChangeText={text => this.setState({result: text}, () => {
+                            if(this.props.onChange) this.props.onChange(this.state.result)
+                        })}
+                        value={this.state.result}
+                    />
 
-                <TouchableOpacity onPress={this.eraseAll} style={{ display:this.state.result?'flex':'none' }}>
-                    <Icon
-                        name='cross' 
-                        type='entypo'
-                        color='#a6a6a6'
-                        size={25}
-                    />
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={this.eraseAll} style={{ display:this.state.result?'flex':'none' }}>
+                        <Icon
+                            name='cross' 
+                            type='entypo'
+                            color='#a6a6a6'
+                            size={25}
+                        />
+                    </TouchableOpacity>
                 
-                <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>  
-                    <Icon
-                        name='microphone' 
-                        type='font-awesome'
-                        color='#a6a6a6'
-                        size={25}
-                    />
-                </TouchableOpacity>
-            </SearchContainer>
-        </BarComponent>
-    )
+                    <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>  
+                        <Icon
+                            name='microphone' 
+                            type='font-awesome'
+                            color='#a6a6a6'
+                            size={25}
+                        />
+                    </TouchableOpacity>
+                </SearchContainer>
+            </BarComponent>
+        )
     }
 }
 
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 4,
+        height:75,
         elevation: 1,
         paddingHorizontal:5,
         paddingRight:15,

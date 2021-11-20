@@ -1,12 +1,12 @@
 import React from 'react';
 import Home from './src/screens/Home';
-import Louvores from './src/screens/Louvores';
-import Importa_Louvores from './src/screens/Importar_Louvores';
-import Editar_Louvor from './src/screens/Editar_Louvor';
-import Repertorio from './src/screens/Repertorio';
-import Escala from './src/screens/Escala';
 import Midia from './src/screens/Midia';
 import Themes from './src/themes/Themes';
+import Escala from './src/screens/Escala';
+import Louvores from './src/screens/Louvores';
+import Repertorio from './src/screens/Repertorio';
+import Editar_Louvor from './src/screens/Editar_Louvor';
+import Importa_Louvores from './src/screens/Importar_Louvores';
 import { ThemeProvider } from 'styled-components/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -20,14 +20,14 @@ const platformManager = () => {
 
 export default function App(){
   const deviceTheme = useColorScheme();
-  const theme = Themes[deviceTheme] || Themes.dark;
+  const theme = Themes[deviceTheme] || Themes.light;
   const logo = { size: 60, margim: 5, image: require('./assets/home.png')
   };
 
   return (    
       <NavigationContainer theme={{colors:{background:theme.body}}}>
         <ThemeProvider theme={theme}>
-          <StatusBar translucent backgroundColor='transparent' barStyle={theme.style}/>
+          <StatusBar translucent backgroundColor='transparent' barStyle='light-content'/>
           <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
             <Stack.Screen name="Home" component={Home}/>
             <Stack.Screen name="Músicas" component={Louvores} initialParams={{platform:platformManager(), logo:logo}}/>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar'
 import * as DocumentPicker from 'expo-document-picker';
 import { CheckBox, Icon } from 'react-native-elements';
-import { CustomView, Font } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, Image, View } from 'react-native';
+import { CustomView, Subfont } from '../components/Styles';
+import { StyleSheet, TouchableOpacity, useColorScheme, Image, View } from 'react-native';
 
 const checkBoxes = [
     { id: 1, title: 'Imagem' },
@@ -19,7 +20,7 @@ const UploadFile = async () => {
     alert("Sucesso");
 }
 
-const SelectFile = () => {
+const SelectFile = (props) => {
     return(
         <CustomView style={styles.pageBody}>
             <View style={styles.container}>
@@ -27,10 +28,10 @@ const SelectFile = () => {
                     <Icon
                         name='file-o'
                         type='font-awesome'
-                        color='#a6a6a6'
+                        color={props.theme}
                         size={70}
                     />                    
-                    <Font style={{ margin:20, fontSize:14, fontWeight:'bold' }}>CLIQUE AQUI PARA IMPORTAR SEUS ARQUIVOS</Font>                                  
+                    <Subfont style={{ margin:20, fontSize:14, fontWeight:'bold' }}>CLIQUE AQUI PARA IMPORTAR SEUS ARQUIVOS</Subfont>                                  
                 </TouchableOpacity>
             </View>              
         </CustomView>
@@ -38,8 +39,8 @@ const SelectFile = () => {
     )
 }
 
-const Repositorio = () => {
-    const [checked, setChecked] = useState({})
+const Repositorio = (props) => {
+    const [checked, setChecked] = useState({});
 
     return (
         <CustomView>
@@ -51,12 +52,12 @@ const Repositorio = () => {
                             center
                             key={checkBox.id} 
                             containerStyle={{backgroundColor: 'transparent', borderWidth:0}} 
-                            textStyle={{color:'#a6a6a6'}}
+                            textStyle={{color:props.theme}}
                             checkedIcon='dot-circle-o'
                             uncheckedIcon='circle-o'
                             title={checkBox.title}
                             checked={!isChecked}
-                            checkedColor='#a6a6a6'
+                            checkedColor={props.theme}
                             onPress={() => setChecked({...checked, [checkBox.id]:!isChecked})}
                         />
                     )
@@ -68,11 +69,13 @@ const Repositorio = () => {
 
 export default function Repertorio({navigation, route}) {    
     const [shouldShow, setShouldShow] = useState(false);
-    const teste = false;
     const { platform, logo } = route.params
-
+    const teste = false;
+    const deviceTheme = useColorScheme();
+    const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
+    
     return (
-        <View style={styles.bodyStyle}>
+        <View style={{flex:1}}>
             {shouldShow?(
                 <SearchBar 
                     // onChange={value => setFilter(value)}
@@ -116,7 +119,7 @@ export default function Repertorio({navigation, route}) {
                 />
             )}
 
-            {teste?(<Repositorio/>):(<SelectFile/>)}
+            {teste?(<Repositorio theme={Theme}/>):(<SelectFile theme={Theme}/>)}
         </View>        
     )
 }
@@ -126,10 +129,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         resizeMode: 'contain'
     },   
-
-    bodyStyle: {
-        flex:1
-    },
 
     pageBody: {
         flex:1,

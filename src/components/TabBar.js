@@ -35,7 +35,6 @@ export default class TabBar extends React.Component {
                 tab.push({ 
                     name: this.props.name[i], 
                     route: this.props.route[i],
-                    type: this.props.type, 
                     icon: this.props.icon[i],
                     iconOnFocus: this.props.iconOnFocus!==undefined?this.props.iconOnFocus[i]:this.props.icon[i]
                 });
@@ -73,7 +72,7 @@ export default class TabBar extends React.Component {
                             options={{  
                                 tabBarIcon: ({focused}) => (
                                     <Icon
-                                        type={elements.type}
+                                        type={this.props.type}
                                         name={focused === true ? elements.iconOnFocus : elements.icon} 
                                         size={25} 
                                         color={focused === true ? '#fff' : '#a6a6a6'}

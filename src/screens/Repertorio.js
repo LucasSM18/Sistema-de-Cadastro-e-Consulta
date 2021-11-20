@@ -7,7 +7,7 @@ import { StyleSheet, TouchableOpacity, Image, View } from 'react-native';
 export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
     return (
-        <View style={styles.bodyStyle}>
+        <View style={{flex:1}}>
             <Header
                 title="REPERTÓRIO"
                 myLeftContainer={(
@@ -41,10 +41,6 @@ const styles = StyleSheet.create({
     headerComponents: {
         paddingHorizontal: 15,
         resizeMode: 'contain'
-    },
-
-    bodyStyle: {
-        flex:1
     },
 
     pageBody: {

@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, Platform, useColorScheme, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 
 // const CadastrarLouvores = (louvor) => {
@@ -45,11 +45,11 @@ const UploadFile = async () => {
 
 export default function ImportaLouvores({navigation, route}) {
     const deviceTheme = useColorScheme();
-    const Theme = Themes[deviceTheme].subColor || Themes.dark.subColor;
+    const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
     const { platform } = route.params;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
-     //const api_key = chave para a API
+    const api_key = "b002d29b365f405ba68f1c2ed126840b";
     const url = "https://api.vagalume.com.br/search.excerpt?q="+result+"&limit=5";
 
     useEffect(() => {            
@@ -67,7 +67,7 @@ export default function ImportaLouvores({navigation, route}) {
     },[result]);
 
     return (
-        <View style={styles.bodyStyle}>
+        <View style={{flex:1}}>
             <Header
                 title="IMPORTAR MÚSICAS"
                 myLeftContainer={(
@@ -85,7 +85,7 @@ export default function ImportaLouvores({navigation, route}) {
             <CustomView style={styles.pageBody}>
                 <View style={[styles.search, {borderBottomColor:Theme}]}>
                     <Search
-                        style={[{ flex:3, fontSize:16 },Platform.OS==='web'?{ outline:'none' }:null]}
+                        style={{ flex:3, fontSize:16 }}
                         placeholderTextColor={Theme}
                         placeholder="Digite aqui sua pesquisa..." 
                         autoFocus={true}
@@ -132,10 +132,6 @@ const styles = StyleSheet.create({
         borderBottomWidth:1,  
         flexDirection:'row', 
         justifyContent:'space-between'
-    },
-
-    bodyStyle: {
-        flex:1
     }
 })
 
