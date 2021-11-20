@@ -64,6 +64,7 @@ export default class CardFactory extends React.Component {
                                     onPress={() => 
                                         this.props.editableRoute.navigate('Editar', 
                                         {
+                                            id:this.props.keyID,
                                             title:this.props.name,
                                             group:this.props.complement,
                                             lyrics:this.props.content,

@@ -3,18 +3,18 @@ import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { CustomView, Search, CustomButtom } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, Platform, useColorScheme, Text, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
 
 
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
-    const Theme = Themes[deviceTheme].subColor || Themes.dark.subColor;
+    const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
     const Inputs = ["Louvor...", "Artista/Banda...", "Youtube (Opcional)..."]
     const louvor = [ route.params.title, route.params.group, route.params.link ]
     const { platform, lyrics } = route.params;
 
     return (
-        <View style={styles.bodyStyle}>
+        <View style={{flex:1}}>
             <Header
                 title="EDITAR MÚSICA"
                 myLeftContainer={(
@@ -33,7 +33,7 @@ export default function EditarLouvor({navigation, route}) {
                 {Inputs.map((elements, index) => (
                     <Search
                         key={index}
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme }, Platform.OS==='web'?{ outline:'none' }:null ]}   
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
                         placeholderTextColor={Theme}
                         placeholder={elements}       
                         value={louvor[index]}                
@@ -41,11 +41,7 @@ export default function EditarLouvor({navigation, route}) {
                 ))}
 
                 <Search
-                    style={[ 
-                        styles.textInput, 
-                        { height:300, borderBottomColor:Theme, textAlignVertical:'top' }, 
-                        Platform.OS==='web'?{ outline:'none' }:null 
-                    ]}   
+                    style={[ styles.textInput, { height:300, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
                     multiline={true}
                     placeholderTextColor={Theme}
                     placeholder={"Letra da Musica..."}                  
@@ -85,10 +81,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
         borderRadius: 4,
         elevation: 3,
-    },
-
-    bodyStyle: {
-        flex:1
     }
 })
 

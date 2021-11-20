@@ -1,4 +1,3 @@
-import ReactSelect from 'react-select';
 import styled from "styled-components/native";
 import { FlatList, TouchableOpacity } from "react-native";
 
@@ -35,10 +34,6 @@ export const Search = styled.TextInput`
 export const Searchbar = styled.TextInput`
     background: ${props => props.theme.search};
     color: #fff;
-`;
-
-export const CustomSelect = styled(ReactSelect)`
-    
 `;
 
 export const CustomButtom = styled(TouchableOpacity)`
