@@ -2,16 +2,22 @@ import React from 'react';
 import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
+import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, CustomButtom } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
 
+const UploadFile = async () => {
+    let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
+    console.log(res);
+    alert("Sucesso");
+}
 
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
-    const Inputs = ["Louvor...", "Artista/Banda...", "Youtube (Opcional)..."]
+    const Inputs = ["Louvor...", "Artista/Banda..."]
     const louvor = [ route.params.title, route.params.group, route.params.link ]
-    const { platform, lyrics } = route.params;
+    const { lyrics } = route.params;
 
     return (
         <View style={{flex:1}}>
@@ -20,11 +26,16 @@ export default function EditarLouvor({navigation, route}) {
                 myLeftContainer={(
                     <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.goBack()}>
                         <Icon
-                            name={platform + '-arrow-back-outline'} 
+                            name={'md-arrow-back-outline'} 
                             type='ionicon'
                             color='#a6a6a6'
                             size={30}
                         />
+                    </TouchableOpacity>
+                )}
+                myRightContainer={(
+                    <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
+                        <Icon name='file-edit-outline' type='material-community' color='#a6a6a6' size={30}/>
                     </TouchableOpacity>
                 )}
             />
@@ -41,7 +52,7 @@ export default function EditarLouvor({navigation, route}) {
                 ))}
 
                 <Search
-                    style={[ styles.textInput, { height:300, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
+                    style={[ styles.textInput, { height:310, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
                     multiline={true}
                     placeholderTextColor={Theme}
                     placeholder={"Letra da Musica..."}                  

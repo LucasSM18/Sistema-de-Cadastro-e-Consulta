@@ -14,6 +14,7 @@
     "accordion-collapse-react-native": "^1.0.1",
     "expo": "~42.0.1",
     "expo-document-picker": "~9.2.4",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-dom": "^16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",

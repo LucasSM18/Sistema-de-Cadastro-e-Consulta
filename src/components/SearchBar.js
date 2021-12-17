@@ -8,7 +8,7 @@ export default class SearchBar extends React.Component {
     constructor(props){
         super(props);
         this.input = null;
-        this.state = { result: '', component: null, hasSupport: false };           
+        this.state = { result: '' };           
     }  
 
     eraseAll = () => {
@@ -32,7 +32,8 @@ export default class SearchBar extends React.Component {
                         style={styles.searchStyle}
                         placeholderTextColor='#a6a6a6'     
                         placeholder="Pesquisar..." 
-                        autoFocus={true}
+                        selectionColor='#fff'
+                        autoFocus={true} 
                         ref={(input) => {this.input = input}}
                         onChangeText={text => this.setState({result: text}, () => {
                             if(this.props.onChange) this.props.onChange(this.state.result)
@@ -44,15 +45,6 @@ export default class SearchBar extends React.Component {
                         <Icon
                             name='cross' 
                             type='entypo'
-                            color='#a6a6a6'
-                            size={25}
-                        />
-                    </TouchableOpacity>
-                
-                    <TouchableOpacity style={[{ paddingLeft:16 },{ display:this.state.hasSupport?'flex':'none' }]}>  
-                        <Icon
-                            name='microphone' 
-                            type='font-awesome'
                             color='#a6a6a6'
                             size={25}
                         />
@@ -80,15 +72,14 @@ const styles = StyleSheet.create({
     },
     
     leftContainer: {
-        flex:Platform.OS==='web'?0.3:1.5,
+        flex:-1,
         resizeMode: 'contain',
         padding: 15,
         alignItems: 'center',
     },
 
     rightContainer: {
-        flex:15,
-        padding: 15,
+        flex:1,
         flexDirection: 'row',
         justifyContent:'space-between',
         alignItems:'center',
@@ -99,6 +90,6 @@ const styles = StyleSheet.create({
     
     searchStyle: {
         flex:3,
-        height:33, 
+        height:33
     }
 });

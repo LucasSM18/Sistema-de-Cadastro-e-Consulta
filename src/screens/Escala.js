@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import Lista from '../components/List';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import CustomSelect from '../components/Select';
@@ -17,13 +18,23 @@ const ministerios = [
     { label: 'MTI', value: 'mti' }
 ]
 
+const escala = [
+    { label: 'Semanal', value: false },
+    { label: 'Mensal', value: true }
+]
+
 export default function Escala({navigation, route}) { 
     const { logo } = route.params; 
-    const [nomeHandler, setNomeHandler] = useState(false);
-    const [ministerioHandler, setMinisterioHandler] = useState(false);
-    
+    const [close, setClose] = useState(false);
+    const [ministerio, setMinisterio] = useState("louvor");
+    const [escalaType, setEscalaType] = useState(false);
+
+    useEffect(() => {
+        setClose(false)
+    },[close])
+
     return (
-        <TouchableWithoutFeedback onPress={() => setNomeHandler(true)||setMinisterioHandler(true)}>
+        <TouchableWithoutFeedback onPress={() => setClose(true)}>
             <View style={{flex:1}}>
                 <Header
                     title="ESCALA"
@@ -36,33 +47,45 @@ export default function Escala({navigation, route}) {
                         </TouchableOpacity>   
                     )}
                     myRightContainer={
-                        <TouchableOpacity onPress={() => navigation.navigate('Repertório' , {goBack:'calendar-month-outline'})} style={ styles.headerComponents }>
+                        <TouchableOpacity onPress={() => console.log('teste')} style={ styles.headerComponents }>
                             <Icon
-                                name={"playlist-music-outline"} 
-                                type='material-community'
+                                name="share" 
+                                type='entypo'
                                 color='#a6a6a6'
-                                size={35}
+                                size={25}
                             />
-                        </TouchableOpacity>                               
+                        </TouchableOpacity>    
                     }
                 />            
                 <CustomView style={styles.pageBody}>
                     <CustomSelect 
                         placeholder='Nome' 
-                        zIndex={2} 
                         options={options} 
                         multi={true} 
+                        dropDownheight={190}
                         searchable={true} 
-                        handler={ministerioHandler} 
-                        onPress={state => setNomeHandler(state)}
+                        handler={close} 
+                        selectedValue={value => console.log(value)}
+                        onPress={() => setClose(true)}
                     />
                     <CustomSelect 
                         placeholder='Ministério' 
-                        zIndex={1} 
                         options={ministerios} 
-                        handler={nomeHandler} 
-                        onPress={state => setMinisterioHandler(state)}
+                        handler={close} 
+                        default={ministerio}
+                        selectedValue={value => setMinisterio(value)}
+                        onPress={() => setClose(true)}
                     />
+                    <CustomSelect 
+                        placeholder='Escala' 
+                        width={129}
+                        options={escala} 
+                        default={escalaType}
+                        selectedValue={value => setEscalaType(value)}
+                        handler={close} 
+                        onPress={() => setClose(true)}
+                    />
+                    <Lista multi={escalaType} ministerio={ministerio.toString()}/>       
                 </CustomView>
             </View>        
         </TouchableWithoutFeedback>

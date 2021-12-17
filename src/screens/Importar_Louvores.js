@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Themes from '../themes/Themes';
+import Card from '../components/Card';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
+import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { CustomView, Search, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { CustomView, Search, Font, Flatlist } from '../components/Styles';
+import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
 
 
 // const CadastrarLouvores = (louvor) => {
@@ -37,42 +39,92 @@ import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native
 //     return ID;
 // }
 
+const api_key = "b002d29b365f405ba68f1c2ed126840b";
+
+const Artistas = [
+    "Gabriel Guedes", 
+    "Isaias Saad", 
+    "Israel Salazar",
+    "Nívea Soares", 
+    "Ton Carfi",
+    "Fernandinho",
+    "Marcus Salles",
+    "Hillsong em Português",
+    "Casa Worship",
+    "Ministério Morada",
+    "Ministério Zoe",
+    "Livres Para Adorar",
+    "Gabriela Rocha",
+    "Diante do Trono", 
+    "Isadora Pompeo",
+    "Gl Adolescentes",
+    "Leandro Borges",
+    "Kemuel",
+    "Kleber Lucas",
+    "Fernanda Brum",
+    "Soraya Moraes",
+    "Mariana Valadão",
+    "André Valadão",
+    "Marine Friesen",
+    "Cassiane"
+]
+
 const UploadFile = async () => {
-    let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
-    console.log(res);
-    alert("Sucesso");
+    const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
+    const res = await DocumentPicker.getDocumentAsync({});
+    if(types.includes(res.file.type)){                
+          console.log(res)   
+    } else {
+        Alert.alert( 
+            "ARQUIVO INVÁLIDO!", 
+            "Apenas arquivos .DOC, .DOCX e .PDF são aceitos",
+        );      
+    }
 }
 
-export default function ImportaLouvores({navigation, route}) {
+// const emptyList = (content) => {
+//     return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
+// }
+
+export default function ImportaLouvores({navigation}) {
     const deviceTheme = useColorScheme();
-    const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
-    const { platform } = route.params;
+    const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
-    const api_key = "b002d29b365f405ba68f1c2ed126840b";
-    const url = "https://api.vagalume.com.br/search.excerpt?q="+result+"&limit=5";
-
-    useEffect(() => {            
-        fetch(url).then(response =>
-            response.json().then(data => {
-                // data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
-                if(result){
-                    setLouvores(data);
-                }    
-                console.log(louvores)                                                     
-            })  
-        ).catch(err => {
-            console.log(err);
+    
+    const search = () => {   
+        setLouvores([])
+        Artistas.map(artista => {
+            let url = `https://api.vagalume.com.br/search.php?art=${artista}&mus=${result}&apikey=${api_key}`;
+            fetch(url).then(response =>
+                response.json().then(data => {
+                    if(data.type!=="song_notfound"){
+                        data.mus.map(mus => {
+                            setLouvores(louvores => [
+                                ...louvores,
+                                {
+                                    id: mus.id,
+                                    titulo: mus.name,
+                                    artista: data.art.name,
+                                    letra: mus.text
+                                }
+                            ]);
+                        });             
+                    }                              
+                })  
+            ).catch(err => {
+                console.log(err);
+            });
         });
-    },[result]);
-
+    }
+    
     return (
         <View style={{flex:1}}>
             <Header
                 title="IMPORTAR MÚSICAS"
                 myLeftContainer={(
-                    <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.navigate('Músicas')}>
-                        <Icon name={platform + '-arrow-back-outline'} type='ionicon' color='#a6a6a6' size={30}/>
+                    <TouchableOpacity style={ styles.headerComponents } onPress={() => navigation.goBack()}>
+                        <Icon name={'md-arrow-back-outline'} type='ionicon' color='#a6a6a6' size={30}/>
                     </TouchableOpacity>
                 )}
                 myRightContainer={(
@@ -83,31 +135,30 @@ export default function ImportaLouvores({navigation, route}) {
             />
 
             <CustomView style={styles.pageBody}>
-                <View style={[styles.search, {borderBottomColor:Theme}]}>
+                <View style={[styles.search, {borderBottomColor:Theme.subColor}]}>
                     <Search
                         style={{ flex:3, fontSize:16 }}
-                        placeholderTextColor={Theme}
+                        selectionColor={Theme.color}
+                        placeholderTextColor={Theme.subColor}
                         placeholder="Digite aqui sua pesquisa..." 
-                        autoFocus={true}
                         onChangeText={text => setResult(text)}
                         value={result}
                     />
 
                     <TouchableOpacity onPress={() => setResult('')} style={{ display:result?'flex':'none' }}>
-                        <Icon name='cross' type='entypo' color={Theme} size={25}/>
+                        <Icon name='cross' type='entypo' color={Theme.subColor} size={25}/>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={{ paddingLeft:16 }}>   
-                        <Icon name={platform + '-search'} type='ionicon' color={Theme} size={25}/>
+                    <TouchableOpacity onPress={() => search()} style={{ marginLeft:10 }}>
+                        <Icon name={'md-search'} type='ionicon' color={Theme.subColor} size={25}/>
                     </TouchableOpacity>
                 </View>
 
-                {/* <Flatlist
+                <Flatlist
                     data={louvores} 
-                    renderItem={({item}) => <Card name={item.title} complement={item.group} content={item.lyrics}/>} 
-                    keyExtractor={item=>item.id.toString()}
-                    />
-                */}
+                    renderItem={({item}) => <Card name={item.titulo} complement={item.artista} content={item.letra}/>} 
+                    keyExtractor={(item)=>item.id}
+                />               
             </CustomView>    
         </View>        
     )

@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import SearchBar from '../components/SearchBar'
 import * as DocumentPicker from 'expo-document-picker';
 import { CheckBox, Icon } from 'react-native-elements';
-import { CustomView, Subfont } from '../components/Styles';
+import { CustomView, Font } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Image, View } from 'react-native';
 
 const checkBoxes = [
@@ -31,7 +31,7 @@ const SelectFile = (props) => {
                         color={props.theme}
                         size={70}
                     />                    
-                    <Subfont style={{ margin:20, fontSize:14, fontWeight:'bold' }}>CLIQUE AQUI PARA IMPORTAR SEUS ARQUIVOS</Subfont>                                  
+                    <Font style={{ margin:20, fontSize:14, fontWeight:'bold' }}>CLIQUE AQUI PARA IMPORTAR SEUS ARQUIVOS</Font>                                  
                 </TouchableOpacity>
             </View>              
         </CustomView>
@@ -69,7 +69,7 @@ const Repositorio = (props) => {
 
 export default function Repertorio({navigation, route}) {    
     const [shouldShow, setShouldShow] = useState(false);
-    const { platform, logo } = route.params
+    const { logo } = route.params
     const teste = false;
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
@@ -82,7 +82,7 @@ export default function Repertorio({navigation, route}) {
                     leftComponent={
                         <TouchableOpacity onPress={() => setShouldShow(!shouldShow)}>     
                             <Icon
-                                name={platform + '-arrow-back-outline'} 
+                                name={'md-arrow-back-outline'} 
                                 type='ionicon'
                                 color='#a6a6a6'
                                 size={30}
@@ -108,7 +108,7 @@ export default function Repertorio({navigation, route}) {
                                 style={styles.headerComponents}
                             >
                                 <Icon
-                                    name={platform + '-search'} 
+                                    name={'md-search'} 
                                     type='ionicon'
                                     color='#a6a6a6'
                                     size={25}

@@ -10,11 +10,6 @@ export const Flatlist = styled(FlatList)`
 `;
 
 export const Font = styled.Text`
-    color: ${props => props.theme.color};
-    line-height: 22px;
-`;
-
-export const Subfont = styled.Text`
     color: ${props => props.theme.subColor};    
 `;
 

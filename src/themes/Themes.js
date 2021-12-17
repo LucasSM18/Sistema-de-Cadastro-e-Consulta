@@ -5,6 +5,7 @@ const dark = {
     search: '#262626',
     color: '#fff',
     subColor: '#a6a6a6',
+    cell: '#333333'
 }
 
 const light = {
@@ -14,6 +15,7 @@ const light = {
     search: '#333333',
     color: '#000',
     subColor: '#737373',
+    cell: '#cccccc'
 }
 
 export default {dark, light}

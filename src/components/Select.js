@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Themes from '../themes/Themes';
 import { Icon } from 'react-native-elements';
 import { useColorScheme } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-
 export default function CustomSelect(props) {
     const deviceTheme = useColorScheme();
     const theme = Themes[deviceTheme]||Themes.light;
+    const defaultDropDownHeight = props.dropDownheight||100; 
+    const defaultValue = props.multi ? [] : props.default;
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState(props.options);
-    const defaultDropDownHeight = props.dropDownheight||190;   
+    const [value, setValue] = useState(defaultValue);
+    const [items, setItems] = useState(props.options);  
 
     useEffect(() => {
         if(props.handler){ 
             setOpen(false);
-            props.onPress(false)
         }
     },[props.handler])
 
@@ -24,31 +23,36 @@ export default function CustomSelect(props) {
         <DropDownPicker
             style={{
                 backgroundColor:'transparent',
-                borderWidth:0,
-                borderBottomWidth:1,
-                borderRadius:0,
                 borderBottomColor:theme.subColor,
+                borderBottomWidth:1,
                 flexDirection:'row',
                 padding:10,
+                maxWidth:props.width,
                 marginBottom:open?defaultDropDownHeight:30
+            }}
+            containerStyle={{
+                maxWidth:props.width,
+                alignSelf:'center'
             }}
             dropDownContainerStyle={{
                 backgroundColor:theme.dropdown,
                 borderWidth:0,
                 borderRadius:20,
-                padding:10,
-                maxHeight: defaultDropDownHeight
+                padding:5,
+                maxWidth:props.width,
+                maxHeight:defaultDropDownHeight,
             }}
             listItemContainerStyle={{
                 padding:10,
-                flexDirection:'row'
+                borderWidth:0,
+                flexDirection:'row',
+            }}
+            customItemLabelStyle={{
+                fontStyle:"normal"
             }}
             searchTextInputStyle={{
                 color:theme.color,
                 borderWidth:0,
-                borderBottomWidth:1,
-                borderRadius:0,
-                borderBottomColor:theme.subColor
             }}
             textStyle={{
                 color:theme.subColor,
@@ -59,10 +63,14 @@ export default function CustomSelect(props) {
             }}
             searchTextInputProps={{
                 autoFocus: true,
-                selectionColor: theme.color,              
+                selectionColor: theme.color,           
             }}
-            addCustomItem={true}
-            zIndex={props.zIndex}
+            flatListProps={{
+                keyboardShouldPersistTaps:"always"
+            }}
+            listMode='FLATLIST'
+            theme={deviceTheme.toUpperCase()}
+            addCustomItem={true}            
             badgeDotColors={["red", "blue", "orange", "green"]}
             badgeColors={theme.dropdown}
             ArrowUpIconComponent={() => <Icon name='up' type='antdesign' color={theme.subColor} size={20}/>}
@@ -73,7 +81,8 @@ export default function CustomSelect(props) {
             searchable={props.searchable}
             multiple={props.multi}
             max={5}
-            onPress={() => props.onPress(!open)}
+            onChangeValue={value => props.selectedValue(value)}
+            onPress={() => props.onPress()}
             mode='BADGE'
             open={open}
             value={value}

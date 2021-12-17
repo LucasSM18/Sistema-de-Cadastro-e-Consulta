@@ -4,17 +4,22 @@ import TabBar from '../components/TabBar';
 import Card from '../components/Card'; 
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
-import { Flatlist, Subfont, CustomView } from '../components/Styles';
-import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
+import { Flatlist, Font, CustomView } from '../components/Styles';
+import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 
+
+const emptyList = (content) => {
+    return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
+}
 
 export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
-    const { platform, logo } = route.params
+    const { logo } = route.params
 
     const Louvores = ({ filter }) => {  
         const [louvores, setLouvores] = useState([]);
+        const [notFound, setNotFound] = useState('')
     
         useEffect(() => {            
             fetch("http://127.0.0.1:5000/").then(response =>
@@ -29,13 +34,18 @@ export default function LouvoresScreen({navigation, route}) {
                                     item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
                                 )
                             )
-                        );
+                        );    
                     }else{
                         setLouvores(data); 
-                    }                                                            
+                    }
+                    if(!notFound) setNotFound('Nenhum resultado encontrado')                                                 
                 })  
-            ).catch(err => {
-                console.log(err);
+            ).catch(() => {
+                Alert.alert( 
+                    "ERRO NO SERVIDOR!", 
+                    "Por favor, contate o administrador do sistema",
+                    [{text: "OK", onPress: () => navigation.goBack()}]
+                );                     
             });
         },[filter]);
         
@@ -44,7 +54,16 @@ export default function LouvoresScreen({navigation, route}) {
                 <Flatlist
                     style={styles.pageBody}
                     data={louvores} 
-                    renderItem={({item}) => <Card keyID={item.id} name={item.title} complement={item.group} content={item.lyrics} editableRoute={navigation}/>} 
+                    renderItem={({item}) => 
+                        <Card 
+                            keyID={item.id} 
+                            name={item.title} 
+                            complement={item.group} 
+                            content={item.lyrics} 
+                            editableRoute={navigation}
+                        />
+                    } 
+                    ListEmptyComponent={emptyList(notFound)}
                     keyExtractor={item=>item.id.toString()}
                 />        
             </TouchableWithoutFeedback>
@@ -55,7 +74,7 @@ export default function LouvoresScreen({navigation, route}) {
         return (                   
             <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
                 <CustomView style={styles.pageBody}>
-                    <Subfont style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Subfont>
+                    <Font style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Font>
                 </CustomView>
             </TouchableWithoutFeedback>
         );
@@ -70,7 +89,7 @@ export default function LouvoresScreen({navigation, route}) {
                         leftComponent={
                             <TouchableOpacity onPress={() => setShouldShow(!shouldShow)}>     
                                 <Icon
-                                    name={platform + '-arrow-back-outline'} 
+                                    name={'md-arrow-back-outline'} 
                                     type='ionicon'
                                     color='#a6a6a6'
                                     size={30}
@@ -93,7 +112,7 @@ export default function LouvoresScreen({navigation, route}) {
                         myRightContainer={
                             <TouchableOpacity onPress={() => setShouldShow(!shouldShow)} style={styles.headerComponents}>
                                 <Icon
-                                    name={platform + '-search'} 
+                                    name={'md-search'} 
                                     type='ionicon'
                                     color='#a6a6a6'
                                     size={25}
@@ -101,9 +120,9 @@ export default function LouvoresScreen({navigation, route}) {
                             </TouchableOpacity>                               
                         }
                         complement={                
-                            <TouchableOpacity onPress={() => navigation.navigate('Repertório', {goBack:'music-note-outline'})} style={ styles.headerComponents }>
+                            <TouchableOpacity onPress={() => navigation.navigate('Repertório', {goBack:true})} style={ styles.headerComponents }>
                                 <Icon
-                                    name={"playlist-music-outline"} 
+                                    name="playlist-music-outline" 
                                     type='material-community'
                                     color='#a6a6a6'
                                     size={35}
@@ -121,8 +140,8 @@ export default function LouvoresScreen({navigation, route}) {
                 disable={shouldShow}
                 navigation={navigation}
                 customButtomRoute='Importar'                
-                icon={[platform + '-heart-outline', platform + '-musical-note-outline']}
-                iconOnFocus={[platform + '-heart', platform + '-musical-note']}                
+                icon={['md-heart-outline', 'md-musical-note-outline']}
+                iconOnFocus={['md-heart','md-musical-note']}                
             />
         </View>    
     );

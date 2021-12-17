@@ -14,15 +14,10 @@ import { useColorScheme, StatusBar, Platform } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
-const platformManager = () => {
-  return Platform.OS === 'ios' ? 'ios' : 'md'
-}
-
 export default function App(){
   const deviceTheme = useColorScheme();
   const theme = Themes[deviceTheme] || Themes.light;
-  const logo = { size: 60, margim: 5, image: require('./assets/home.png')
-  };
+  const logo = { size: 60, margim: 5, image: require('./assets/home.png') };
 
   return (    
       <NavigationContainer theme={{colors:{background:theme.body}}}>
@@ -30,12 +25,12 @@ export default function App(){
           <StatusBar translucent backgroundColor='transparent' barStyle='light-content'/>
           <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
             <Stack.Screen name="Home" component={Home}/>
-            <Stack.Screen name="Músicas" component={Louvores} initialParams={{platform:platformManager(), logo:logo}}/>
-            <Stack.Screen name="Importar" component={Importa_Louvores} initialParams={{platform:platformManager()}}/>
-            <Stack.Screen name="Editar" component={Editar_Louvor} initialParams={{platform:platformManager()}}/>
+            <Stack.Screen name="Músicas" component={Louvores} initialParams={{logo:logo}}/>
+            <Stack.Screen name="Importar" component={Importa_Louvores}/>
+            <Stack.Screen name="Editar" component={Editar_Louvor}/>
             <Stack.Screen name="Repertório" component={Repertorio} initialParams={{logo:logo}}/>
             <Stack.Screen name="Escala" component={Escala} initialParams={{logo:logo}}/>
-            <Stack.Screen name="Mídia" component={Midia} initialParams={{platform:platformManager(), logo:logo}}/>
+            <Stack.Screen name="Mídia" component={Midia} initialParams={{logo:logo}}/>
           </Stack.Navigator>
         </ThemeProvider>
       </NavigationContainer>

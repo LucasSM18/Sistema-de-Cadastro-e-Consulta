@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Alert, View, Text, Linking, TouchableOpacity } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 
 
@@ -9,8 +9,16 @@ export default class CardFactory extends React.Component {
     constructor(props){
         super(props);
         this.icon = {'up': 'caret-up', 'down': 'caret-down'};
-        this.state = { expanded: false };           
+        this.state = { expanded: false };          
+        this.url = "https://www.youtube.com/results?search_query="+props.name+"+"+props.complement
     }  
+
+    youtubeHandler = async () => {         
+            const supported = await Linking.canOpenURL(this.url);
+            //
+            if(supported) await Linking.openURL(this.url);
+            else Alert.alert('Link inácessivel! Por favor entre em contato com o administrador');       
+    }
 
     render(){          
         let icon = this.icon['down'];
@@ -58,33 +66,40 @@ export default class CardFactory extends React.Component {
                             paddingHorizontal:30
                         }}
                     >
-                        <View style={{flexDirection:'row', marginVertical:10, justifyContent:'space-between', width:120}}>
-                            {this.props.editableRoute?
-                                <TouchableOpacity 
-                                    onPress={() => 
-                                        this.props.editableRoute.navigate('Editar', 
-                                        {
-                                            id:this.props.keyID,
-                                            title:this.props.name,
-                                            group:this.props.complement,
-                                            lyrics:this.props.content,
-                                            link:this.props.link
-                                        })
-                                    }
-                                >
-                                    
-                                    <Text style={styles.link}>Editar</Text>
-                                </TouchableOpacity>
-                                :
-                                null
-                            }
-                            {this.props.link?
-                                <TouchableOpacity>                                    
+                        <View style={{flexDirection:'row', marginVertical:20}}>
+                            <Text style={styles.linkContainer}>(
+                                <TouchableOpacity onPress={this.youtubeHandler}>                                    
                                     <Text style={styles.link}>Youtube</Text>
                                 </TouchableOpacity>
+                            )</Text>
+                               
+
+                            {this.props.editableRoute&&this.props.keyID?
+                               <Text style={styles.linkContainer}> 
+                                    (<TouchableOpacity 
+                                        onPress={() => 
+                                            this.props.editableRoute.navigate('Editar', 
+                                            {
+                                                id:this.props.keyID,
+                                                title:this.props.name,
+                                                group:this.props.complement,
+                                                lyrics:this.props.content,
+                                                link:this.props.link
+                                            })
+                                        }
+                                    >                                    
+                                        <Text style={styles.link}>Editar</Text>                                    
+                                    </TouchableOpacity>)
+
+                                    (<TouchableOpacity>                                    
+                                        <Text style={styles.link}>Remover</Text>
+                                    </TouchableOpacity>)
+                                </Text>
                                 :
                                 null
                             }
+                            
+                           
                         </View>
                         
                         <Text style={{ color:'#fff' }}>{this.props.content}</Text>
@@ -115,8 +130,13 @@ export default class CardFactory extends React.Component {
 const styles = StyleSheet.create({
     link: {
         color:'#00ffff', 
-        fontSize:17, 
         fontWeight:'bold', 
         textDecorationLine: 'underline'
+    },
+
+    linkContainer:{
+        color:'#fff', 
+        fontSize:17,
+        marginRight:5
     }
 })
