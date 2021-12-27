@@ -72,7 +72,7 @@ export default function Escala({navigation, route}) {
                         placeholder='Ministério' 
                         options={ministerios} 
                         handler={close} 
-                        default={ministerio}
+                        defaultValue={ministerio}
                         selectedValue={value => setMinisterio(value)}
                         onPress={() => setClose(true)}
                     />
@@ -80,12 +80,12 @@ export default function Escala({navigation, route}) {
                         placeholder='Escala' 
                         width={129}
                         options={escala} 
-                        default={escalaType}
+                        defaultValue={escalaType}
                         selectedValue={value => setEscalaType(value)}
                         handler={close} 
                         onPress={() => setClose(true)}
                     />
-                    <Lista multi={escalaType} ministerio={ministerio.toString()}/>       
+                    <Lista multi={escalaType} ministerio={ministerio}/>       
                 </CustomView>
             </View>        
         </TouchableWithoutFeedback>
