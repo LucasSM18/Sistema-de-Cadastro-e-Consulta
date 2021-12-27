@@ -1,10 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Themes from '../themes/Themes';
+import { Alert } from 'react-native'
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, CustomButtom } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
+import firebaseConnection from '../services/firebaseConnection';
+import { doc, updateDoc } from 'firebase/firestore'
+
 
 const UploadFile = async () => {
     let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
@@ -15,9 +19,29 @@ const UploadFile = async () => {
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
-    const Inputs = ["Louvor...", "Artista/Banda..."]
-    const louvor = [ route.params.title, route.params.group, route.params.link ]
-    const { lyrics } = route.params;
+    const [louvor, setLouvor] = useState({
+        id: route.params.id,
+        title: route.params.title,
+        group: route.params.group,
+        link: route.params.link,
+        lyrics: route.params.lyrics
+    })
+
+    async function updateLouvor() {
+        
+        const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
+
+        await updateDoc(docRef, {
+            title: louvor.title,
+            group: louvor.group,
+            lyrics: louvor.lyrics
+        })
+        Alert.alert(
+            "Alteração de Louvor",
+            "Sucesso!😁 "
+        )
+    }
+
 
     return (
         <View style={{flex:1}}>
@@ -41,25 +65,35 @@ export default function EditarLouvor({navigation, route}) {
             />
 
             <CustomView style={styles.formArea}>  
-                {Inputs.map((elements, index) => (
                     <Search
-                        key={index}
                         style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
                         placeholderTextColor={Theme}
-                        placeholder={elements}       
-                        value={louvor[index]}                
+                        placeholder={'Título'}       
+                        value={louvor.title}    
+                        onChangeText={(text)=>{
+                            console.log(text)
+                            setLouvor({...louvor, title: text})}
+                        }            
                     />
-                ))}
+                
+                    <Search
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
+                        placeholderTextColor={Theme}
+                        placeholder={'Ministério'}       
+                        value={louvor.group}    
+                        onChangeText={(text)=> setLouvor({...louvor, group: text})}            
+                    />
 
                 <Search
                     style={[ styles.textInput, { height:310, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
                     multiline={true}
                     placeholderTextColor={Theme}
                     placeholder={"Letra da Musica..."}                  
-                    value={lyrics}   
+                    value={louvor.lyrics}   
+                    onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                 />
 
-                <CustomButtom style={styles.button}>                    
+                <CustomButtom style={styles.button} onPress={updateLouvor}>                    
                     <Text style={{color:'#fff'}}>Editar</Text>                       
                 </CustomButtom>                              
             </CustomView>     

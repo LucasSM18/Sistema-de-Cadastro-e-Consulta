@@ -7,7 +7,9 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection'
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+
+
 
 console.disableYellowBox = true;
 
@@ -21,9 +23,34 @@ export default function LouvoresScreen({navigation, route}) {
     const [filter, setFilter] = useState('');    
     const { logo } = route.params
 
+
     const Louvores = ({ filter }) => {  
         const [louvores, setLouvores] = useState([]);
         const [notFound, setNotFound] = useState('')
+
+        deleteLouvor = async (id, name) => {
+            try {
+    
+                
+                await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
+                
+                const remainingLouvores = louvores.filter(louvor=> louvor.id !== id)
+                setLouvores(remainingLouvores)
+                Alert.alert(
+                    "Exclusão de Louvor",
+                    `"${name}" excluído com sucesso!`
+                )
+    
+    
+            }
+            catch(err) {
+                Alert.alert(
+                    "Erro",
+                    `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
+                )
+            }
+        }
+    
     
         useEffect(() => {       
 
@@ -71,6 +98,7 @@ export default function LouvoresScreen({navigation, route}) {
                             complement={item.group} 
                             content={item.lyrics} 
                             editableRoute={navigation}
+                            deleteLouvor={deleteLouvor}
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}

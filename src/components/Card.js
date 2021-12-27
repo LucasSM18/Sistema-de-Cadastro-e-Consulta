@@ -20,6 +20,7 @@ export default class CardFactory extends React.Component {
             else Alert.alert('Link inácessivel! Por favor entre em contato com o administrador');       
     }
 
+
     render(){          
         let icon = this.icon['down'];
         if(this.state.expanded) icon = this.icon['up'];
@@ -91,7 +92,11 @@ export default class CardFactory extends React.Component {
                                         <Text style={styles.link}>Editar</Text>                                    
                                     </TouchableOpacity>)
 
-                                    (<TouchableOpacity>                                    
+                                    (<TouchableOpacity 
+                                    onPress={()=> {
+                                        this.props.deleteLouvor(this.props.keyID, this.props.name)
+                                    }
+                                    }>                                    
                                         <Text style={styles.link}>Remover</Text>
                                     </TouchableOpacity>)
                                 </Text>
