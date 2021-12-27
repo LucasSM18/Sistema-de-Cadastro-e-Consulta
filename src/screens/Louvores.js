@@ -6,6 +6,10 @@ import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
+import firebaseConnection from '../services/firebaseConnection'
+import { collection, getDocs } from 'firebase/firestore';
+
+console.disableYellowBox = true;
 
 
 const emptyList = (content) => {
@@ -21,32 +25,38 @@ export default function LouvoresScreen({navigation, route}) {
         const [louvores, setLouvores] = useState([]);
         const [notFound, setNotFound] = useState('')
     
-        useEffect(() => {            
-            fetch("http://127.0.0.1:5000/").then(response =>
-                response.json().then(data => {
-                    data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
-                    if(filter){
-                        setLouvores(
-                            data.filter(item => 
-                                (
-                                    item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
-                                    item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
-                                    item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
-                                )
+        useEffect(() => {       
+
+            async function getData() {
+                const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
+                const data = [];
+                querySnapshot.forEach((doc)=> {
+                    data.push({
+                        id: doc.id,
+                        ...doc.data()
+                    })
+                })
+
+              data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
+                if(filter){
+                    setLouvores(
+                        data.filter(item => 
+                            (
+                                item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
+                                item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
+                                item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
                             )
-                        );    
-                    }else{
-                        setLouvores(data); 
-                    }
-                    if(!notFound) setNotFound('Nenhum resultado encontrado')                                                 
-                })  
-            ).catch(() => {
-                Alert.alert( 
-                    "ERRO NO SERVIDOR!", 
-                    "Por favor, contate o administrador do sistema",
-                    [{text: "OK", onPress: () => navigation.goBack()}]
-                );                     
-            });
+                        )
+                    );    
+                }else{
+                    setLouvores(data); 
+                }
+                if(!notFound) setNotFound('Nenhum resultado encontrado')
+                return
+            }
+
+            getData();
+                 
         },[filter]);
         
         return (        
