@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Themes from '../themes/Themes';
 import Card from '../components/Card';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
-import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
@@ -50,6 +49,7 @@ const Artistas = [
     "Fernandinho",
     "Marcus Salles",
     "Hillsong em Português",
+    "Central 3",
     "Casa Worship",
     "Ministério Morada",
     "Ministério Zoe",
@@ -73,7 +73,7 @@ const UploadFile = async () => {
     const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
     const res = await DocumentPicker.getDocumentAsync({});
     if(types.includes(res.file.type)){                
-          console.log(res)   
+          console.log(res.uri)   
     } else {
         Alert.alert( 
             "ARQUIVO INVÁLIDO!", 
@@ -82,17 +82,19 @@ const UploadFile = async () => {
     }
 }
 
-// const emptyList = (content) => {
-//     return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
-// }
+const emptyList = (content) => {
+    return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
+}
 
 export default function ImportaLouvores({navigation}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
+    const [notFound, setNotFound] = useState('')
     const [louvores, setLouvores] = useState([]);
     
     const search = () => {   
+        setNotFound('')
         setLouvores([])
         Artistas.map(artista => {
             let url = `https://api.vagalume.com.br/search.php?art=${artista}&mus=${result}&apikey=${api_key}`;
@@ -112,8 +114,8 @@ export default function ImportaLouvores({navigation}) {
                         });             
                     }                              
                 })  
-            ).catch(err => {
-                console.log(err);
+            ).catch(() => {
+                setNotFound("Nenhum resultado encontrado");
             });
         });
     }
@@ -153,12 +155,13 @@ export default function ImportaLouvores({navigation}) {
                         <Icon name={'md-search'} type='ionicon' color={Theme.subColor} size={25}/>
                     </TouchableOpacity>
                 </View>
-
+                
                 <Flatlist
                     data={louvores} 
+                    ListEmptyComponent={emptyList(notFound)}
                     renderItem={({item}) => <Card name={item.titulo} complement={item.artista} content={item.letra}/>} 
                     keyExtractor={(item)=>item.id}
-                />               
+                />            
             </CustomView>    
         </View>        
     )
