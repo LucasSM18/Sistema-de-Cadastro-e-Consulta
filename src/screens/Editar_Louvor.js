@@ -24,6 +24,10 @@ export default function EditarLouvor({navigation, route}) {
         lyrics: route.params.lyrics
     })
 
+    const updateHandler = () => {
+        route.params.updateLouvor(louvor)
+        navigation.goBack()
+    }
 
     return (
         <View style={{flex:1}}>
@@ -75,9 +79,7 @@ export default function EditarLouvor({navigation, route}) {
                     onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                 />
 
-                <CustomButtom style={styles.button} onPress={ ()=> {
-                    route.params.updateLouvor(louvor)
-                }}>                    
+                <CustomButtom style={styles.button} onPress={() => updateHandler()}>                    
                     <Text style={{color:'#fff'}}>Editar</Text>                       
                 </CustomButtom>                              
             </CustomView>     

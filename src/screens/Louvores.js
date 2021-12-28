@@ -6,13 +6,11 @@ import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
-import firebaseConnection from '../services/firebaseConnection'
+import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 
-
 console.disableYellowBox = true;
-
 
 const emptyList = (content) => {
     return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
@@ -28,10 +26,8 @@ export default function LouvoresScreen({navigation, route}) {
         const [louvores, setLouvores] = useState([]);
         const [notFound, setNotFound] = useState('')
 
-        deleteLouvor = async (id, name) => {
-            try {
-    
-                
+        const deleteLouvor = async (id, name) => {
+            try {               
                 await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
                 
                 const remainingLouvores = louvores.filter(louvor=> louvor.id !== id)
@@ -39,9 +35,7 @@ export default function LouvoresScreen({navigation, route}) {
                 Alert.alert(
                     "Exclusão de Louvor",
                     `"${name}" excluído com sucesso!`
-                )
-    
-    
+                )   
             }
             catch(err) {
                 Alert.alert(
@@ -51,8 +45,7 @@ export default function LouvoresScreen({navigation, route}) {
             }
         }
     
-        async function updateLouvor(louvor) {
-        
+        const updateLouvor = async (louvor) => {        
             const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
     
             await updateDoc(docRef, {
@@ -65,11 +58,10 @@ export default function LouvoresScreen({navigation, route}) {
                 "Sucesso!😁 "
             )
 
-            await getData()
-
+            await getData();
         }
 
-        async function getData() {
+        const getData = async () => {
             const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
             const data = [];
             querySnapshot.forEach((doc)=> {
@@ -97,7 +89,10 @@ export default function LouvoresScreen({navigation, route}) {
             return
         }
 
-    
+        //função para enviar os louvores para o repertório
+        const sendLouvor = () => {
+            console.log(`enviando louvor`);
+        }    
     
         useEffect(() => {       
 
@@ -124,6 +119,7 @@ export default function LouvoresScreen({navigation, route}) {
                             editableRoute={navigation}
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}
+                            caretFunction={sendLouvor}
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}

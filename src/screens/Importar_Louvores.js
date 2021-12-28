@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
+import firebaseConnection from '../services/firebaseConnection';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
 
 
@@ -69,21 +71,26 @@ const Artistas = [
     "Cassiane"
 ]
 
-const UploadFile = async () => {
-    const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
-    const res = await DocumentPicker.getDocumentAsync({});
-    if(types.includes(res.file.type)){                
-          console.log(res.uri)   
-    } else {
-        Alert.alert( 
-            "ARQUIVO INVÁLIDO!", 
-            "Apenas arquivos .DOC, .DOCX e .PDF são aceitos",
-        );      
-    }
-}
+// const UploadFile = async () => {
+//     const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
+//     const res = await DocumentPicker.getDocumentAsync({});
+//     if(types.includes(res.file.type)){                
+//           console.log(res.uri)   
+//     } else {
+//         Alert.alert( 
+//             "ARQUIVO INVÁLIDO!", 
+//             "Apenas arquivos .DOC, .DOCX e .PDF são aceitos",
+//         );      
+//     }
+// }
 
 const emptyList = (content) => {
     return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
+}
+
+//função para setar os louvores
+const importLouvor = () => {
+    console.log('teste do import');
 }
 
 export default function ImportaLouvores({navigation}) {
@@ -129,11 +136,11 @@ export default function ImportaLouvores({navigation}) {
                         <Icon name={'md-arrow-back-outline'} type='ionicon' color='#a6a6a6' size={30}/>
                     </TouchableOpacity>
                 )}
-                myRightContainer={(
-                    <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
-                        <Icon name='addfile' type='antdesign' color='#a6a6a6' size={25}/>
-                    </TouchableOpacity>
-                )}
+                // myRightContainer={(
+                //     <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
+                //         <Icon name='addfile' type='antdesign' color='#a6a6a6' size={25}/>
+                //     </TouchableOpacity>
+                // )}
             />
 
             <CustomView style={styles.pageBody}>
@@ -159,7 +166,14 @@ export default function ImportaLouvores({navigation}) {
                 <Flatlist
                     data={louvores} 
                     ListEmptyComponent={emptyList(notFound)}
-                    renderItem={({item}) => <Card name={item.titulo} complement={item.artista} content={item.letra}/>} 
+                    renderItem={({item}) => 
+                        <Card 
+                            name={item.titulo} 
+                            complement={item.artista} 
+                            content={item.letra} 
+                            caretFunction={importLouvor}
+                        />
+                    } 
                     keyExtractor={(item)=>item.id}
                 />            
             </CustomView>    
