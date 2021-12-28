@@ -53,14 +53,16 @@ export default class CardFactory extends React.Component {
                             <Text style={{ color:'#a6a6a6' }}>{this.props.complement}</Text>
                         </View> 
                               
-                        <TouchableOpacity onPress={() => this.props.caretFunction()}>
-                            <Icon
-                                name='controller-play'
-                                type='entypo'
-                                color='#a6a6a6'
-                                size={25}
-                            />  
-                        </TouchableOpacity>                               
+                        {this.props.caretFunction &&
+                            <TouchableOpacity onPress={() => this.props.caretFunction()}>
+                                <Icon
+                                    name='controller-play'
+                                    type='entypo'
+                                    color='#a6a6a6'
+                                    size={25}
+                                />  
+                            </TouchableOpacity>
+                        }                               
                     </CollapseHeader>      
 
                     <CollapseBody 
@@ -69,44 +71,49 @@ export default class CardFactory extends React.Component {
                         }}
                     >
                         <View style={{flexDirection:'row', marginVertical:20}}>
-                            <Text style={styles.linkContainer}>(
-                                <TouchableOpacity onPress={this.youtubeHandler}>                                    
-                                    <Text style={styles.link}>Youtube</Text>
-                                </TouchableOpacity>
-                            )</Text>
-                               
-
-                            {this.props.editableRoute&&this.props.keyID?
-                               <Text style={styles.linkContainer}> 
-                                    (<TouchableOpacity 
-                                        onPress={() => 
-                                            this.props.editableRoute.navigate('Editar', 
-                                            {
-                                                id:this.props.keyID,
-                                                title:this.props.name,
-                                                group:this.props.complement,
-                                                lyrics:this.props.content,
-                                                link:this.props.link,
-                                                updateLouvor: this.props.updateLouvor
-                                            })
-                                        }
-                                    >                                    
-                                        <Text style={styles.link}>Editar</Text>                                    
-                                    </TouchableOpacity>)
-
-                                    (<TouchableOpacity 
-                                    onPress={()=> {
-                                        this.props.deleteLouvor(this.props.keyID, this.props.name)
-                                    }
-                                    }>                                    
-                                        <Text style={styles.link}>Remover</Text>
-                                    </TouchableOpacity>)
-                                </Text>
-                                :
-                                null
+                            <Text style={styles.linkContainer}>
+                                (
+                                    <TouchableOpacity onPress={this.youtubeHandler}>                                    
+                                        <Text style={styles.link}>Youtube</Text>
+                                    </TouchableOpacity>
+                                )
+                            </Text>
+                                    
+                            {this.props.keyID&&this.props.editableRoute&&
+                                <Text style={styles.linkContainer}>
+                                    (
+                                        <TouchableOpacity 
+                                            onPress={() => 
+                                                this.props.editableRoute.navigate('Editar', 
+                                                {
+                                                    id:this.props.keyID,
+                                                    title:this.props.name,
+                                                    group:this.props.complement,
+                                                    lyrics:this.props.content,
+                                                    link:this.props.link,
+                                                    updateLouvor: this.props.updateLouvor
+                                                })
+                                            }
+                                        >                                    
+                                            <Text style={styles.link}>Editar</Text>                                    
+                                        </TouchableOpacity>
+                                    )
+                                </Text>  
                             }
-                            
-                           
+
+                            {this.props.keyID&&this.props.deleteLouvor&&
+                                <Text style={styles.linkContainer}>
+                                    (
+                                        <TouchableOpacity 
+                                            onPress={()=> {
+                                                this.props.deleteLouvor(this.props.keyID, this.props.name)
+                                            }}
+                                        >                                    
+                                            <Text style={styles.link}>Remover</Text>
+                                        </TouchableOpacity>
+                                    )
+                                </Text>                                      
+                            }                         
                         </View>
                         
                         <Text style={{ color:'#fff' }}>{this.props.content}</Text>
