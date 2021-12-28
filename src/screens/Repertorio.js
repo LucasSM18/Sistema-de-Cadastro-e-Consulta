@@ -65,7 +65,21 @@ export default function Repertorio({navigation, route}) {
             <CustomView style={styles.pageBody}>
                 <Card name="Musica1" complement='Grupo1' content='teste1' />
                 <Card name="Musica2" complement='Grupo2' content='teste2' />
-                <Card name="Musica3" complement='Grupo3' content='teste3' />    
+                <Card name="Musica3" complement='Grupo3' content='teste3' /> 
+                {/* <Flatlist
+                    data={louvores} 
+                    ListEmptyComponent={
+                        <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Lista Vazia</Font> 
+                    }
+                    renderItem={({item}) => 
+                        <Card 
+                            name={item.titulo} 
+                            complement={item.artista} 
+                            content={item.letra} 
+                        />
+                    } 
+                    keyExtractor={(item)=>item.id}
+                />           */}
             </CustomView>          
         </View>        
     )

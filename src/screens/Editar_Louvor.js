@@ -2,16 +2,16 @@ import React, {useState} from 'react';
 import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
-import * as DocumentPicker from 'expo-document-picker';
+// import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, CustomButtom } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
 
 
-const UploadFile = async () => {
-    let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
-    console.log(res);
-    alert("Sucesso");
-}
+// const UploadFile = async () => {
+//     let res = await DocumentPicker.getDocumentAsync({type:"application/msword,application/pdf", multiple:true});
+//     console.log(res);
+//     alert("Sucesso");
+// }
 
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
@@ -43,11 +43,11 @@ export default function EditarLouvor({navigation, route}) {
                         />
                     </TouchableOpacity>
                 )}
-                myRightContainer={(
-                    <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
-                        <Icon name='file-edit-outline' type='material-community' color='#a6a6a6' size={30}/>
-                    </TouchableOpacity>
-                )}
+                // myRightContainer={(
+                //     <TouchableOpacity style={ styles.headerComponents } onPress={() => UploadFile()}>
+                //         <Icon name='file-edit-outline' type='material-community' color='#a6a6a6' size={30}/>
+                //     </TouchableOpacity>
+                // )}
             />
 
             <CustomView style={styles.formArea}>  

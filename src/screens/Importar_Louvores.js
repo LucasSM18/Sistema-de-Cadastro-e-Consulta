@@ -3,7 +3,7 @@ import Themes from '../themes/Themes';
 import Card from '../components/Card';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
-import * as DocumentPicker from 'expo-document-picker';
+// import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
