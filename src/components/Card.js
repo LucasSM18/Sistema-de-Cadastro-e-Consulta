@@ -53,7 +53,7 @@ export default class CardFactory extends React.Component {
                             <Text style={{ color:'#a6a6a6' }}>{this.props.complement}</Text>
                         </View> 
                               
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => this.props.caretFunction()}>
                             <Icon
                                 name='controller-play'
                                 type='entypo'
