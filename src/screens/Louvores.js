@@ -7,7 +7,7 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection'
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 
 
@@ -51,38 +51,62 @@ export default function LouvoresScreen({navigation, route}) {
             }
         }
     
+        async function updateLouvor(louvor) {
+        
+            const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
+    
+            await updateDoc(docRef, {
+                title: louvor.title,
+                group: louvor.group,
+                lyrics: louvor.lyrics
+            })
+            Alert.alert(
+                "Alteração de Louvor",
+                "Sucesso!😁 "
+            )
+
+            await getData()
+
+        }
+
+        async function getData() {
+            const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
+            const data = [];
+            querySnapshot.forEach((doc)=> {
+                data.push({
+                    id: doc.id,
+                    ...doc.data()
+                })
+            })
+
+          data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
+            if(filter){
+                setLouvores(
+                    data.filter(item => 
+                        (
+                            item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
+                            item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
+                            item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
+                        )
+                    )
+                );    
+            }else{
+                setLouvores(data); 
+            }
+            if(!notFound) setNotFound('Nenhum resultado encontrado')
+            return
+        }
+
+    
     
         useEffect(() => {       
 
-            async function getData() {
-                const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
-                const data = [];
-                querySnapshot.forEach((doc)=> {
-                    data.push({
-                        id: doc.id,
-                        ...doc.data()
-                    })
-                })
-
-              data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
-                if(filter){
-                    setLouvores(
-                        data.filter(item => 
-                            (
-                                item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
-                                item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
-                                item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
-                            )
-                        )
-                    );    
-                }else{
-                    setLouvores(data); 
-                }
-                if(!notFound) setNotFound('Nenhum resultado encontrado')
-                return
+            async function loadLouvores() {
+                getData();
             }
 
-            getData();
+            loadLouvores()
+            return
                  
         },[filter]);
         
@@ -99,6 +123,7 @@ export default function LouvoresScreen({navigation, route}) {
                             content={item.lyrics} 
                             editableRoute={navigation}
                             deleteLouvor={deleteLouvor}
+                            updateLouvor={updateLouvor}
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}

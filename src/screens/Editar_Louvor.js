@@ -1,13 +1,10 @@
 import React, {useState} from 'react';
 import Themes from '../themes/Themes';
-import { Alert } from 'react-native'
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, CustomButtom } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
-import firebaseConnection from '../services/firebaseConnection';
-import { doc, updateDoc } from 'firebase/firestore'
 
 
 const UploadFile = async () => {
@@ -26,21 +23,6 @@ export default function EditarLouvor({navigation, route}) {
         link: route.params.link,
         lyrics: route.params.lyrics
     })
-
-    async function updateLouvor() {
-        
-        const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
-
-        await updateDoc(docRef, {
-            title: louvor.title,
-            group: louvor.group,
-            lyrics: louvor.lyrics
-        })
-        Alert.alert(
-            "Alteração de Louvor",
-            "Sucesso!😁 "
-        )
-    }
 
 
     return (
@@ -93,7 +75,9 @@ export default function EditarLouvor({navigation, route}) {
                     onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                 />
 
-                <CustomButtom style={styles.button} onPress={updateLouvor}>                    
+                <CustomButtom style={styles.button} onPress={ ()=> {
+                    route.params.updateLouvor(louvor)
+                }}>                    
                     <Text style={{color:'#fff'}}>Editar</Text>                       
                 </CustomButtom>                              
             </CustomView>     

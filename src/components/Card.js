@@ -11,6 +11,7 @@ export default class CardFactory extends React.Component {
         this.icon = {'up': 'caret-up', 'down': 'caret-down'};
         this.state = { expanded: false };          
         this.url = "https://www.youtube.com/results?search_query="+props.name+"+"+props.complement
+        
     }  
 
     youtubeHandler = async () => {         
@@ -85,7 +86,8 @@ export default class CardFactory extends React.Component {
                                                 title:this.props.name,
                                                 group:this.props.complement,
                                                 lyrics:this.props.content,
-                                                link:this.props.link
+                                                link:this.props.link,
+                                                updateLouvor: this.props.updateLouvor
                                             })
                                         }
                                     >                                    
