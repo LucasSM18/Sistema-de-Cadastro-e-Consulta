@@ -41,7 +41,6 @@ export default function LouvoresScreen({navigation, route}) {
             )
         }
 
-        console.log(louvores, 'louvores')
     }
 
 
@@ -95,24 +94,31 @@ export default function LouvoresScreen({navigation, route}) {
         const docLouvor = await getDoc(docRef)
         if (docLouvor.exists()) {
             const louvor = {...docLouvor.data()}
-            louvor.musics.push({
-                id: props.keyID,
-                title: props.name,
-                group: props.complement,
-                lyrics: props.content
+            let hasMusic = !louvor.musics.some(music=> {
+                return music.id === props.keyID
             })
-            console.log(louvor)
-            const newDoc = {...docLouvor.data(), musics: louvor.musics}
+            if (hasMusic) {
 
-            console.log(newDoc, 'newDoc')
+                louvor.musics.push({
+                    id: props.keyID,
+                    title: props.name,
+                    group: props.complement,
+                    lyrics: props.content
+                })
+                
+                const newDoc = {...docLouvor.data(), musics: louvor.musics}
+ 
             
-          
-            await updateDoc(docRef, newDoc)
-            
-            Alert.alert("Repertório",
-            "Louvor adicionado com sucesso ao repertório 🎉")
-            console.log('feito')
-          
+                await updateDoc(docRef, newDoc)
+                
+                Alert.alert("Repertório",
+                "Louvor adicionado com sucesso ao repertório 🎉")
+               
+            }
+            else {
+                Alert.alert("Repertório",
+                `O louvor "${props.name}" já está no repertório!`)
+            }
         }
         return
     }    
