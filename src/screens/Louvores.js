@@ -7,7 +7,7 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
-import { collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 
 console.disableYellowBox = true;
@@ -90,7 +90,34 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     //função para enviar os louvores para o repertório
-    const sendLouvor = () => {
+    const sendLouvor = async (keyId) => {
+        console.log(keyId, 'keyId')
+
+        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
+        const docLouvor = await getDoc(docRef)
+        if (docLouvor.exists()) {
+            const louvor = {...docLouvor.data()}
+            louvor.musics.push(keyId)
+            
+            const newDoc = {...docLouvor.data(), musics: louvor.musics}
+
+            console.log(newDoc, 'newDoc')
+            
+          
+                await updateDoc(docRef, newDoc)
+                Alert.alert("Repertório",
+                "Louvor adicionado com sucesso ao repertório 🎉")
+                console.log('feito')
+          
+        }
+        return
+    
+        
+
+        // const newLouvor = await updateDoc(docRef, {
+        //     data:
+        //     musics
+        // })
         console.log(`enviando louvor`);
     }    
 

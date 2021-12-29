@@ -54,7 +54,7 @@ export default class CardFactory extends React.Component {
                         </View> 
                               
                         {this.props.caretFunction &&
-                            <TouchableOpacity onPress={() => this.props.caretFunction()}>
+                            <TouchableOpacity onPress={() => this.props.caretFunction(this.props.keyID)}>
     
                                 <Icon
                                     name={this.props?.add ? 'add' : 'controller-play'}
