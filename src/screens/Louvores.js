@@ -90,37 +90,32 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     //função para enviar os louvores para o repertório
-    const sendLouvor = async (keyId) => {
-        console.log(keyId, 'keyId')
-
+    const sendLouvor = async (props) => {
         const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
         const docLouvor = await getDoc(docRef)
         if (docLouvor.exists()) {
             const louvor = {...docLouvor.data()}
-            louvor.musics.push(keyId)
-            
+            louvor.musics.push({
+                id: props.keyID,
+                title: props.name,
+                group: props.complement,
+                lyrics: props.content
+            })
+            console.log(louvor)
             const newDoc = {...docLouvor.data(), musics: louvor.musics}
 
             console.log(newDoc, 'newDoc')
             
           
-                await updateDoc(docRef, newDoc)
-                Alert.alert("Repertório",
-                "Louvor adicionado com sucesso ao repertório 🎉")
-                console.log('feito')
+            await updateDoc(docRef, newDoc)
+            
+            Alert.alert("Repertório",
+            "Louvor adicionado com sucesso ao repertório 🎉")
+            console.log('feito')
           
         }
         return
-    
-        
-
-        // const newLouvor = await updateDoc(docRef, {
-        //     data:
-        //     musics
-        // })
-        console.log(`enviando louvor`);
     }    
-
 
     const addLouvor = async (louvor) => {
                         
@@ -148,7 +143,6 @@ export default function LouvoresScreen({navigation, route}) {
     
 
     useEffect(() => {       
-
         async function loadLouvores() {
             await getData();
         }

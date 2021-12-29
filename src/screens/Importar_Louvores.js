@@ -5,8 +5,6 @@ import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import firebaseConnection from '../services/firebaseConnection';
-import { collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
 
 

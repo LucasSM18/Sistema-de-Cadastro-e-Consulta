@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import Card from '../components/Card'; 
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
-import { CustomView } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, Image, View, Linking } from 'react-native';
+import { Flatlist, Font, CustomView } from '../components/Styles';
+import { deleteDoc, getDoc, doc } from 'firebase/firestore';
+import firebaseConnection from '../services/firebaseConnection';
+import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking } from 'react-native';
 
 const filtroData = () => {
     const today = moment();
@@ -26,6 +28,57 @@ const sendLouvores = () => {
 
 export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
+    const [louvores, setLouvores] = useState([]);
+
+    const deleteLouvor = async (id, name) => {
+        try {               
+            await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
+
+            await getData()
+            Alert.alert(
+                "Exclusão de Louvor",
+                `"${name}" excluído com sucesso!`
+            )             
+        }
+        catch(err) {
+            Alert.alert(
+                "Erro",
+                `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
+            )
+        }
+
+        console.log(louvores, 'louvores')
+    }
+
+    const getData = async () => {
+        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
+        const docLouvor = await getDoc(docRef)
+        const data = [];
+        if (docLouvor.exists()) {
+            docLouvor.data()['musics'].forEach((doc)=> {
+                console.log(doc)
+                data.push({
+                    id: doc.id,
+                    title: doc.title,
+                    group: doc.group,
+                    lyrics: doc.lyrics
+                })
+            })
+        }
+
+        setLouvores(data)
+    }
+        
+
+    useEffect(() => {       
+        async function loadLouvores() {
+            await getData();
+        }
+
+        loadLouvores()
+        return             
+    },[]);
+
     return (
         <View style={{flex:1}}>
             <Header
@@ -63,23 +116,19 @@ export default function Repertorio({navigation, route}) {
                 }
             />  
             <CustomView style={styles.pageBody}>
-                <Card name="Musica1" complement='Grupo1' content='teste1' />
-                <Card name="Musica2" complement='Grupo2' content='teste2' />
-                <Card name="Musica3" complement='Grupo3' content='teste3' /> 
-                {/* <Flatlist
+                <Flatlist
                     data={louvores} 
-                    ListEmptyComponent={
-                        <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Lista Vazia</Font> 
-                    }
                     renderItem={({item}) => 
                         <Card 
-                            name={item.titulo} 
-                            complement={item.artista} 
-                            content={item.letra} 
+                            keyID={item.id} 
+                            name={item.title} 
+                            complement={item.group} 
+                            content={item.lyrics} 
+                            deleteLouvor={deleteLouvor}
                         />
                     } 
-                    keyExtractor={(item)=>item.id}
-                />           */}
+                    keyExtractor={item=>item.id}
+                />
             </CustomView>          
         </View>        
     )
