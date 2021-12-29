@@ -7,7 +7,7 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
-import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 
 console.disableYellowBox = true;
@@ -20,91 +20,120 @@ export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
     const { logo } = route.params
+    const [louvores, setLouvores] = useState([]);
+    const [notFound, setNotFound] = useState('')
+
+    
+    const deleteLouvor = async (id, name) => {
+        try {               
+            await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
+            await getData()
+            Alert.alert(
+                "Exclusão de Louvor",
+                `"${name}" excluído com sucesso!`
+            )   
+          
+        }
+        catch(err) {
+            Alert.alert(
+                "Erro",
+                `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
+            )
+        }
+
+        console.log(louvores, 'louvores')
+    }
 
 
-    const Louvores = ({ filter }) => {  
-        const [louvores, setLouvores] = useState([]);
-        const [notFound, setNotFound] = useState('')
+    const updateLouvor = async (louvor) => {        
+        const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
 
-        const deleteLouvor = async (id, name) => {
-            try {               
-                await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
-                
-                const remainingLouvores = louvores.filter(louvor=> louvor.id !== id)
-                setLouvores(remainingLouvores)
-                Alert.alert(
-                    "Exclusão de Louvor",
-                    `"${name}" excluído com sucesso!`
-                )   
-            }
-            catch(err) {
-                Alert.alert(
-                    "Erro",
-                    `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
+        await updateDoc(docRef, {
+            title: louvor.title,
+            group: louvor.group,
+            lyrics: louvor.lyrics
+        })
+        Alert.alert(
+            "Alteração de Louvor",
+            "Sucesso!😁 "
+        )
+
+        await getData();
+    }
+
+    const getData = async () => {
+        const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
+        const data = [];
+        querySnapshot.forEach((doc)=> {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            })
+        })
+
+      data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
+        if(filter){
+            setLouvores(
+                data.filter(item => 
+                    (
+                        item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
+                        item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
+                        item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
+                    )
                 )
-            }
+            );    
+        }else{
+            setLouvores(data); 
+        }
+        if(!notFound) setNotFound('Nenhum resultado encontrado')
+        return
+    }
+
+    //função para enviar os louvores para o repertório
+    const sendLouvor = () => {
+        console.log(`enviando louvor`);
+    }    
+
+
+    const addLouvor = async (louvor) => {
+                        
+        const newLouvor = {
+            title: louvor.titulo,
+            group: louvor.artista,
+            lyrics: louvor.letra
         }
     
-        const updateLouvor = async (louvor) => {        
-            const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
-    
-            await updateDoc(docRef, {
-                title: louvor.title,
-                group: louvor.group,
-                lyrics: louvor.lyrics
-            })
-            Alert.alert(
-                "Alteração de Louvor",
-                "Sucesso!😁 "
-            )
+        try {
+            await addDoc(collection(firebaseConnection.db, 'louvores'), newLouvor)
+            Alert.alert("Novo louvor",
+            `"${louvor.titulo}" adicionado com sucesso! 🎉`)
 
+            await getData()
+            
+        }
+        catch(err) {
+            Alert.alert('Houve um erro ao tentar adicionar esse louvor! Tente novamente mais tarde')
+            console.log(err)
+        }
+
+    }
+
+    
+
+    useEffect(() => {       
+
+        async function loadLouvores() {
             await getData();
         }
 
-        const getData = async () => {
-            const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
-            const data = [];
-            querySnapshot.forEach((doc)=> {
-                data.push({
-                    id: doc.id,
-                    ...doc.data()
-                })
-            })
-
-          data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
-            if(filter){
-                setLouvores(
-                    data.filter(item => 
-                        (
-                            item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
-                            item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
-                            item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
-                        )
-                    )
-                );    
-            }else{
-                setLouvores(data); 
-            }
-            if(!notFound) setNotFound('Nenhum resultado encontrado')
-            return
-        }
-
-        //função para enviar os louvores para o repertório
-        const sendLouvor = () => {
-            console.log(`enviando louvor`);
-        }    
+        loadLouvores()
+        return
+             
+    },[filter]);
     
-        useEffect(() => {       
 
-            async function loadLouvores() {
-                getData();
-            }
-
-            loadLouvores()
-            return
-                 
-        },[filter]);
-        
+    const Louvores = ({ filter, louvores }) => {  
+        setFilter(filter)
         return (        
             <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
                 <Flatlist
@@ -197,6 +226,9 @@ export default function LouvoresScreen({navigation, route}) {
                 type='ionicon'
                 filter={filter}
                 disable={shouldShow}
+                louvores={louvores}
+                setLouvores={setLouvores}
+                addLouvor={addLouvor}
                 navigation={navigation}
                 customButtomRoute='Importar'                
                 icon={['md-heart-outline', 'md-musical-note-outline']}

@@ -18,7 +18,7 @@ const CustomAddButtom = function(props) {
                 height:60,
                 display:'flex'
             }}
-            onPress={() => {props.navigation.navigate(props.route)}}
+            onPress={() => {props.navigation.navigate(props.route, {addLouvor: props.addLouvor})}}
         >              
            <Icon size={60} name="pluscircle" type="antdesign" color='#cccccc'/> 
         </TouchableOpacity>
@@ -84,9 +84,9 @@ export default class TabBar extends React.Component {
                         >
                             {() => 
                                 this.props.filter? (
-                                    <elements.route filter={this.props.filter}/>
+                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter}/>
                                 ):(
-                                    <elements.route/>
+                                    <elements.route louvores={this.props.louvores} />
                                 )
                             }
                         </Tab.Screen>                      
@@ -95,6 +95,7 @@ export default class TabBar extends React.Component {
 
                 {this.props.customButtomRoute?(
                     <CustomAddButtom 
+                        addLouvor={this.props.addLouvor}
                         navigation={this.props.navigation}
                         route={this.props.customButtomRoute}
                     />

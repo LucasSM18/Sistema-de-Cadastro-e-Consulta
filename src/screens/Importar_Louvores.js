@@ -6,8 +6,9 @@ import { Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
 import firebaseConnection from '../services/firebaseConnection';
-import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
+
 
 
 // const CadastrarLouvores = (louvor) => {
@@ -89,11 +90,8 @@ const emptyList = (content) => {
 }
 
 //função para setar os louvores
-const importLouvor = () => {
-    console.log('teste do import');
-}
 
-export default function ImportaLouvores({navigation}) {
+export default function ImportaLouvores({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
@@ -171,7 +169,8 @@ export default function ImportaLouvores({navigation}) {
                             name={item.titulo} 
                             complement={item.artista} 
                             content={item.letra} 
-                            caretFunction={importLouvor}
+                            caretFunction={()=> route.params.addLouvor(item)}
+                            add={true}
                         />
                     } 
                     keyExtractor={(item)=>item.id}
