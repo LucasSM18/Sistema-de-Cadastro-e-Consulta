@@ -4,7 +4,7 @@ import Card from '../components/Card';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
-import { deleteDoc, getDoc, doc } from 'firebase/firestore';
+import { deleteDoc, getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking } from 'react-native';
 
@@ -32,7 +32,18 @@ export default function Repertorio({navigation, route}) {
 
     const deleteLouvor = async (id, name) => {
         try {               
-            await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
+            console.log(id, name)
+            const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
+            const docRepertorio = await getDoc(docRef)
+
+            if (docRepertorio.exists()) {
+                const repertorio = {...docRepertorio.data()}
+                const novoRepertorio = {...repertorio }
+                novoRepertorio.musics = repertorio.musics.filter(music=> music.id !== id)
+
+                await updateDoc(docRef, novoRepertorio)
+            }
+            //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
 
             await getData()
             Alert.alert(
@@ -47,8 +58,7 @@ export default function Repertorio({navigation, route}) {
             )
         }
 
-        console.log(louvores, 'louvores')
-    }
+     }
 
     const getData = async () => {
         const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
