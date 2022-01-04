@@ -26,8 +26,8 @@ const escala = [
 export default function Escala({navigation, route}) { 
     const { logo } = route.params; 
     const [close, setClose] = useState(false);
-    const [ministerio, setMinisterio] = useState("louvor");
-    const [escalaType, setEscalaType] = useState(false);
+    const [ministerio, setMinisterio] = useState(ministerios[0].value);
+    const [escalaType, setEscalaType] = useState(escala[0].value);
 
     useEffect(() => {
         setClose(false)
@@ -72,7 +72,7 @@ export default function Escala({navigation, route}) {
                         placeholder='Ministério' 
                         options={ministerios} 
                         handler={close} 
-                        defaultValue={ministerio}
+                        startValue={ministerio}
                         selectedValue={value => setMinisterio(value)}
                         onPress={() => setClose(true)}
                     />
@@ -80,7 +80,7 @@ export default function Escala({navigation, route}) {
                         placeholder='Escala' 
                         width={129}
                         options={escala} 
-                        defaultValue={escalaType}
+                        startValue={escalaType}
                         selectedValue={value => setEscalaType(value)}
                         handler={close} 
                         onPress={() => setClose(true)}

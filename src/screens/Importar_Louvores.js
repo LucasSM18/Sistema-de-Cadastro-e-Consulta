@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import Themes from '../themes/Themes';
 import Card from '../components/Card';
 import Header from '../components/Header';
-import { Icon } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react-native';
-
+import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View, Keyboard, DrawerLayoutAndroidComponent } from 'react-native';
 
 
 // const CadastrarLouvores = (louvor) => {
@@ -39,28 +38,36 @@ import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View } from 'react
 //     return ID;
 // }
 
-const api_key = "b002d29b365f405ba68f1c2ed126840b";
-
 const Artistas = [
     "Gabriel Guedes", 
-    "Isaias Saad", 
+    "Isaías Saad", 
     "Israel Salazar",
-    "Nívea Soares", 
+    "Nivea Soares", 
     "Ton Carfi",
     "Fernandinho",
     "Marcus Salles",
-    "Hillsong em Português",
+    "Juliano Son",
+    "Hillsong Brasil",
+    "Preto No Branco",
+    "Ministério Mergulhar",
+    "Graça Church",
+    "Quatro Por Um",
+    "Renascer Praise",
+    "Lagoinha Worship",
     "Central 3",
     "Casa Worship",
+    "Abba Musica",
     "Ministério Morada",
     "Ministério Zoe",
-    "Livres Para Adorar",
     "Gabriela Rocha",
-    "Diante do Trono", 
+    "Diante Do Trono", 
     "Isadora Pompeo",
-    "Gl Adolescentes",
+    "Drops GL Adolescentes",
     "Leandro Borges",
-    "Kemuel",
+    "Leandro Soares",
+    "Samuel Messias",
+    "David Quinlan",
+    "Coral Kemuel",
     "Kleber Lucas",
     "Fernanda Brum",
     "Soraya Moraes",
@@ -83,46 +90,101 @@ const Artistas = [
 //     }
 // }
 
-const emptyList = (content) => {
-    return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
-}
-
 //função para setar os louvores
 
 export default function ImportaLouvores({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
-    const [notFound, setNotFound] = useState('')
     const [louvores, setLouvores] = useState([]);
-    
-    const search = () => {   
-        setNotFound('')
-        setLouvores([])
-        Artistas.map(artista => {
-            let url = `https://api.vagalume.com.br/search.php?art=${artista}&mus=${result}&apikey=${api_key}`;
-            fetch(url).then(response =>
-                response.json().then(data => {
-                    if(data.type!=="song_notfound"){
-                        data.mus.map(mus => {
-                            setLouvores(louvores => [
-                                ...louvores,
-                                {
-                                    id: mus.id,
-                                    titulo: mus.name,
-                                    artista: data.art.name,
-                                    letra: mus.text
-                                }
-                            ]);
-                        });             
-                    }                              
-                })  
-            ).catch(() => {
-                setNotFound("Nenhum resultado encontrado");
-            });
-        });
+    const [isChecked, setChecked] = useState(false);
+    const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
+
+    const getPosition = (string, subString, index) => {
+        return string.split(subString, index).join(subString).length;
     }
-    
+
+    const searchDefault = async (art, mus) => {
+            const music = mus.replaceAll(' ', '-').replaceAll('(', '-').replaceAll(')','-');
+            const artist = art.toLowerCase().replaceAll(' ', '-');
+            const url = `${apiUrl}/${artist}/${music}/`;
+
+            const response = await fetch(url);
+            const data = await response.text();
+
+            const titleStart = data.indexOf(`<div class="cnt-head_title">`);
+            const lyricsStart = data.indexOf("cnt-letra p402_premium")
+
+            const title = data.substring(
+                titleStart + 33,
+                titleStart + data.substring(titleStart).indexOf("</h1>")
+            ).replaceAll("&#39;","'")
+            
+            const lyrics = data.substring(
+                lyricsStart + 25,
+                lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
+            ).replaceAll('<br/>', '\n').replace('<p>','').replaceAll('<p>','\n').replaceAll('</p>','\n').replaceAll("&#39;","'");
+
+            if(!['<!DOCTYPE HTML> <html','JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
+                setLouvores(louvores => [
+                    ...louvores,
+                    {
+                        id: title + '-' + art,
+                        titulo: title,
+                        artista: art,
+                        letra: lyrics
+                    }
+                ])
+            }
+        
+    }
+
+    const searchByArtist = async (art, res) => {        
+         if(art.toLowerCase().includes(res)){
+            const artist = art.toLowerCase().replaceAll(' ', '-');
+            const url = `${apiUrl}/${artist}/mais_acessadas.html`;
+
+            const response = await fetch(url);
+            const data = await response.text();
+
+            const listStart = data.indexOf('cnt-list-songs -counter -top-songs js-song-list');
+
+            const items = data.substring(
+                listStart,
+                listStart + data.substring(listStart).indexOf("</ul>") 
+            );
+
+            let i = items.match(/<li/g).length;
+
+            while(i--){
+                const itemStart = getPosition(items, "<span>", i+1) + 6;
+                const mus = items.substring(
+                    itemStart,
+                    itemStart + items.substring(itemStart).indexOf("</span>")
+                );                
+
+                searchDefault(art, mus)
+            }
+        }
+    }
+     
+    const searchHandler = async () => {
+        setLouvores([]);
+        if (!result) return 
+        
+        const resultTrim = result.toLowerCase().trim()
+
+        // console.log(resultTrim)
+        Artistas.map(async art => {
+            if(!isChecked) searchDefault(art, resultTrim);
+            else searchByArtist(art, resultTrim);
+        });
+
+        // console.log(songs)
+
+        Keyboard.dismiss();
+    }
+
     return (
         <View style={{flex:1}}>
             <Header
@@ -145,7 +207,7 @@ export default function ImportaLouvores({navigation, route}) {
                         style={{ flex:3, fontSize:16 }}
                         selectionColor={Theme.color}
                         placeholderTextColor={Theme.subColor}
-                        placeholder="Digite aqui sua pesquisa..." 
+                        placeholder="Pesquisar Louvores..." 
                         onChangeText={text => setResult(text)}
                         value={result}
                     />
@@ -154,14 +216,25 @@ export default function ImportaLouvores({navigation, route}) {
                         <Icon name='cross' type='entypo' color={Theme.subColor} size={25}/>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => search()} style={{ marginLeft:10 }}>
+                    <TouchableOpacity onPress={() => searchHandler()} style={{ marginLeft:10 }}>
                         <Icon name={'md-search'} type='ionicon' color={Theme.subColor} size={25}/>
                     </TouchableOpacity>
                 </View>
                 
+                <CheckBox 
+                    containerStyle={styles.checkBox} 
+                    textStyle={{color:Theme.subColor}}
+                    checkedIcon='check-square-o'
+                    uncheckedIcon='square-o'
+                    title="Pesquisar por artista"
+                    checked={isChecked}
+                    checkedColor={Theme.subColor}
+                    onPress={() => setChecked(!isChecked)}
+                />
+
                 <Flatlist
+                    style={{padding:10}}
                     data={louvores} 
-                    ListEmptyComponent={emptyList(notFound)}
                     renderItem={({item}) => 
                         <Card 
                             name={item.titulo} 
@@ -197,6 +270,12 @@ const styles = StyleSheet.create({
         borderBottomWidth:1,  
         flexDirection:'row', 
         justifyContent:'space-between'
+    },
+
+    checkBox: {
+        backgroundColor: 'transparent', 
+        borderWidth:0, 
+        paddingHorizontal:2
     }
 })
 

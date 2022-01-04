@@ -16,7 +16,7 @@ export default function HomeScreen({navigation}) {
                     <View key={index} style={styles.icons}>
                         <TouchableOpacity 
                             onPress={() => 
-                                index > 2 ? Alert.alert( 
+                                index > 1 ? Alert.alert( 
                                     "AVISO", 
                                     "Esta opção ainda está em desenvolvimento"
                                 ):     

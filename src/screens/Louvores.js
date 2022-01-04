@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font, CustomView } from '../components/Styles';
-import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, Keyboard } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
@@ -146,8 +146,6 @@ export default function LouvoresScreen({navigation, route}) {
 
     }
 
-    
-
     useEffect(() => {       
         async function loadLouvores() {
             await getData();
@@ -157,7 +155,7 @@ export default function LouvoresScreen({navigation, route}) {
         return
              
     },[filter]);
-    
+        
 
     const Louvores = ({ filter, louvores }) => {  
         setFilter(filter)
@@ -179,6 +177,7 @@ export default function LouvoresScreen({navigation, route}) {
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}
+                    keyboardShouldPersistTaps="handled" 
                     keyExtractor={item=>item.id.toString()}
                 />        
             </TouchableWithoutFeedback>
@@ -273,7 +272,7 @@ const styles = StyleSheet.create({
    
     pageBody: {
         flex:1,
-        padding:15,
+        margin:5,
         height:"100%"
     }
 })
