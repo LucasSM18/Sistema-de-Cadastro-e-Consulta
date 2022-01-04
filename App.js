@@ -1,6 +1,5 @@
 import React from 'react';
 import Home from './src/screens/Home';
-import Midia from './src/screens/Midia';
 import Themes from './src/themes/Themes';
 import Escala from './src/screens/Escala';
 import Louvores from './src/screens/Louvores';
@@ -10,7 +9,7 @@ import Importa_Louvores from './src/screens/Importar_Louvores';
 import { ThemeProvider } from 'styled-components/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useColorScheme, StatusBar, Platform } from 'react-native';
+import { useColorScheme, StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +29,7 @@ export default function App(){
             <Stack.Screen name="Editar" component={Editar_Louvor}/>
             <Stack.Screen name="Repertório" component={Repertorio} initialParams={{logo:logo}}/>
             <Stack.Screen name="Escala" component={Escala} initialParams={{logo:logo}}/>
-            <Stack.Screen name="Mídia" component={Midia} initialParams={{logo:logo}}/>
+            {/* <Stack.Screen name="Mídia" component={Midia} initialParams={{logo:logo}}/> */}
           </Stack.Navigator>
         </ThemeProvider>
       </NavigationContainer>
