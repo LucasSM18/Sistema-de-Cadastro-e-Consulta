@@ -97,6 +97,7 @@ export default function ImportaLouvores({navigation, route}) {
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
+    const [loading, setLoad] = useState(false)
     const [isChecked, setChecked] = useState(false);
     const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
 
@@ -104,9 +105,27 @@ export default function ImportaLouvores({navigation, route}) {
         return string.split(subString, index).join(subString).length;
     }
 
+    const searchHandler = () => {
+        setLouvores([]); 
+        setLoad(false)
+        if (!result) return 
+        
+        const resultTrim = result.toLowerCase().trim()
+
+        // console.log(resultTrim)
+        Artistas.map(async art => {
+            if(!isChecked) searchDefault(art, resultTrim);
+            else searchByArtist(art, resultTrim);
+        });
+
+        // console.log(songs)
+        setLoad(true)
+        Keyboard.dismiss();
+    }
+
     const searchDefault = async (art, mus) => {
-            const music = mus.replaceAll(' ', '-').replaceAll('(', '-').replaceAll(')','-');
-            const artist = art.toLowerCase().replaceAll(' ', '-');
+            const music = String(mus).replace(/ |\(|\)/g, '-');
+            const artist = String(art).toLowerCase().replace(/ /g, '-');
             const url = `${apiUrl}/${artist}/${music}/`;
 
             const response = await fetch(url);
@@ -118,14 +137,14 @@ export default function ImportaLouvores({navigation, route}) {
             const title = data.substring(
                 titleStart + 33,
                 titleStart + data.substring(titleStart).indexOf("</h1>")
-            ).replaceAll("&#39;","'")
+            ).replace(/&#39;/g,"'")
             
             const lyrics = data.substring(
                 lyricsStart + 25,
                 lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
-            ).replaceAll('<br/>', '\n').replace('<p>','').replaceAll('<p>','\n').replaceAll('</p>','\n').replaceAll("&#39;","'");
+            ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
 
-            if(!['<!DOCTYPE HTML> <html','JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
+            if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
                 setLouvores(louvores => [
                     ...louvores,
                     {
@@ -141,7 +160,7 @@ export default function ImportaLouvores({navigation, route}) {
 
     const searchByArtist = async (art, res) => {        
          if(art.toLowerCase().includes(res)){
-            const artist = art.toLowerCase().replaceAll(' ', '-');
+            const artist = art.toLowerCase().replace(/ /g, '-');
             const url = `${apiUrl}/${artist}/mais_acessadas.html`;
 
             const response = await fetch(url);
@@ -168,23 +187,6 @@ export default function ImportaLouvores({navigation, route}) {
         }
     }
      
-    const searchHandler = async () => {
-        setLouvores([]);
-        if (!result) return 
-        
-        const resultTrim = result.toLowerCase().trim()
-
-        // console.log(resultTrim)
-        Artistas.map(async art => {
-            if(!isChecked) searchDefault(art, resultTrim);
-            else searchByArtist(art, resultTrim);
-        });
-
-        // console.log(songs)
-
-        Keyboard.dismiss();
-    }
-
     return (
         <View style={{flex:1}}>
             <Header
@@ -231,21 +233,25 @@ export default function ImportaLouvores({navigation, route}) {
                     checkedColor={Theme.subColor}
                     onPress={() => setChecked(!isChecked)}
                 />
-
-                <Flatlist
-                    style={{padding:10}}
-                    data={louvores} 
-                    renderItem={({item}) => 
-                        <Card 
-                            name={item.titulo} 
-                            complement={item.artista} 
-                            content={item.letra} 
-                            caretFunction={()=> route.params.addLouvor(item)}
-                            add={true}
-                        />
-                    } 
-                    keyExtractor={(item)=>item.id}
-                />            
+                
+                {loading?
+                    <Flatlist
+                        style={{margin:5}}
+                        data={louvores} 
+                        renderItem={({item}) => 
+                            <Card 
+                                name={item.titulo} 
+                                complement={item.artista} 
+                                content={item.letra} 
+                                caretFunction={()=> route.params.addLouvor(item)}
+                                add={true}
+                            />
+                        } 
+                        keyExtractor={(item)=>item.id}
+                    />
+                    :
+                    null       
+                }     
             </CustomView>    
         </View>        
     )
