@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
-import { StyleSheet, Alert, View, Text, Linking, TouchableOpacity } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 
 
@@ -9,10 +10,34 @@ export default class CardFactory extends React.Component {
     constructor(props){
         super(props);
         this.icon = {'up': 'caret-up', 'down': 'caret-down'};
-        this.state = { expanded: false };          
-        this.url = "https://www.youtube.com/results?search_query="+props.name+"+"+props.complement
+        this.state = { expanded: false, showWebView: false };          
+        this.url = `https://www.youtube.com/results?search_query=${props.name}+${props.complement}`
         
     }  
+
+    stringFormat = (string) => {
+        if(string==='GL Adolescentes') return `drops-gl-adolescentes`
+        return string.toLowerCase().replace(/\'|\?/g, '').replace(/ /g, '-').replace(/í/g,'i').replace(/é/g,'e');
+    }
+
+    renderWebView() {
+        return (
+            this.state.showWebView&&
+            <Modal
+                animationType={'slide'}
+                visible={this.state.showWebView}
+                onRequestClose={() => this.setState({showWebView: false})}
+                transparent
+            >
+                <WebView
+                    source={{
+                    uri: this.props.cifraUrl,
+                    }}
+                    style={{ flex:1 }}
+                />
+            </Modal>
+        );
+    }
 
     youtubeHandler = async () => {         
             const supported = await Linking.canOpenURL(this.url);
@@ -21,6 +46,10 @@ export default class CardFactory extends React.Component {
             else Alert.alert('Link inácessivel! Por favor entre em contato com o administrador');       
     }
 
+    onToggleHandler = async (expanded) => {
+        this.setState({expanded: expanded})
+        Keyboard.dismiss()
+    }
 
     render(){          
         let icon = this.icon['down'];
@@ -33,9 +62,10 @@ export default class CardFactory extends React.Component {
                     marginBottom:1
                 }}
             >     
+                {this.renderWebView()}
                 <Collapse 
                     isExpanded={this.state.expanded} 
-                    onToggle={(isExpanded) => this.setState({expanded: isExpanded})}
+                    onToggle={(isExpanded) => this.onToggleHandler(isExpanded)}
                     style={{ 
                         backgroundColor: 'transparent'
                     }}
@@ -54,7 +84,7 @@ export default class CardFactory extends React.Component {
                         </View> 
                               
                         {this.props.caretFunction &&
-                            <TouchableOpacity onPress={() => this.props.caretFunction(this.props)}>
+                            <TouchableOpacity onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
     
                                 <Icon
                                     name={this.props?.add ? 'add' : 'playlist-music-outline'}
@@ -76,6 +106,14 @@ export default class CardFactory extends React.Component {
                                 (
                                     <TouchableOpacity onPress={this.youtubeHandler}>                                    
                                         <Text style={styles.link}>Youtube</Text>
+                                    </TouchableOpacity>
+                                )
+                            </Text>
+
+                            <Text style={styles.linkContainer}>
+                                (
+                                    <TouchableOpacity onPress={() => this.setState({showWebView: true})}>                                    
+                                        <Text style={styles.link}>Cifras</Text>
                                     </TouchableOpacity>
                                 )
                             </Text>

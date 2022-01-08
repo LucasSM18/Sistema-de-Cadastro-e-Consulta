@@ -66,10 +66,11 @@ export default function Repertorio({navigation, route}) {
         const data = [];
         if (docLouvor.exists()) {
             docLouvor.data()['musics'].forEach((doc)=> {
-                
+                console.log(doc)
                 data.push({
                     id: doc.id,
                     title: doc.title,
+                    cipher: doc.cipher,
                     group: doc.group,
                     lyrics: doc.lyrics
                 })
@@ -132,6 +133,7 @@ export default function Repertorio({navigation, route}) {
                         <Card 
                             keyID={item.id} 
                             name={item.title} 
+                            cifraUrl={item.cipher}
                             complement={item.group} 
                             content={item.lyrics} 
                             deleteLouvor={deleteLouvor}

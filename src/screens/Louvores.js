@@ -102,6 +102,7 @@ export default function LouvoresScreen({navigation, route}) {
                 louvor.musics.push({
                     id: props.keyID,
                     title: props.name,
+                    cipher: props.cifraUrl,
                     group: props.complement,
                     lyrics: props.content
                 })
@@ -128,6 +129,7 @@ export default function LouvoresScreen({navigation, route}) {
         const newLouvor = {
             title: louvor.titulo,
             group: louvor.artista,
+            cipher: louvor.cifra,
             lyrics: louvor.letra
         }
     
@@ -170,6 +172,7 @@ export default function LouvoresScreen({navigation, route}) {
                             name={item.title} 
                             complement={item.group} 
                             content={item.lyrics} 
+                            cifraUrl={item.cipher}
                             editableRoute={navigation}
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}

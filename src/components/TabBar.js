@@ -93,13 +93,13 @@ export default class TabBar extends React.Component {
                     ))                     
                 }</Tab.Navigator>
 
-                {this.props.customButtomRoute?(
+                {this.props.customButtomRoute&&
                     <CustomAddButtom 
                         addLouvor={this.props.addLouvor}
                         navigation={this.props.navigation}
                         route={this.props.customButtomRoute}
                     />
-                ):null}
+                }
             </BarComponent>            
         );
     }

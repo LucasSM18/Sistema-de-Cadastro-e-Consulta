@@ -6,18 +6,19 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function CustomSelect(props) {
     const deviceTheme = useColorScheme();
+    const { dropDownheight, multi, searchable, placeholder, startValue, options, handler, width, onPress, selectedValue } = props
     const theme = Themes[deviceTheme]||Themes.light;
-    const defaultDropDownHeight = props.dropDownheight||100; 
-    const defaultValue = props.multi ? [] : props.default;
+    const defaultDropDownHeight = dropDownheight||100; 
+    const defaultValue = multi ? [] : (startValue||startValue===false?startValue:null);
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(defaultValue);
-    const [items, setItems] = useState(props.options);  
+    const [items, setItems] = useState(options);  
 
     useEffect(() => {
-        if(props.handler){ 
+        if(handler){ 
             setOpen(false);
         }
-    },[props.handler])
+    },[handler])
 
     return(        
         <DropDownPicker
@@ -27,11 +28,11 @@ export default function CustomSelect(props) {
                 borderBottomWidth:1,
                 flexDirection:'row',
                 padding:10,
-                maxWidth:props.width,
+                maxWidth:width,
                 marginBottom:open?defaultDropDownHeight:30
             }}
             containerStyle={{
-                maxWidth:props.width,
+                maxWidth:width,
                 alignSelf:'center'
             }}
             dropDownContainerStyle={{
@@ -39,7 +40,7 @@ export default function CustomSelect(props) {
                 borderWidth:0,
                 borderRadius:20,
                 padding:5,
-                maxWidth:props.width,
+                maxWidth:width,
                 maxHeight:defaultDropDownHeight,
             }}
             listItemContainerStyle={{
@@ -77,12 +78,12 @@ export default function CustomSelect(props) {
             ArrowDownIconComponent={() => <Icon name='down' type='antdesign' color={theme.subColor} size={20}/>}
             TickIconComponent={() => <Icon name='check' type='feather' color={theme.subColor} size={20}/>}
             searchPlaceholder='Pesquisar...'
-            placeholder={props.placeholder}
-            searchable={props.searchable}
-            multiple={props.multi}
+            placeholder={placeholder}
+            searchable={searchable}
+            multiple={multi}
             max={5}
-            onChangeValue={value => props.selectedValue(value)}
-            onPress={() => props.onPress()}
+            onChangeValue={value => selectedValue(value)}
+            onPress={() => onPress()}
             mode='BADGE'
             open={open}
             value={value}

@@ -4,78 +4,11 @@ import Card from '../components/Card';
 import Header from '../components/Header';
 import { CheckBox, Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
+import { collection, getDocs } from 'firebase/firestore';
+import firebaseConnection from '../services/firebaseConnection';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View, Keyboard, DrawerLayoutAndroidComponent } from 'react-native';
-
-
-// const CadastrarLouvores = (louvor) => {
-//     console.log(louvor)
-//     fetch("http://127.0.0.1:5000/", {
-//         method: 'POST',
-//         headers: {
-//             Accept: 'application/json', 
-//             'Content-Type': 'application/json;' 
-//         },
-//         body: JSON.stringify(louvor)
-//     })
-//     .then((response) => response.json())
-//     .catch(err => { console.log(err) });
-    
-// }
-
-// const autoIncrement = () => {
-//     const [ID, setID] = useState()
-//     useEffect(() => {            
-//         fetch("http://127.0.0.1:5000/").then(response =>
-//             response.json().then(data => {
-//                 setID(Math.max.apply(null, data.map(data => data.id)) + 1)                          
-//             })  
-//         ).catch(err => {
-//             console.log(err);
-//         });
-//     },[]);   
-
-//     return ID;
-// }
-
-const Artistas = [
-    "Gabriel Guedes", 
-    "Isaías Saad", 
-    "Israel Salazar",
-    "Nivea Soares", 
-    "Ton Carfi",
-    "Fernandinho",
-    "Marcus Salles",
-    "Juliano Son",
-    "Hillsong Brasil",
-    "Preto No Branco",
-    "Ministério Mergulhar",
-    "Graça Church",
-    "Quatro Por Um",
-    "Renascer Praise",
-    "Lagoinha Worship",
-    "Central 3",
-    "Casa Worship",
-    "Abba Musica",
-    "Ministério Morada",
-    "Ministério Zoe",
-    "Gabriela Rocha",
-    "Diante Do Trono", 
-    "Isadora Pompeo",
-    "Drops GL Adolescentes",
-    "Leandro Borges",
-    "Leandro Soares",
-    "Samuel Messias",
-    "David Quinlan",
-    "Coral Kemuel",
-    "Kleber Lucas",
-    "Fernanda Brum",
-    "Soraya Moraes",
-    "Mariana Valadão",
-    "André Valadão",
-    "Marine Friesen",
-    "Cassiane"
-]
+import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View, Keyboard } from 'react-native';
+import { async } from '@firebase/util';
 
 // const UploadFile = async () => {
 //     const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
@@ -97,7 +30,6 @@ export default function ImportaLouvores({navigation, route}) {
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
-    const [loading, setLoad] = useState(false)
     const [isChecked, setChecked] = useState(false);
     const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
 
@@ -105,61 +37,83 @@ export default function ImportaLouvores({navigation, route}) {
         return string.split(subString, index).join(subString).length;
     }
 
-    const searchHandler = () => {
+    const getArtistas = async () => {
+        const artistas = []
+        const results = await getDocs(collection(firebaseConnection.db, 'artistas'))
+        results.forEach(artista => {
+          artistas.push({
+            'id': artista.id,
+            ...artista.data()
+          })
+        });
+        return artistas
+    }
+
+    const searchHandler = async () => {
         setLouvores([]); 
-        setLoad(false)
         if (!result) return 
         
-        const resultTrim = result.toLowerCase().trim()
+        const resultTrim = result.toLowerCase().trim();
+        const Artistas = await getArtistas();
 
         // console.log(resultTrim)
+
         Artistas.map(async art => {
-            if(!isChecked) searchDefault(art, resultTrim);
-            else searchByArtist(art, resultTrim);
+            const { id, artista } = art;
+
+            if(!isChecked) searchDefault(id, artista, resultTrim);
+            else searchByArtist(id, artista, resultTrim);
         });
 
         // console.log(songs)
-        setLoad(true)
         Keyboard.dismiss();
     }
 
-    const searchDefault = async (art, mus) => {
-            const music = String(mus).replace(/ |\(|\)/g, '-');
-            const artist = String(art).toLowerCase().replace(/ /g, '-');
-            const url = `${apiUrl}/${artist}/${music}/`;
+    const searchDefault = async (id, art, mus) => {
+        const music = String(mus).replace(/ |\(|\)/g, '-');
+        const artist = String(art).toLowerCase().replace(/ /g, '-');
+        const url = `${apiUrl}/${artist}/${music}/`;
 
-            const response = await fetch(url);
-            const data = await response.text();
+        const response = await fetch(url);
+        const data = await response.text();
 
-            const titleStart = data.indexOf(`<div class="cnt-head_title">`);
-            const lyricsStart = data.indexOf("cnt-letra p402_premium")
+        const titleStart = data.indexOf(`<div class="cnt-head_title">`);
+        const lyricsStart = data.indexOf("cnt-letra p402_premium")
+        const cifraStart = data.indexOf(`<a href="https://www.cifraclub.com.br/`);
 
-            const title = data.substring(
-                titleStart + 33,
-                titleStart + data.substring(titleStart).indexOf("</h1>")
-            ).replace(/&#39;/g,"'")
-            
-            const lyrics = data.substring(
-                lyricsStart + 25,
-                lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
-            ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
+        const title = data.substring(
+            titleStart + 33,
+            titleStart + data.substring(titleStart).indexOf("</h1>")
+        ).replace(/&#39;/g,"'");
 
-            if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
-                setLouvores(louvores => [
-                    ...louvores,
-                    {
-                        id: title + '-' + art,
-                        titulo: title,
-                        artista: art,
-                        letra: lyrics
-                    }
-                ])
-            }
-        
+        const cifra = data.substring(
+            cifraStart + 9,
+            cifraStart + data.substring(cifraStart).indexOf(`/"`) + 1
+        )
+
+        console.log(cifra)
+
+        const lyrics = data.substring(
+            lyricsStart + 25,
+            lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
+        ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
+
+        if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
+            setLouvores(louvores => [
+                ...louvores,
+                {
+                    id: id,
+                    titulo: title,
+                    cifra: cifra,
+                    artista: art,
+                    letra: lyrics
+                }
+            ])
+        }        
     }
 
-    const searchByArtist = async (art, res) => {        
-         if(art.toLowerCase().includes(res)){
+    const searchByArtist = async (id, art, res) => {        
+        if(!isChecked && art.toLowerCase().includes(res)){
             const artist = art.toLowerCase().replace(/ /g, '-');
             const url = `${apiUrl}/${artist}/mais_acessadas.html`;
 
@@ -182,7 +136,7 @@ export default function ImportaLouvores({navigation, route}) {
                     itemStart + items.substring(itemStart).indexOf("</span>")
                 );                
 
-                searchDefault(art, mus)
+                searchDefault(id, art, mus)
             }
         }
     }
@@ -233,25 +187,23 @@ export default function ImportaLouvores({navigation, route}) {
                     checkedColor={Theme.subColor}
                     onPress={() => setChecked(!isChecked)}
                 />
-                
-                {loading?
-                    <Flatlist
-                        style={{margin:5}}
-                        data={louvores} 
-                        renderItem={({item}) => 
-                            <Card 
-                                name={item.titulo} 
-                                complement={item.artista} 
-                                content={item.letra} 
-                                caretFunction={()=> route.params.addLouvor(item)}
-                                add={true}
-                            />
-                        } 
-                        keyExtractor={(item)=>item.id}
-                    />
-                    :
-                    null       
-                }     
+            
+                <Flatlist
+                    style={{margin:5}}
+                    data={louvores} 
+                    renderItem={({item}) => 
+                        <Card 
+                            name={item.titulo} 
+                            complement={item.artista} 
+                            content={item.letra} 
+                            cifraUrl={item.cifra}
+                            caretFunction={()=> route.params.addLouvor(item)}
+                            add={true}
+                        />
+                    } 
+                    keyExtractor={(item)=>item.id}
+                />
+        
             </CustomView>    
         </View>        
     )

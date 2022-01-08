@@ -8,38 +8,71 @@ import { StyleSheet, View, Text, FlatList, useColorScheme } from 'react-native';
 const Escala = {
   mti: [
     {
-      id: "18/12",
+      id: "01/01",
       MTI: "Lucas",
       Iluminação: "Otávio",
       Câmera_Principal: "Calebe",
-      Câmera_2: "pessoa4",
-      Corte: "pessoa 5",
-      Som: "pessoa 6"
+      Câmera_2: " - ",
+      Corte: "Calebe",
+      Som: "Jessica"
     },
     {
-      id: "25/12",
-      MTI: " - ",
-      Iluminação: " - ",
-      Câmera_Principal: " - ",
+      id: "07/01",
+      MTI: " Gaby ",
+      Iluminação: "Jorge",
+      Câmera_Principal: " Talita ",
       Câmera_2: " - ",
-      Corte: " - ",
-      Som: " - "
+      Corte: "Calebe",
+      Som: "Matheus"
+    },
+    {
+      id: "14/01",
+      MTI: "Lucas",
+      Iluminação: "Otávio",
+      Câmera_Principal: "Calebe",
+      Câmera_2: "Samuel",
+      Corte: "Éder",
+      Som: "Matheus"
+    },
+    {
+      id: "21/01",
+      MTI: "Lucas",
+      Iluminação: "Otávio",
+      Câmera_Principal: "Talita",
+      Câmera_2: "Samuel",
+      Corte: "Calebe",
+      Som: "Jessica"
     }
+
   ],
 
   louvor: [
     {
-      id: "18/12",
+      id: "01/01",
       Ministro: "Rodrigo",
       Vocal_1: "Keller",
       Vocal_2: "Vitor",
       Vocal_3: "Gustavo",
     },
     {
-      id: "25/12",
+      id: "07/01",
       Ministro: "Daphine",
       Vocal_1: "Raphaelen",
       Vocal_2: "Vitor",
+      Vocal_3: " - ",
+    },
+    {
+      id: "14/01",
+      Ministro: "Vitor",
+      Vocal_1: "Gustavo",
+      Vocal_2: "Rodrigo",
+      Vocal_3: " - ",
+    },
+    {
+      id: "21/01",
+      Ministro: "Daphine",
+      Vocal_1: "Keller",
+      Vocal_2: "Rodrigo",
       Vocal_3: " - ",
     },
   ]  
