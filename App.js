@@ -29,7 +29,6 @@ export default function App(){
             <Stack.Screen name="Editar" component={Editar_Louvor}/>
             <Stack.Screen name="Repertório" component={Repertorio} initialParams={{logo:logo}}/>
             <Stack.Screen name="Escala" component={Escala} initialParams={{logo:logo}}/>
-            {/* <Stack.Screen name="Mídia" component={Midia} initialParams={{logo:logo}}/> */}
           </Stack.Navigator>
         </ThemeProvider>
       </NavigationContainer>
