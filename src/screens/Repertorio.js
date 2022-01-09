@@ -21,7 +21,7 @@ const sendLouvores = (louvores) => {
     let message = `Repertório - ${filtroData()}\n`
     louvores.map((item, index) => {
        const song = item.title + ' - ' + item.group;
-       message += `\n${index+1}. ${song}`
+       message += `\n ${index+1}. ${song}`
     })
    
     // console.log(message)
