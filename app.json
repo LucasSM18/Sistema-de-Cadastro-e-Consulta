@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "ICM",
-    "slug": "ICM",
-    "version": "1.0.0",
+    "name": "Repertório",
+    "slug": "Repertorio",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -21,7 +21,7 @@
       "userInterfaceStyle": "automatic",
       "supportsTablet": true
     },
-    "androidNavigationBar":{
+    "androidNavigationBar": {
       "backgroundColor": "#191919"
     },
     "android": {
@@ -29,8 +29,9 @@
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
+        "backgroundColor": "#000000"
+      },
+      "package": "com.lucassm20.Repertorio"
     },
     "web": {
       "favicon": "./assets/favicon.png"

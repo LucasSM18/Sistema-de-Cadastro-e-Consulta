@@ -17,8 +17,15 @@ const filtroData = () => {
     return dateEvent.format('DD/MM');
 }
 
-const sendLouvores = () => {    
-    const message = `Repertório - ${filtroData()}`;
+const sendLouvores = (louvores) => {    
+    let message = `Repertório - ${filtroData()}\n`
+    louvores.map((item, index) => {
+       const song = item.title + ' - ' + item.group;
+       message += `\n${index+1}. ${song}`
+    })
+   
+    // console.log(message)
+
     Linking.canOpenURL('whatsapp://send?text=').then(() => {
         Linking.openURL(`whatsapp://send?text=${message}`)
     }).catch(() => {
@@ -103,7 +110,7 @@ export default function Repertorio({navigation, route}) {
                     </TouchableOpacity>   
                 )}
                 myRightContainer={
-                    <TouchableOpacity onPress={() => sendLouvores()} style={ styles.headerComponents }>
+                    <TouchableOpacity onPress={() => sendLouvores(louvores)} style={ styles.headerComponents }>
                         <Icon
                             name="share" 
                             type='entypo'

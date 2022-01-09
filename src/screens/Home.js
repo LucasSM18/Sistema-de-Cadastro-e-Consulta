@@ -13,21 +13,21 @@ export default function HomeScreen({navigation}) {
                 <Image style={styles.logo} source={logo}/>
                 <View style={styles.iconsContainer}>
                     {text.map((elements, index) => (
-                    <View key={index} style={styles.icons}>
-                        <TouchableOpacity 
-                            onPress={() => 
-                                index === 2 ? Alert.alert( 
-                                    "AVISO", 
-                                    "Esta opção ainda está em desenvolvimento"
-                                ):     
-                                navigation.navigate(elements)}
-                        >
-                            <Icon size={55} name={icons[index]} type="material-community" color="#fff"/>
-                            <Text style={styles.text}>{elements.toUpperCase()}</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </View>
+                        <View key={index} style={styles.icons}>
+                            <TouchableOpacity 
+                                onPress={() => 
+                                    index === 2 ? Alert.alert( 
+                                        "AVISO", 
+                                        "Esta opção ainda está em desenvolvimento"
+                                    ):     
+                                    navigation.navigate(elements)}
+                            >
+                                <Icon size={55} name={icons[index]} type="material-community" color="#fff"/>
+                                <Text style={styles.text}>{elements.toUpperCase()}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
             </View>
         </View>
     )
