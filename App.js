@@ -1,6 +1,7 @@
 import React from 'react';
 import Home from './src/screens/Home';
 import Themes from './src/themes/Themes';
+import Duvidas from './src/screens/Duvidas';
 import Escala from './src/screens/Escala';
 import Louvores from './src/screens/Louvores';
 import Repertorio from './src/screens/Repertorio';
@@ -29,6 +30,7 @@ export default function App(){
             <Stack.Screen name="Editar" component={Editar_Louvor}/>
             <Stack.Screen name="Repertório" component={Repertorio} initialParams={{logo:logo}}/>
             <Stack.Screen name="Escala" component={Escala} initialParams={{logo:logo}}/>
+            <Stack.Screen name="Dúvidas" component={Duvidas} initialParams={{logo:logo}}/>
           </Stack.Navigator>
         </ThemeProvider>
       </NavigationContainer>
