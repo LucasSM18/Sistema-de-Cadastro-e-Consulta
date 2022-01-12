@@ -30,8 +30,10 @@ export default function ImportaLouvores({navigation, route}) {
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
+    // const [keep, setKeep] = useState(null);
     const [isChecked, setChecked] = useState(false);
     const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
+    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     const getPosition = (string, subString, index) => {
         return string.split(subString, index).join(subString).length;
@@ -53,7 +55,7 @@ export default function ImportaLouvores({navigation, route}) {
         setLouvores([]); 
         if (!result) return 
         
-        const resultTrim = result.toLowerCase().trim();
+        const resultTrim = result.trim();
         const Artistas = await getArtistas();
 
         // console.log(resultTrim)
@@ -62,7 +64,7 @@ export default function ImportaLouvores({navigation, route}) {
             const { id, artista } = art;
 
             if(!isChecked) searchDefault(id, artista, resultTrim);
-            else searchByArtist(id, artista, resultTrim);
+            else searchByArtist(artista, resultTrim);
         });
 
         // console.log(songs)
@@ -70,8 +72,8 @@ export default function ImportaLouvores({navigation, route}) {
     }
 
     const searchDefault = async (id, art, mus) => {
-        const music = String(mus).replace(/ |\(|\)/g, '-');
-        const artist = String(art).toLowerCase().replace(/ /g, '-');
+        const music = String(mus).replace(/ |\(|\)/g, '-').replace(/\?|\!\.|\'/g, '');
+        const artist = String(art).replace(/ /g, '-');
         const url = `${apiUrl}/${artist}/${music}/`;
 
         const response = await fetch(url);
@@ -91,18 +93,23 @@ export default function ImportaLouvores({navigation, route}) {
             cifraStart + data.substring(cifraStart).indexOf(`/"`) + 1
         )
 
-        console.log(cifra)
-
         const lyrics = data.substring(
             lyricsStart + 25,
             lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
         ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
 
-        if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status!==400){
+        if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status<400){
+            // const titleFormat = formatString(title);
+            // const artistFormat = formatString(art);
+            const index = art + id;
             setLouvores(louvores => [
-                ...louvores,
+                ...louvores.sort((a,b) => !isChecked ? 
+                        ( a.titulo.toLowerCase().includes(mus.toLowerCase()) ? -1 : b.titulo.toLowerCase().includes(mus.toLowerCase()) ? 1 : 0 ) 
+                    :
+                        ( a.titulo > b.titulo ? 1 : b.titulo > a.titulo ? -1 : 0 )
+                ),
                 {
-                    id: id,
+                    id: index,
                     titulo: title,
                     cifra: cifra,
                     artista: art,
@@ -112,13 +119,15 @@ export default function ImportaLouvores({navigation, route}) {
         }        
     }
 
-    const searchByArtist = async (id, art, res) => {        
-        if(!isChecked && art.toLowerCase().includes(res)){
-            const artist = art.toLowerCase().replace(/ /g, '-');
+    const searchByArtist = async (art, res) => {        
+        if(art.toLowerCase().includes(res.toLowerCase())){
+            const artist = art.replace(/ /g, '-');
             const url = `${apiUrl}/${artist}/mais_acessadas.html`;
 
             const response = await fetch(url);
             const data = await response.text();
+
+            if(data.includes('JFIF')||response.status>400) return
 
             const listStart = data.indexOf('cnt-list-songs -counter -top-songs js-song-list');
 
@@ -127,7 +136,11 @@ export default function ImportaLouvores({navigation, route}) {
                 listStart + data.substring(listStart).indexOf("</ul>") 
             );
 
+            // console.log(items)
+
             let i = items.match(/<li/g).length;
+
+            // console.log(i)
 
             while(i--){
                 const itemStart = getPosition(items, "<span>", i+1) + 6;
@@ -135,11 +148,24 @@ export default function ImportaLouvores({navigation, route}) {
                     itemStart,
                     itemStart + items.substring(itemStart).indexOf("</span>")
                 );                
+                
+                // console.log(art + " - " + mus)
+                if(i % 50 === 0) await delay(5000);
 
-                searchDefault(id, art, mus)
+                searchDefault(i+1,art, mus)
             }
+            
         }
     }
+
+    // const flatFooter = () => {
+    //     return (
+    //         keep &&
+    //         <TouchableOpacity style={styles.footer}>
+    //             <Font>MAIS LOUVORES...</Font>
+    //         </TouchableOpacity>
+    //     )
+    // }
      
     return (
         <View style={{flex:1}}>
@@ -201,9 +227,9 @@ export default function ImportaLouvores({navigation, route}) {
                             add={true}
                         />
                     } 
-                    keyExtractor={(item)=>item.id}
+                    // ListFooterComponent={flatFooter}
+                    keyExtractor={(item)=>item.id.toString()}
                 />
-        
             </CustomView>    
         </View>        
     )
@@ -234,6 +260,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent', 
         borderWidth:0, 
         paddingHorizontal:2
+    },
+
+    footer: {
+        alignSelf: 'center',
+        justifyContent: 'center',
+        padding: 15
     }
 })
 

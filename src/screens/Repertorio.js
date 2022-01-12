@@ -73,7 +73,7 @@ export default function Repertorio({navigation, route}) {
         const data = [];
         if (docLouvor.exists()) {
             docLouvor.data()['musics'].forEach((doc)=> {
-                console.log(doc)
+                // console.log(doc)
                 data.push({
                     id: doc.id,
                     title: doc.title,

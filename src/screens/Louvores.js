@@ -70,8 +70,13 @@ export default function LouvoresScreen({navigation, route}) {
             })
         })
 
-      data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
         if(filter){
+            data.sort((a, b) => ( 
+                    a.title.toLowerCase().includes(filter.toLowerCase()) ? -1 
+                : 
+                    b.title.toLowerCase().includes(filter.toLowerCase()) ? 1 : 0 
+            ));
+
             setLouvores(
                 data.filter(item => 
                     (
@@ -82,6 +87,7 @@ export default function LouvoresScreen({navigation, route}) {
                 )
             );    
         }else{
+            data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
             setLouvores(data); 
         }
         if(!notFound) setNotFound('Nenhum resultado encontrado')
