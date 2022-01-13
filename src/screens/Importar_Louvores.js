@@ -33,7 +33,7 @@ export default function ImportaLouvores({navigation, route}) {
     // const [keep, setKeep] = useState(null);
     const [isChecked, setChecked] = useState(false);
     const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
-    const delay = ms => new Promise(res => setTimeout(res, ms));
+    // const delay = ms => new Promise(res => setTimeout(res, ms));
 
     const getPosition = (string, subString, index) => {
         return string.split(subString, index).join(subString).length;
@@ -65,6 +65,7 @@ export default function ImportaLouvores({navigation, route}) {
 
             if(!isChecked) searchDefault(id, artista, resultTrim);
             else searchByArtist(artista, resultTrim);
+            
         });
 
         // console.log(songs)
@@ -72,7 +73,7 @@ export default function ImportaLouvores({navigation, route}) {
     }
 
     const searchDefault = async (id, art, mus) => {
-        const music = String(mus).replace(/ |\(|\)/g, '-').replace(/\?|\!\.|\'/g, '');
+        const music = String(mus).replace(/ |\(|\)/g, '-').replace(/\?|\!|\.|\'/g, "");
         const artist = String(art).replace(/ /g, '-');
         const url = `${apiUrl}/${artist}/${music}/`;
 
@@ -98,18 +99,21 @@ export default function ImportaLouvores({navigation, route}) {
             lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
         ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
 
-        if(!['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => lyrics.includes(item))&&response.status<400){
+        const handler = ['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => title.includes(item) || lyrics.includes(item));
+
+        const filter = !isChecked ? title.toLowerCase().includes(mus.toLowerCase()) || lyrics.toLowerCase().includes(mus.toLowerCase()) : true  
+
+        if(!handler && lyrics.length > 100 && response.status < 400 && filter){
             // const titleFormat = formatString(title);
             // const artistFormat = formatString(art);
-            const index = art + id;
             setLouvores(louvores => [
-                ...louvores.sort((a,b) => !isChecked ? 
+                ...louvores.sort((a,b) => !isChecked ?
                         ( a.titulo.toLowerCase().includes(mus.toLowerCase()) ? -1 : b.titulo.toLowerCase().includes(mus.toLowerCase()) ? 1 : 0 ) 
                     :
                         ( a.titulo > b.titulo ? 1 : b.titulo > a.titulo ? -1 : 0 )
                 ),
                 {
-                    id: index,
+                    id: art + id,
                     titulo: title,
                     cifra: cifra,
                     artista: art,
@@ -138,11 +142,11 @@ export default function ImportaLouvores({navigation, route}) {
 
             // console.log(items)
 
-            let i = items.match(/<li/g).length;
+            let  i = 0;
 
             // console.log(i)
 
-            while(i--){
+            while(i < 20){
                 const itemStart = getPosition(items, "<span>", i+1) + 6;
                 const mus = items.substring(
                     itemStart,
@@ -150,9 +154,11 @@ export default function ImportaLouvores({navigation, route}) {
                 );                
                 
                 // console.log(art + " - " + mus)
-                if(i % 50 === 0) await delay(5000);
+                // if(i % 50 === 0) await delay(5000);
 
                 searchDefault(i+1,art, mus)
+
+                i++
             }
             
         }

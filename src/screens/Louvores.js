@@ -71,11 +71,13 @@ export default function LouvoresScreen({navigation, route}) {
         })
 
         if(filter){
-            data.sort((a, b) => ( 
-                    a.title.toLowerCase().includes(filter.toLowerCase()) ? -1 
-                : 
-                    b.title.toLowerCase().includes(filter.toLowerCase()) ? 1 : 0 
-            ));
+            if(filter.length > 2){
+                data.sort((a, b) => ( 
+                        a.title.toLowerCase().includes(filter.toLowerCase()) ? -1 
+                    : 
+                        b.title.toLowerCase().includes(filter.toLowerCase()) ? 1 : 0 
+                ));
+            }
 
             setLouvores(
                 data.filter(item => 
