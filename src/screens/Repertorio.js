@@ -37,16 +37,16 @@ export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
     const [louvores, setLouvores] = useState([]);
 
-    const deleteLouvor = async (id, name) => {
+    const deleteLouvor = async ({keyID, name}) => {
         try {               
-            console.log(id, name)
+            console.log(keyID + ' ' + name)
             const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
             const docRepertorio = await getDoc(docRef)
 
             if (docRepertorio.exists()) {
                 const repertorio = {...docRepertorio.data()}
                 const novoRepertorio = {...repertorio }
-                novoRepertorio.musics = repertorio.musics.filter(music=> music.id !== id)
+                novoRepertorio.musics = repertorio.musics.filter(music=> music.id !== keyID)
 
                 await updateDoc(docRef, novoRepertorio)
             }
@@ -143,7 +143,9 @@ export default function Repertorio({navigation, route}) {
                             cifraUrl={item.cipher}
                             complement={item.group} 
                             content={item.lyrics} 
-                            deleteLouvor={deleteLouvor}
+                            icon="cross"
+                            iconType="entypo"
+                            caretFunction={deleteLouvor}
                         />
                     } 
                     keyExtractor={item=>item.id}

@@ -10,9 +10,9 @@ export default function DuvidasScreen({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
     const Duvidas = [
-        'Como adicionar louvores ao repertório?', 
-        'Como importar novos louvores a lista?', 
-        'Como adicionar louvores a lista de favoritos?'
+        'Adicionar louvores ao repertório', 
+        'Importar novos louvores a lista', 
+        'Adicionar louvores a lista de favoritos'
     ]
 
     return (
@@ -31,7 +31,7 @@ export default function DuvidasScreen({navigation, route}) {
              <CustomView style={styles.pageBody}>
                 {Duvidas.map((text, index) => (
                     <TouchableOpacity key={index} style={[styles.button , { borderBottomColor:Theme }]} onPress={() => console.log(text)}>
-                        <Font style={{fontSize: 20}}>{text}</Font>
+                        <Font style={{fontSize: 17}}>{text}</Font>
                         <Icon name={'controller-play'} type='entypo' color={Theme} size={30}/>
                     </TouchableOpacity>                 
                 ))}
@@ -49,16 +49,17 @@ const styles = StyleSheet.create({
 
     pageBody: {
         flex:1,
-        padding:10,
+        padding:"4%",
         height:"100%"
     },
 
     button: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems:'center',
         marginBottom: 25,
-        paddingBottom: 5,
-        borderBottomWidth: 1
+        paddingVertical: 5,
+        borderBottomWidth: 1,
     }
 })
 

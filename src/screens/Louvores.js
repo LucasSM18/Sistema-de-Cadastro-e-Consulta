@@ -182,6 +182,8 @@ export default function LouvoresScreen({navigation, route}) {
                             content={item.lyrics} 
                             cifraUrl={item.cipher}
                             editableRoute={navigation}
+                            icon="playlist-music-outline"
+                            iconType="material-community"
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}

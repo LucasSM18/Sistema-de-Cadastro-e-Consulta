@@ -86,8 +86,8 @@ export default class CardFactory extends React.Component {
                         {this.props.caretFunction &&
                             <TouchableOpacity onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
                                 <Icon
-                                    name={this.props?.add ? 'add' : 'playlist-music-outline'}
-                                    type={this.props?.add ? 'material' : 'material-community'}
+                                    name={this.props?.icon}
+                                    type={this.props?.iconType}
                                     color='#a6a6a6'
                                     size={35}
                                 />  

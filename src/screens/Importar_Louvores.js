@@ -8,7 +8,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
 import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View, Keyboard } from 'react-native';
-import { async } from '@firebase/util';
 
 // const UploadFile = async () => {
 //     const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
@@ -229,6 +228,8 @@ export default function ImportaLouvores({navigation, route}) {
                             complement={item.artista} 
                             content={item.letra} 
                             cifraUrl={item.cifra}
+                            icon="add"
+                            iconType="material"
                             caretFunction={()=> route.params.addLouvor(item)}
                             add={true}
                         />
