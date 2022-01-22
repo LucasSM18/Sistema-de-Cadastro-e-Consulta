@@ -197,12 +197,34 @@ export default function LouvoresScreen({navigation, route}) {
         );
     };   
     
-    const Favoritos = () => {
+    const Favoritos = ({filter}) => {
+        setFilter(filter)
+        const desenvolvimento = [{id: 1, text: "Em"}, {id: 2, text: "Desenvolvimento"}]
         return (                   
             <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
-                <CustomView style={styles.pageBody}>
-                    <Font style={{ fontSize:30, alignSelf:'center', marginTop:'2%' }}>Em Desenvolvimento</Font>
-                </CustomView>
+               <Flatlist
+                    style={styles.pageBody}
+                    data={desenvolvimento} 
+                    renderItem={({item}) => 
+                        // <Card 
+                        //     keyID={item.id} 
+                        //     name={item.title} 
+                        //     complement={item.group} 
+                        //     content={item.lyrics} 
+                        //     cifraUrl={item.cipher}
+                        //     editableRoute={navigation}
+                        //     icon="playlist-music-outline"
+                        //     iconType="material-community"
+                        //     deleteLouvor={deleteLouvor}
+                        //     updateLouvor={updateLouvor}
+                        //     caretFunction={sendLouvor}
+                        // />
+                        <Font>{item.text}</Font>
+                    } 
+                    ListEmptyComponent={emptyList(notFound)}
+                    keyboardShouldPersistTaps="handled" 
+                    keyExtractor={item=>item.id.toString()}
+                />        
             </TouchableWithoutFeedback>
         );
     };    
