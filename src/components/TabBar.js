@@ -2,7 +2,11 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+
+import { collection,  getDocs } from 'firebase/firestore'
+import firebaseConnection from '../services/firebaseConnection'
+
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -28,7 +32,8 @@ const CustomAddButtom = function(props) {
 export default class TabBar extends React.Component { 
     constructor(props){
         super(props);
-        this.props.updateFavoritos()
+        this.favdb = []
+        this.updateFunc = this.props.updateFunc
         let tab = [];
         if(this.props.name.length === this.props.route.length){
             let i = this.props.name.length;
@@ -41,11 +46,55 @@ export default class TabBar extends React.Component {
                 });
             }
         }
-        this.state = { tab }
+      
+        this.state = { tab, loaded: false, favs: []}
     }    
 
+    getFavoritosFromDB = async()=> {
+        this.setState({...this.state, loaded: false})
+        const favoritos = await this.props.getFavoritosList()   
+        const listOfFavoritos = favoritos.map(favorito=>favorito.id)
+        const favoritosFromDB = []
+        const louvoresSnap = await getDocs(collection(firebaseConnection.db, 'louvores'))
+        const louvoresFromDb = []
+        louvoresSnap.forEach(louvor=> {
+            louvoresFromDb.push({id:louvor.id, ...louvor.data()})
+        })    
+        
+
+        listOfFavoritos.forEach(id=> {
+
+            const data = louvoresFromDb.filter(louvor=> 
+                louvor.id == id
+            )
+
+            if (data.length) favoritosFromDB.push(...data)
+
+        })
+       
+        this.setState({...this.state, loaded: true, favs: favoritosFromDB })
+        
+    }
+    
+
+    componentDidMount() {
+        console.log('mounted')        
+        const load = async( )=> {
+        try {
+            await this.getFavoritosFromDB()
+            await this.updateFunc()
+        }
+        catch(err) {
+            console.log(err)
+            }
+        }                
+       load()
+    }
+
+    
+
     render() {         
-        return (       
+        return this.state.loaded ? (
             <BarComponent style={{flex: 1}}>
                 <Tab.Navigator 
                     initialRouteName={this.props.name[-1]}
@@ -85,9 +134,9 @@ export default class TabBar extends React.Component {
                         >
                             {() => 
                                 this.props.filter? (
-                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter} favoritos={this.props.favoritos}/>
+                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter} favoritos={this.state.favs}/>
                                 ):(
-                                    <elements.route louvores={this.props.louvores} favoritos={this.props.favoritos}/>
+                                    <elements.route louvores={this.props.louvores} favoritos={this.state.favs}/>
                                 )
                             }
                         </Tab.Screen>                      
@@ -101,8 +150,12 @@ export default class TabBar extends React.Component {
                         route={this.props.customButtomRoute}
                     />
                 }
-            </BarComponent>            
-        );
+            </BarComponent>    
+        ) : ( 
+            <View>
+                <ActivityIndicator size={42} color="#333" />        
+            </View>
+        )
     }
 }
 

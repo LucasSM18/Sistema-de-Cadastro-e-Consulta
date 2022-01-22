@@ -23,17 +23,16 @@ export default function LouvoresScreen({navigation, route}) {
     const { logo } = route.params
     const [louvores, setLouvores] = useState([]);
     const [notFound, setNotFound] = useState('')
-    const [favoritos, setFavoritos] = useState([])
 
     const deleteLouvor = async (id, name) => {
         try {               
             await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
-            await getData()
             Alert.alert(
                 "Exclusão de Louvor",
                 `"${name}" excluído com sucesso!`
             )   
-          
+            await getData()
+
         }
         catch(err) {
             Alert.alert(
@@ -58,7 +57,8 @@ export default function LouvoresScreen({navigation, route}) {
             "Sucesso!😁 "
         )
 
-        await getData();
+        await getData()
+
     }
 
     const getData = async () => {
@@ -147,8 +147,8 @@ export default function LouvoresScreen({navigation, route}) {
             Alert.alert("Novo louvor",
             `"${louvor.titulo}" adicionado com sucesso! 🎉`)
 
-            await getData()
             
+            await getData()
         }
         catch(err) {
             Alert.alert('Houve um erro ao tentar adicionar esse louvor! Tente novamente mais tarde')
@@ -190,12 +190,16 @@ export default function LouvoresScreen({navigation, route}) {
                             content={item.lyrics} 
                             cifraUrl={item.cipher}
                             editableRoute={navigation}
+                            useIcon={true}
                             icon="playlist-music-outline"
                             iconType="material-community"
+                            useActions={true}
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}
                             favfunc={getFavoritosList}
+                            updateFunc={getData}
+                            
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}
@@ -209,13 +213,7 @@ export default function LouvoresScreen({navigation, route}) {
     const getFavoritosList = async() => {
         try {
             const fav = await AsyncStorage.getItem('@favoritos')
-            if (fav) {
-                setFavoritos(JSON.parse(fav))
-            }
-            else {
-                setFavoritos([])
-            }
-
+            
             return fav ? JSON.parse(fav) : []
         }
         catch(err) {
@@ -224,26 +222,29 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     const Favoritos = ({ favoritos }) => {
+      
         return (                   
             <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
                <Flatlist
                     style={styles.pageBody}
                     data={favoritos} 
                     renderItem={({item}) => 
-                        // <Card 
-                        //     keyID={item.id} 
-                        //     name={item.title} 
-                        //     complement={item.group} 
-                        //     content={item.lyrics} 
-                        //     cifraUrl={item.cipher}
-                        //     editableRoute={navigation}
-                        //     icon="playlist-music-outline"
-                        //     iconType="material-community"
-                        //     deleteLouvor={deleteLouvor}
-                        //     updateLouvor={updateLouvor}
-                        //     caretFunction={sendLouvor}
-                        // />
-                        <Font>{item.id} - teste</Font>
+                        <Card 
+                            keyID={item.id} 
+                            name={item.title} 
+                            complement={item.group} 
+                            content={item.lyrics} 
+                            cifraUrl={item.cipher}
+                            editableRoute={navigation}
+                            useIcon={false}
+                            icon="playlist-music-outline"
+                            iconType="material-community"
+                            useActions={false}
+                            deleteLouvor={deleteLouvor}
+                            updateLouvor={updateLouvor}
+                            caretFunction={sendLouvor}
+                            updateFunc={getData}
+                        />
                     } 
                     ListEmptyComponent={emptyList(notFound)}
                     keyboardShouldPersistTaps="handled" 
@@ -312,8 +313,7 @@ export default function LouvoresScreen({navigation, route}) {
                 filter={filter}
                 disable={shouldShow}
                 louvores={louvores}
-                favoritos={favoritos}
-                updateFavoritos={getFavoritosList}
+                getFavoritosList={getFavoritosList}
                 setLouvores={setLouvores}
                 addLouvor={addLouvor}
                 navigation={navigation}

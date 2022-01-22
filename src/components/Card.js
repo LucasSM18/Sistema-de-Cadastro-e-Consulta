@@ -12,7 +12,7 @@ export default class CardFactory extends React.Component {
         this.icon = {'up': 'caret-up', 'down': 'caret-down'};
         this.state = { expanded: false, showWebView: false };          
         this.url = `https://www.youtube.com/results?search_query=${props.name}+${props.complement}`
-        
+        this.updateFunc = this.props.updateFunc
     }  
 
     stringFormat = (string) => {
@@ -68,6 +68,7 @@ export default class CardFactory extends React.Component {
 
             await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
             Alert.alert('Louvor adicionado com sucesso aos favoritos! 😁')
+            await this.updateFunc()
         }
         catch(err) {
             Alert.alert('Erro', `${err} Não foi possível registrar esse favorito! Tente novamente mais tarde!`)
@@ -107,7 +108,7 @@ export default class CardFactory extends React.Component {
                             <Text style={{ color:'#a6a6a6' }}>{this.props.complement}</Text>
                         </View> 
                               
-                        {this.props.caretFunction &&
+                        {this.props.caretFunction && this.props.useIcon &&
                             <>
                                 <TouchableOpacity onPress={this.addToFavoriteList}>
                                     <Icon name={'md-heart'} type={'ionicon'} size={28} color='#a6a6a6' style={ {marginRight: 10}}/>
@@ -146,7 +147,7 @@ export default class CardFactory extends React.Component {
                                 )
                             </Text>
                                     
-                            {this.props.keyID&&this.props.editableRoute&&
+                            {this.props.keyID&&this.props.editableRoute&&this.props.useActions &&
                                 <Text style={styles.linkContainer}>
                                     (
                                         <TouchableOpacity 
@@ -168,7 +169,7 @@ export default class CardFactory extends React.Component {
                                 </Text>  
                             }
 
-                            {this.props.keyID&&this.props.deleteLouvor&&
+                            {this.props.keyID&&this.props.deleteLouvor&&this.props.useActions &&
                                 <Text style={styles.linkContainer}>
                                     (
                                         <TouchableOpacity 
