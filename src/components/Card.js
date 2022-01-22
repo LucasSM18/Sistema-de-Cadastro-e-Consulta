@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
 import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default class CardFactory extends React.Component {
     constructor(props){
@@ -43,12 +43,36 @@ export default class CardFactory extends React.Component {
             const supported = await Linking.canOpenURL(this.url);
             //
             if(supported) await Linking.openURL(this.url);
-            else Alert.alert('Link inácessivel! Por favor entre em contato com o administrador');       
+            else Alert.alert('Link inacessível! Por favor entre em contato com o administrador');       
     }
 
     onToggleHandler = async (expanded) => {
         this.setState({expanded: expanded})
         Keyboard.dismiss()
+    }
+
+    addToFavoriteList = async ()=> {
+        try {
+            const favs = await this.props.favfunc()
+
+            const found = favs.find(fav=> fav.id == this.props.keyID)
+
+            if (found) {
+                Alert.alert('Louvor já está na lista de favoritos!')
+                return
+            }
+
+            favs.push({
+                id: this.props.keyID
+            })
+
+            await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
+            Alert.alert('Louvor adicionado com sucesso aos favoritos! 😁')
+        }
+        catch(err) {
+            Alert.alert('Erro', `${err} Não foi possível registrar esse favorito! Tente novamente mais tarde!`)
+        }
+
     }
 
     render(){          
@@ -84,14 +108,19 @@ export default class CardFactory extends React.Component {
                         </View> 
                               
                         {this.props.caretFunction &&
-                            <TouchableOpacity onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
-                                <Icon
-                                    name={this.props?.icon}
-                                    type={this.props?.iconType}
-                                    color='#a6a6a6'
-                                    size={35}
-                                />  
-                            </TouchableOpacity>
+                            <>
+                                <TouchableOpacity onPress={this.addToFavoriteList}>
+                                    <Icon name={'md-heart'} type={'ionicon'} size={28} color='#a6a6a6' style={ {marginRight: 10}}/>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
+                                    <Icon
+                                        name={this.props?.icon}
+                                        type={this.props?.iconType}
+                                        color='#a6a6a6'
+                                        size={35}
+                                    />  
+                                </TouchableOpacity>
+                            </>
                         }                               
                     </CollapseHeader>      
 

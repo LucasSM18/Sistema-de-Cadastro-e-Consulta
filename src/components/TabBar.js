@@ -28,6 +28,7 @@ const CustomAddButtom = function(props) {
 export default class TabBar extends React.Component { 
     constructor(props){
         super(props);
+        this.props.updateFavoritos()
         let tab = [];
         if(this.props.name.length === this.props.route.length){
             let i = this.props.name.length;
@@ -84,9 +85,9 @@ export default class TabBar extends React.Component {
                         >
                             {() => 
                                 this.props.filter? (
-                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter}/>
+                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter} favoritos={this.props.favoritos}/>
                                 ):(
-                                    <elements.route louvores={this.props.louvores} />
+                                    <elements.route louvores={this.props.louvores} favoritos={this.props.favoritos}/>
                                 )
                             }
                         </Tab.Screen>                      

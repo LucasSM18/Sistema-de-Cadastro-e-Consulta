@@ -8,6 +8,7 @@ import { Flatlist, Font, CustomView } from '../components/Styles';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, Keyboard } from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 console.disableYellowBox = true;
@@ -22,8 +23,8 @@ export default function LouvoresScreen({navigation, route}) {
     const { logo } = route.params
     const [louvores, setLouvores] = useState([]);
     const [notFound, setNotFound] = useState('')
+    const [favoritos, setFavoritos] = useState([])
 
-    
     const deleteLouvor = async (id, name) => {
         try {               
             await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
@@ -167,6 +168,13 @@ export default function LouvoresScreen({navigation, route}) {
     },[filter]);
         
 
+    useEffect(()=> {
+        async function loadFavs() {
+            await getFavoritosList()
+        }
+        loadFavs()
+    }, [])
+
     const Louvores = ({ filter, louvores }) => {  
         setFilter(filter)
         return (        
@@ -187,6 +195,7 @@ export default function LouvoresScreen({navigation, route}) {
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}
+                            favfunc={getFavoritosList}
                         />
                     } 
                     ListEmptyComponent={emptyList(notFound)}
@@ -197,14 +206,29 @@ export default function LouvoresScreen({navigation, route}) {
         );
     };   
     
-    const Favoritos = ({filter}) => {
-        setFilter(filter)
-        const desenvolvimento = [{id: 1, text: "Em"}, {id: 2, text: "Desenvolvimento"}]
+    const getFavoritosList = async() => {
+        try {
+            const fav = await AsyncStorage.getItem('@favoritos')
+            if (fav) {
+                setFavoritos(JSON.parse(fav))
+            }
+            else {
+                setFavoritos([])
+            }
+
+            return fav ? JSON.parse(fav) : []
+        }
+        catch(err) {
+            Alert.alert('Erro', `Erro de conexão. Entre em contato com o adminstrador! ${err}`)
+        }
+    }
+
+    const Favoritos = ({ favoritos }) => {
         return (                   
             <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
                <Flatlist
                     style={styles.pageBody}
-                    data={desenvolvimento} 
+                    data={favoritos} 
                     renderItem={({item}) => 
                         // <Card 
                         //     keyID={item.id} 
@@ -219,11 +243,11 @@ export default function LouvoresScreen({navigation, route}) {
                         //     updateLouvor={updateLouvor}
                         //     caretFunction={sendLouvor}
                         // />
-                        <Font>{item.text}</Font>
+                        <Font>{item.id} - teste</Font>
                     } 
                     ListEmptyComponent={emptyList(notFound)}
                     keyboardShouldPersistTaps="handled" 
-                    keyExtractor={item=>item.id.toString()}
+                    keyExtractor={(item, idx) => idx}
                 />        
             </TouchableWithoutFeedback>
         );
@@ -288,6 +312,8 @@ export default function LouvoresScreen({navigation, route}) {
                 filter={filter}
                 disable={shouldShow}
                 louvores={louvores}
+                favoritos={favoritos}
+                updateFavoritos={getFavoritosList}
                 setLouvores={setLouvores}
                 addLouvor={addLouvor}
                 navigation={navigation}
