@@ -3,10 +3,14 @@ import moment from 'moment';
 import Card from '../components/Card'; 
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
-import { Flatlist, Font, CustomView } from '../components/Styles';
+import { Flatlist, CustomView, Font } from '../components/Styles';
 import { deleteDoc, getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
-import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
+
+const emptyList = () => {
+     return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Repertório Vazio</Font>   
+}
 
 const filtroData = () => {
     const today = moment();
@@ -36,6 +40,9 @@ const sendLouvores = (louvores) => {
 export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
     const [louvores, setLouvores] = useState([]);
+    const handler = louvores.length ? true : false; 
+    const [loaded, setLoaded] = useState(handler);
+    
 
     const deleteLouvor = async ({keyID, name}) => {
         try {               
@@ -85,6 +92,7 @@ export default function Repertorio({navigation, route}) {
         }
 
         setLouvores(data)
+        setLoaded(true);
     }
         
 
@@ -134,8 +142,10 @@ export default function Repertorio({navigation, route}) {
                 }
             />  
             <CustomView style={styles.pageBody}>
-                <Flatlist
+                {loaded ? (
+                    <Flatlist
                     data={louvores} 
+                    style={{flex:1}}
                     renderItem={({item}) => 
                         <Card 
                             keyID={item.id} 
@@ -148,8 +158,11 @@ export default function Repertorio({navigation, route}) {
                             caretFunction={deleteLouvor}
                         />
                     } 
+                    ListEmptyComponent={emptyList()}
                     keyExtractor={item=>item.id}
-                />
+                    />
+                ) :  <ActivityIndicator size={100} color="#191919" /> 
+                }
             </CustomView>          
         </View>        
     )
@@ -164,7 +177,8 @@ const styles = StyleSheet.create({
     pageBody: {
         flex:1,
         padding:5,
-        height:"100%"
+        height:"100%",
+        justifyContent:'center'
     }
 })
 
