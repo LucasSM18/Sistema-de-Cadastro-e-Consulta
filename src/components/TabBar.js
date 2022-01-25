@@ -3,7 +3,6 @@ import { BarComponent, CustomView } from './Styles';
 import { Icon } from 'react-native-elements';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { TouchableOpacity, ActivityIndicator } from 'react-native';
-
 import { collection,  getDocs } from 'firebase/firestore'
 import firebaseConnection from '../services/firebaseConnection'
 

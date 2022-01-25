@@ -24,9 +24,9 @@ export default function LouvoresScreen({navigation, route}) {
     const [notFound, setNotFound] = useState('');
     const { logo } = route.params
 
-    const deleteLouvor = async (id, name) => {
+    const deleteLouvor = async ({keyID, name}) => {
         try {               
-            await deleteDoc(doc(firebaseConnection.db, 'louvores', id))
+            await deleteDoc(doc(firebaseConnection.db, 'louvores', keyID))
             Alert.alert(
                 "Exclusão de Louvor",
                 `"${name}" excluído com sucesso!`
@@ -40,7 +40,6 @@ export default function LouvoresScreen({navigation, route}) {
                 `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
             )
         }
-
     }
 
 
@@ -193,7 +192,6 @@ export default function LouvoresScreen({navigation, route}) {
                             addFavorites={true}
                             icon="playlist-music-outline"
                             iconType="material-community"
-                            useActions={true}
                             deleteLouvor={deleteLouvor}
                             updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}
@@ -212,7 +210,7 @@ export default function LouvoresScreen({navigation, route}) {
     
     const getFavoritosList = async() => {
         try {
-            const fav = await AsyncStorage.getItem('@favoritos')
+            const fav = await AsyncStorage.getItem('@favoritos');
             
             return fav ? JSON.parse(fav) : []
         }
@@ -249,6 +247,29 @@ export default function LouvoresScreen({navigation, route}) {
             ));            
         }
 
+        const removeFavoritos = async({keyID}) => {
+            try {               
+                const favs = await getFavoritosList();
+                const removeFav = favs.findIndex(({id}) => id === keyID);
+                favs.splice(removeFav, 1);
+                
+                await AsyncStorage.removeItem('@favoritos');
+                await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
+
+                Alert.alert(
+                    "Remoção do Louvor da lista",
+                    `"${name}" removido com sucesso!😁'`
+                )   
+    
+            }
+            catch(err) {
+                Alert.alert(
+                    "Erro",
+                    `${err}: Ocorreu um erro e não foi possível remover o louvor da lista no momento. Tente novamente mais tarde`
+                )
+            }
+        }
+
         useEffect(() => {
             async function filterFavs() {
                 await searchFavorites();
@@ -270,13 +291,12 @@ export default function LouvoresScreen({navigation, route}) {
                             complement={item.group} 
                             content={item.lyrics} 
                             cifraUrl={item.cipher}
-                            editableRoute={navigation}
+                            // editableRoute={navigation}
                             addFavorites={false}
                             icon="playlist-music-outline"
                             iconType="material-community"
-                            useActions={false}
-                            deleteLouvor={deleteLouvor}
-                            updateLouvor={updateLouvor}
+                            deleteLouvor={removeFavoritos}
+                            // updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}
                             updateFunc={getData}
                         />

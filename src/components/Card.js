@@ -147,7 +147,7 @@ export default class CardFactory extends React.Component {
                                 )
                             </Text>
                                     
-                            {this.props.keyID&&this.props.editableRoute&&this.props.useActions &&
+                            {this.props.keyID&&this.props.updateLouvor &&
                                 <Text style={styles.linkContainer}>
                                     (
                                         <TouchableOpacity 
@@ -169,12 +169,12 @@ export default class CardFactory extends React.Component {
                                 </Text>  
                             }
 
-                            {this.props.keyID&&this.props.deleteLouvor&&this.props.useActions &&
+                            {this.props.keyID&&this.props.deleteLouvor&&
                                 <Text style={styles.linkContainer}>
                                     (
                                         <TouchableOpacity 
                                             onPress={()=> {
-                                                this.props.deleteLouvor(this.props.keyID, this.props.name)
+                                                this.props.deleteLouvor(this.props)
                                             }}
                                         >                                    
                                             <Text style={styles.link}>Remover</Text>
