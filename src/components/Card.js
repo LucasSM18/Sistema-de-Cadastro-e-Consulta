@@ -138,14 +138,17 @@ export default class CardFactory extends React.Component {
                                     </TouchableOpacity>
                                 )
                             </Text>
-
-                            <Text style={styles.linkContainer}>
-                                (
-                                    <TouchableOpacity onPress={() => this.setState({showWebView: true})}>                                    
-                                        <Text style={styles.link}>Cifras</Text>
-                                    </TouchableOpacity>
-                                )
-                            </Text>
+                            
+                            {this.props.cifraUrl &&
+                                <Text style={styles.linkContainer}>
+                                    (
+                                        <TouchableOpacity onPress={() => this.setState({showWebView: true})}>                                    
+                                            <Text style={styles.link}>Cifras</Text>
+                                        </TouchableOpacity>
+                                    )
+                                </Text>
+                            }
+                    
                                     
                             {this.props.keyID&&this.props.updateLouvor &&
                                 <Text style={styles.linkContainer}>
