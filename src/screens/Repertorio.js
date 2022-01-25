@@ -4,7 +4,7 @@ import Card from '../components/Card';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
-import { deleteDoc, getDoc, doc, updateDoc } from 'firebase/firestore';
+import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
 
@@ -40,13 +40,12 @@ const sendLouvores = (louvores) => {
 export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
     const [louvores, setLouvores] = useState([]);
-    const handler = louvores.length ? true : false; 
-    const [loaded, setLoaded] = useState(handler);
+    const [loaded, setLoaded] = useState(false);
     
 
     const deleteLouvor = async ({keyID, name}) => {
         try {               
-            console.log(keyID + ' ' + name)
+            // console.log(keyID + ' ' + name)
             const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
             const docRepertorio = await getDoc(docRef)
 
@@ -142,26 +141,27 @@ export default function Repertorio({navigation, route}) {
                 }
             />  
             <CustomView style={styles.pageBody}>
-                {loaded ? (
-                    <Flatlist
-                    data={louvores} 
-                    style={{flex:1}}
-                    renderItem={({item}) => 
-                        <Card 
-                            keyID={item.id} 
-                            name={item.title} 
-                            cifraUrl={item.cipher}
-                            complement={item.group} 
-                            content={item.lyrics} 
-                            icon="cross"
-                            iconType="entypo"
-                            caretFunction={deleteLouvor}
+                {loaded ? 
+                    (
+                        <Flatlist
+                            data={louvores} 
+                            style={{flex:1}}
+                            renderItem={({item}) => 
+                                <Card 
+                                    keyID={item.id} 
+                                    name={item.title} 
+                                    cifraUrl={item.cipher}
+                                    complement={item.group} 
+                                    content={item.lyrics} 
+                                    icon="cross"
+                                    iconType="entypo"
+                                    caretFunction={deleteLouvor}
+                                />
+                            } 
+                            ListEmptyComponent={emptyList()}
+                            keyExtractor={item=>item.id}
                         />
-                    } 
-                    ListEmptyComponent={emptyList()}
-                    keyExtractor={item=>item.id}
-                    />
-                ) :  <ActivityIndicator size={100} color="#191919" /> 
+                    ) : <ActivityIndicator size={100} color="#191919"/> 
                 }
             </CustomView>          
         </View>        
