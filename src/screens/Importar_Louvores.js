@@ -3,40 +3,26 @@ import Themes from '../themes/Themes';
 import Card from '../components/Card';
 import Header from '../components/Header';
 import { CheckBox, Icon } from 'react-native-elements';
-// import * as DocumentPicker from 'expo-document-picker';
 import { collection, getDocs } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, Alert, View, Keyboard } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme, ActivityIndicator, View, Keyboard } from 'react-native';
 
-// const UploadFile = async () => {
-//     const types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/pdf","application/msword"]
-//     const res = await DocumentPicker.getDocumentAsync({});
-//     if(types.includes(res.file.type)){                
-//           console.log(res.uri)   
-//     } else {
-//         Alert.alert( 
-//             "ARQUIVO INVÁLIDO!", 
-//             "Apenas arquivos .DOC, .DOCX e .PDF são aceitos",
-//         );      
-//     }
-// }
+const emptyList = (content) => {
+    return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>   
+}
 
 //função para setar os louvores
-
 export default function ImportaLouvores({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
     const [result, setResult] = useState('');   
     const [louvores, setLouvores] = useState([]);
-    // const [keep, setKeep] = useState(null);
+    const [loaded, setLoaded] = useState(true);
+    const [notFound, setNotFound] = useState('')
     const [isChecked, setChecked] = useState(false);
     const apiUrl = "https://api.codetabs.com/v1/proxy?quest=https://www.letras.mus.br"
     // const delay = ms => new Promise(res => setTimeout(res, ms));
-
-    const getPosition = (string, subString, index) => {
-        return string.split(subString, index).join(subString).length;
-    }
 
     const getArtistas = async () => {
         const artistas = []
@@ -51,74 +37,74 @@ export default function ImportaLouvores({navigation, route}) {
     }
 
     const searchHandler = async () => {
-        setLouvores([]); 
+        setLouvores([]);
+        setNotFound('Nenhum resultado de pesquisa');
+        Keyboard.dismiss(); 
         if (!result) return 
-        
+
+        setLoaded(false);
         const resultTrim = result.trim();
-        const Artistas = await getArtistas();
+        const Artistas = await getArtistas();       
+    
+        // console.log(length)
 
-        // console.log(resultTrim)
+        const promise = await Promise.all(Artistas.map(async art => {
+            const { id, artista } = art;            
 
-        Artistas.map(async art => {
-            const { id, artista } = art;
+            if(isChecked) await searchByArtist(artista, resultTrim);
+            else await searchDefault(id, artista, resultTrim);
+        }));
 
-            if(!isChecked) searchDefault(id, artista, resultTrim);
-            else searchByArtist(artista, resultTrim);
-            
-        });
-
-        // console.log(songs)
-        Keyboard.dismiss();
+        setLoaded(true);
     }
 
     const searchDefault = async (id, art, mus) => {
-        const music = String(mus).replace(/ |\(|\)/g, '-').replace(/\?|\!|\.|\'/g, "");
-        const artist = String(art).replace(/ /g, '-');
+        const music = formatString(mus);
+        const artist = formatString(art);
         const url = `${apiUrl}/${artist}/${music}/`;
 
         const response = await fetch(url);
-        const data = await response.text();
 
-        const titleStart = data.indexOf(`<div class="cnt-head_title">`);
-        const lyricsStart = data.indexOf("cnt-letra p402_premium")
-        const cifraStart = data.indexOf(`<a href="https://www.cifraclub.com.br/`);
+        if(response.status < 400){
+            const data = await response.text();
 
-        const title = data.substring(
-            titleStart + 33,
-            titleStart + data.substring(titleStart).indexOf("</h1>")
-        ).replace(/&#39;/g,"'");
+            const titleStart = data.indexOf(`<div class="cnt-head_title">`);
+            const lyricsStart = data.indexOf("cnt-letra p402_premium")
+            const cifraStart = data.indexOf(`<a href="https://www.cifraclub.com.br/`);
 
-        const cifra = data.substring(
-            cifraStart + 9,
-            cifraStart + data.substring(cifraStart).indexOf(`/"`) + 1
-        )
+            const title = data.substring(
+                titleStart + 33,
+                titleStart + data.substring(titleStart).indexOf("</h1>")
+            ).replace(/&#39;/g,"'");
 
-        const lyrics = data.substring(
-            lyricsStart + 25,
-            lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
-        ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
+            const cifra = data.substring(
+                cifraStart + 9,
+                cifraStart + data.substring(cifraStart).indexOf(`/"`) + 1
+            )
 
-        const handler = ['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => title.includes(item) || lyrics.includes(item));
+            const lyrics = data.substring(
+                lyricsStart + 25,
+                lyricsStart + data.substring(lyricsStart).indexOf("</div>") 
+            ).replace('<p>','').replace(/<p>|<\/p>|<br\/>/g,'\n').replace(/&#39;/g,"'");
 
-        const filter = !isChecked ? title.toLowerCase().includes(mus.toLowerCase()) || lyrics.toLowerCase().includes(mus.toLowerCase()) : true  
+            const handler = ['DOCTYPE','html', 'head', 'body', 'JFIF'].some(item => title.includes(item) || lyrics.includes(item));
 
-        if(!handler && lyrics.length > 100 && response.status < 400 && filter){
-            // const titleFormat = formatString(title);
-            // const artistFormat = formatString(art);
-            setLouvores(louvores => [
-                ...louvores.sort((a,b) => !isChecked ?
-                        ( a.titulo.toLowerCase().includes(mus.toLowerCase()) ? -1 : b.titulo.toLowerCase().includes(mus.toLowerCase()) ? 1 : 0 ) 
-                    :
-                        ( a.titulo > b.titulo ? 1 : b.titulo > a.titulo ? -1 : 0 )
-                ),
-                {
-                    id: art + id,
-                    titulo: title,
-                    cifra: cifra,
-                    artista: art,
-                    letra: lyrics
-                }
-            ])
+            const filter = !isChecked ? title.toLowerCase().includes(mus.toLowerCase()) || lyrics.toLowerCase().includes(mus.toLowerCase()) : true  
+
+            if(!handler && lyrics.length > 100 && filter){
+                // const titleFormat = formatString(title);
+                // const artistFormat = formatString(art);
+                setLouvores(louvores => [
+                    ...louvores,
+                    {
+                        id: art + id,
+                        titulo: title,
+                        cifra: cifra,
+                        artista: art,
+                        letra: lyrics
+                    }
+                ])
+            }
         }        
     }
 
@@ -130,7 +116,7 @@ export default function ImportaLouvores({navigation, route}) {
             const response = await fetch(url);
             const data = await response.text();
 
-            if(data.includes('JFIF')||response.status>400) return
+            if(response.status>400||data.includes('JFIF')) return
 
             const listStart = data.indexOf('cnt-list-songs -counter -top-songs js-song-list');
 
@@ -155,22 +141,28 @@ export default function ImportaLouvores({navigation, route}) {
                 // console.log(art + " - " + mus)
                 // if(i % 50 === 0) await delay(5000);
 
-                searchDefault(i+1,art, mus)
+                await searchDefault(i+1, art, mus, false)
 
                 i++
             }
-            
-        }
+        } 
+       
     }
 
-    // const flatFooter = () => {
-    //     return (
-    //         keep &&
-    //         <TouchableOpacity style={styles.footer}>
-    //             <Font>MAIS LOUVORES...</Font>
-    //         </TouchableOpacity>
-    //     )
-    // }
+    const getPosition = (string, subString, index) => {
+        return string.split(subString, index).join(subString).length;
+    }
+
+    const formatString = (string) => {
+        return String(string).replace(/%C3%A9/g, 'e').replace(/%C3%A3/g, 'a').replace(/ |\(|\)/g, '-').replace(/\?|\!|\.|\'/g, "")
+    }
+
+    const sortedList = (list) => {
+        const resultTrim = result.trim().toLowerCase();
+        if(isChecked) return list.sort((a,b) => a.titulo > b.titulo ? 1 : b.titulo > a.titulo ? -1 : 0 ); 
+        return list.sort((a,b) => b.titulo > a.titulo && a.titulo.toLowerCase().includes(resultTrim) ? -1 : 
+                                  a.titulo > b.titulo && b.titulo.toLowerCase().includes(resultTrim) ? 1 : 0 ); 
+    }
      
     return (
         <View style={{flex:1}}>
@@ -189,7 +181,7 @@ export default function ImportaLouvores({navigation, route}) {
             />
 
             <CustomView style={styles.pageBody}>
-                <View style={[styles.search, {borderBottomColor:Theme.subColor}]}>
+                <View style={[styles.search, {borderBottomColor:Theme.subColor}]} pointerEvents={loaded ? 'auto' : 'none'}>
                     <Search
                         style={{ flex:3, fontSize:16 }}
                         selectionColor={Theme.color}
@@ -209,6 +201,7 @@ export default function ImportaLouvores({navigation, route}) {
                 </View>
                 
                 <CheckBox 
+                    disabled={loaded ? false : true}
                     containerStyle={styles.checkBox} 
                     textStyle={{color:Theme.subColor}}
                     checkedIcon='check-square-o'
@@ -218,25 +211,33 @@ export default function ImportaLouvores({navigation, route}) {
                     checkedColor={Theme.subColor}
                     onPress={() => setChecked(!isChecked)}
                 />
-            
-                <Flatlist
-                    style={{margin:5}}
-                    data={louvores} 
-                    renderItem={({item}) => 
-                        <Card 
-                            name={item.titulo} 
-                            complement={item.artista} 
-                            content={item.letra} 
-                            cifraUrl={item.cifra}
-                            icon="add"
-                            iconType="material"
-                            caretFunction={()=> route.params.addLouvor(item)}
-                            add={true}
+
+                {loaded ?
+                    (
+                        <Flatlist
+                            style={{margin:5}}
+                            data={sortedList(louvores)} 
+                            renderItem={({item}) => 
+                                <Card 
+                                    name={item.titulo} 
+                                    complement={item.artista} 
+                                    content={item.letra} 
+                                    cifraUrl={item.cifra}
+                                    icon="add"
+                                    iconType="material"
+                                    caretFunction={()=> route.params.addLouvor(item)}
+                                    add={true}
+                                />
+                            }    
+                            ListEmptyComponent={emptyList(notFound)}
+                            keyExtractor={(item)=>item.id.toString()}
                         />
-                    } 
-                    // ListFooterComponent={flatFooter}
-                    keyExtractor={(item)=>item.id.toString()}
-                />
+                    ) : ( 
+                        <View style={{flex:1, justifyContent: "center"}}>
+                            <ActivityIndicator size={100} color="#191919"/>
+                        </View>
+                    ) 
+                }
             </CustomView>    
         </View>        
     )

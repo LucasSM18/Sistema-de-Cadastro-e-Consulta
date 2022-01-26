@@ -11,20 +11,21 @@ export default class SearchBar extends React.Component {
         this.state = { result: '' };           
     }  
 
-    eraseAll = () => {
+    eraseAll = async () => {
         this.setState({result:''});
-        this.input.focus()
+        this.input.focus();
+        this.props.onChange('');
     }
 
     render(){
         return(
             <BarComponent style={[styles.navBar, Platform.OS!=='web'?{height:75, paddingTop:20}:{height:65}]}> 
                 {
-                    this.props.leftComponent?(
+                    this.props.leftComponent &&(
                         <View style={styles.leftContainer}>               
                             {this.props.leftComponent}
                         </View>
-                    ):null
+                    )
                 }
                  
                 <SearchContainer style={styles.rightContainer}>               

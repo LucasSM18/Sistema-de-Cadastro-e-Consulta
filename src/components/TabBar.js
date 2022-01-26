@@ -77,7 +77,7 @@ export default class TabBar extends React.Component {
     
 
     componentDidMount() {
-        console.log('mounted')        
+        // console.log('mounted')        
         const load = async( )=> {
         try {
             await this.getFavoritosFromDB()

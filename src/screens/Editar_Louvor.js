@@ -20,7 +20,7 @@ export default function EditarLouvor({navigation, route}) {
         id: route.params.id,
         title: route.params.title,
         group: route.params.group,
-        link: route.params.link,
+        cipher: route.params.cipher,
         lyrics: route.params.lyrics
     })
 
@@ -70,14 +70,22 @@ export default function EditarLouvor({navigation, route}) {
                         onChangeText={(text)=> setLouvor({...louvor, group: text})}            
                     />
 
-                <Search
-                    style={[ styles.textInput, { height:310, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
-                    multiline={true}
-                    placeholderTextColor={Theme}
-                    placeholder={"Letra da Musica..."}                  
-                    value={louvor.lyrics}   
-                    onChangeText={text=> setLouvor({...louvor, lyrics: text })}
-                />
+                    <Search
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
+                        placeholderTextColor={Theme}
+                        placeholder={'Cifras (Opcional)'}       
+                        value={louvor.cipher}    
+                        onChangeText={(text)=> setLouvor({...louvor, cipher: text})}            
+                    />
+
+                    <Search
+                        style={[ styles.textInput, { height:300, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
+                        multiline={true}
+                        placeholderTextColor={Theme}
+                        placeholder={"Letra da Musica..."}                  
+                        value={louvor.lyrics}   
+                        onChangeText={text=> setLouvor({...louvor, lyrics: text })}
+                    />
 
                 <CustomButtom style={styles.button} onPress={() => updateHandler()}>                    
                     <Text style={{color:'#fff'}}>Editar</Text>                       

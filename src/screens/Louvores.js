@@ -10,18 +10,16 @@ import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 console.disableYellowBox = true;
 
-const emptyList = (content) => {
-    return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>    
+const emptyList = () => {
+    return  <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Nenhum resultado encontrado</Font>    
 }
 
 export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
     const [louvores, setLouvores] = useState([]);
-    const [notFound, setNotFound] = useState('');
     const { logo } = route.params
 
     const deleteLouvor = async ({keyID, name}) => {
@@ -92,7 +90,7 @@ export default function LouvoresScreen({navigation, route}) {
             data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
             setLouvores(data); 
         }
-        if(!notFound) setNotFound('Nenhum resultado encontrado')
+
         return
     }
 
@@ -121,7 +119,7 @@ export default function LouvoresScreen({navigation, route}) {
                 await updateDoc(docRef, newDoc)
                 
                 Alert.alert("Repertório",
-                "Louvor adicionado com sucesso ao repertório 🎉")
+                `${props.name} adicionado com sucesso ao repertório 🎉`)
                
             }
             else {
@@ -174,10 +172,9 @@ export default function LouvoresScreen({navigation, route}) {
         loadFavs()
     }, [])
 
-    const Louvores = ({ filter, louvores }) => {  
-        setFilter(filter)
+    const Louvores = ({ louvores }) => {  
         return (        
-            <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
+            <TouchableWithoutFeedback onPress={() => hideSearch()}>
                 <Flatlist
                     style={styles.pageBody}
                     data={louvores} 
@@ -200,7 +197,7 @@ export default function LouvoresScreen({navigation, route}) {
                             
                         />
                     } 
-                    ListEmptyComponent={emptyList(notFound)}
+                    ListEmptyComponent={emptyList()}
                     keyboardShouldPersistTaps="handled" 
                     keyExtractor={item=>item.id.toString()}
                 />        
@@ -301,13 +298,18 @@ export default function LouvoresScreen({navigation, route}) {
                             updateFunc={getData}
                         />
                     } 
-                    ListEmptyComponent={emptyList(notFound)}
+                    ListEmptyComponent={emptyList()}
                     keyboardShouldPersistTaps="handled" 
                     keyExtractor={(item, idx) => idx}
                 />        
             </TouchableWithoutFeedback>
         );
     };    
+
+    const hideSearch = async () => {
+        setFilter('');
+        setShouldShow(false);
+    }
 
     return (
         <View style={{flex:1}}>       
@@ -316,7 +318,7 @@ export default function LouvoresScreen({navigation, route}) {
                     <SearchBar 
                         onChange={value => setFilter(value)}
                         leftComponent={
-                            <TouchableOpacity onPress={() => setShouldShow(!shouldShow)}>     
+                            <TouchableOpacity onPress={() => hideSearch()}>     
                                 <Icon
                                     name={'md-arrow-back-outline'} 
                                     type='ionicon'
