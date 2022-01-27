@@ -6,11 +6,12 @@ import { CheckBox, Icon } from 'react-native-elements';
 import { collection, getDocs } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, ActivityIndicator, View, Keyboard } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme, ActivityIndicator, Modal, View, Keyboard } from 'react-native';
 
 const emptyList = (content) => {
     return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>   
 }
+
 
 //função para setar os louvores
 export default function ImportaLouvores({navigation, route}) {
@@ -38,7 +39,7 @@ export default function ImportaLouvores({navigation, route}) {
 
     const searchHandler = async () => {
         setLouvores([]);
-        setNotFound('Nenhum resultado de pesquisa');
+        setNotFound('');
         Keyboard.dismiss(); 
         if (!result) return 
 
@@ -48,14 +49,15 @@ export default function ImportaLouvores({navigation, route}) {
     
         // console.log(length)
 
-        const promise = await Promise.all(Artistas.map(async art => {
-            const { id, artista } = art;            
+        await Promise.all(Artistas.map(async art => {
+            const { id, artista } = await art;            
 
             if(isChecked) await searchByArtist(artista, resultTrim);
             else await searchDefault(id, artista, resultTrim);
         }));
 
         setLoaded(true);
+        if(!louvores.length) setNotFound('Nenhum resultado de pesquisa');
     }
 
     const searchDefault = async (id, art, mus) => {
@@ -154,7 +156,7 @@ export default function ImportaLouvores({navigation, route}) {
     }
 
     const formatString = (string) => {
-        return String(string).replace(/%C3%A9/g, 'e').replace(/%C3%A3/g, 'a').replace(/ |\(|\)/g, '-').replace(/\?|\!|\.|\'/g, "")
+        return String(string).replace(/%C3%A9/g, 'e').replace(/&#39;/g,"'").replace(/%C3%A3/g, 'a').replace(/ |\(|\)/g, '-').replace(/\?|\!|\.|\'/g, "")
     }
 
     const sortedList = (list) => {
@@ -181,7 +183,19 @@ export default function ImportaLouvores({navigation, route}) {
             />
 
             <CustomView style={styles.pageBody}>
-                <View style={[styles.search, {borderBottomColor:Theme.subColor}]} pointerEvents={loaded ? 'auto' : 'none'}>
+                <Modal
+                    animationType={'fade'}
+                    style={styles.modal}
+                    visible={!loaded}
+                    statusBarTranslucent
+                    transparent
+                >
+                    <CustomView style={styles.modalBackground}>
+                        <ActivityIndicator size={100} color="#a6a6a6"/>
+                    </CustomView>
+                </Modal>
+
+                <View style={[styles.search, {borderBottomColor:Theme.subColor}]}>
                     <Search
                         style={{ flex:3, fontSize:16 }}
                         selectionColor={Theme.color}
@@ -201,7 +215,6 @@ export default function ImportaLouvores({navigation, route}) {
                 </View>
                 
                 <CheckBox 
-                    disabled={loaded ? false : true}
                     containerStyle={styles.checkBox} 
                     textStyle={{color:Theme.subColor}}
                     checkedIcon='check-square-o'
@@ -212,32 +225,24 @@ export default function ImportaLouvores({navigation, route}) {
                     onPress={() => setChecked(!isChecked)}
                 />
 
-                {loaded ?
-                    (
-                        <Flatlist
-                            style={{margin:5}}
-                            data={sortedList(louvores)} 
-                            renderItem={({item}) => 
-                                <Card 
-                                    name={item.titulo} 
-                                    complement={item.artista} 
-                                    content={item.letra} 
-                                    cifraUrl={item.cifra}
-                                    icon="add"
-                                    iconType="material"
-                                    caretFunction={()=> route.params.addLouvor(item)}
-                                    add={true}
-                                />
-                            }    
-                            ListEmptyComponent={emptyList(notFound)}
-                            keyExtractor={(item)=>item.id.toString()}
+                <Flatlist
+                    style={{margin:5}}
+                    data={sortedList(louvores)} 
+                    renderItem={({item}) => 
+                        <Card 
+                            name={item.titulo} 
+                            complement={item.artista} 
+                            content={item.letra} 
+                            cifraUrl={item.cifra}
+                            icon="add"
+                            iconType="material"
+                            caretFunction={()=> route.params.addLouvor(item)}
+                            add={true}
                         />
-                    ) : ( 
-                        <View style={{flex:1, justifyContent: "center"}}>
-                            <ActivityIndicator size={100} color="#191919"/>
-                        </View>
-                    ) 
-                }
+                    }    
+                    ListEmptyComponent={emptyList(notFound)}
+                    keyExtractor={(item)=>item.id.toString()}
+                />
             </CustomView>    
         </View>        
     )
@@ -270,10 +275,16 @@ const styles = StyleSheet.create({
         paddingHorizontal:2
     },
 
-    footer: {
-        alignSelf: 'center',
-        justifyContent: 'center',
-        padding: 15
+    modal: {
+        flex:1, 
+        justifyContent: "center", 
+        alignContent: "center"
+    },
+
+    modalBackground: {
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        justifyContent: "center",
+        height:'100%'
     }
 })
 
