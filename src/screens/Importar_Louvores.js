@@ -50,14 +50,17 @@ export default function ImportaLouvores({navigation, route}) {
         // console.log(length)
 
         await Promise.all(Artistas.map(async art => {
-            const { id, artista } = await art;            
+            const { id, artista } = art;            
 
             if(isChecked) await searchByArtist(artista, resultTrim);
             else await searchDefault(id, artista, resultTrim);
+
+            return;
         }));
 
         setLoaded(true);
         if(!louvores.length) setNotFound('Nenhum resultado de pesquisa');
+        return;
     }
 
     const searchDefault = async (id, art, mus) => {
@@ -108,6 +111,7 @@ export default function ImportaLouvores({navigation, route}) {
                 ])
             }
         }        
+        return;
     }
 
     const searchByArtist = async (art, res) => {        
@@ -134,7 +138,8 @@ export default function ImportaLouvores({navigation, route}) {
             // console.log(i)
 
             while(i < 20){
-                const itemStart = getPosition(items, "<span>", i+1) + 6;
+                ++i;
+                const itemStart = getPosition(items, "<span>", i) + 6;
                 const mus = items.substring(
                     itemStart,
                     itemStart + items.substring(itemStart).indexOf("</span>")
@@ -143,12 +148,10 @@ export default function ImportaLouvores({navigation, route}) {
                 // console.log(art + " - " + mus)
                 // if(i % 50 === 0) await delay(5000);
 
-                await searchDefault(i+1, art, mus, false)
-
-                i++
+                await searchDefault(i, art, mus)
             }
         } 
-       
+        return;       
     }
 
     const getPosition = (string, subString, index) => {
