@@ -134,12 +134,17 @@ export default function ImportaLouvores({navigation, route}) {
             // console.log(items)
 
             let  i = 0;
+            let preview = null;
 
             // console.log(i)
 
             while(i < 20){
                 ++i;
                 const itemStart = getPosition(items, "<span>", i) + 6;
+                // console.log(itemStart);
+
+                if(itemStart===preview) break;
+                
                 const mus = items.substring(
                     itemStart,
                     itemStart + items.substring(itemStart).indexOf("</span>")
@@ -149,6 +154,7 @@ export default function ImportaLouvores({navigation, route}) {
                 // if(i % 50 === 0) await delay(5000);
 
                 await searchDefault(i, art, mus)
+                preview = itemStart;
             }
         } 
         return;       
