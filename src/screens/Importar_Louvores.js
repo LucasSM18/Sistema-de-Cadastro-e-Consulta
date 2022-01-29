@@ -12,7 +12,6 @@ const emptyList = (content) => {
     return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>   
 }
 
-
 //função para setar os louvores
 export default function ImportaLouvores({navigation, route}) {
     const deviceTheme = useColorScheme();
@@ -116,9 +115,9 @@ export default function ImportaLouvores({navigation, route}) {
 
     const searchByArtist = async (art, res) => {        
         if(art.toLowerCase().includes(res.toLowerCase())){
-            const artist = art.replace(/ /g, '-');
+            const artist = formatString(art);
             const url = `${apiUrl}/${artist}/mais_acessadas.html`;
-
+           
             const response = await fetch(url);
             const data = await response.text();
 
