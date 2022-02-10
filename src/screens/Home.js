@@ -1,14 +1,14 @@
 import React from 'react';
 import { Icon } from 'react-native-elements';
-import { StyleSheet, TouchableOpacity, View, Text, Alert, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Alert, Image } from 'react-native';
 
 export default function HomeScreen({navigation}) {
     const logo = require('../../assets/logo.png');
-    const icons = ["music-note-outline", "playlist-music-outline", "calendar-month-outline", "comment-question-outline"]
-    const text = ["Músicas", "Repertório", "Escala", "Dúvidas"]
+    const icons = ["music-note-outline", "playlist-music-outline", "calendar-month-outline", "lightbulb-on-outline", "comment-question-outline"]
+    const text = ["Músicas", "Repertório", "Escala", "Sugestões", "Dúvidas"]
     
     return (
-        <View style={styles.pageBody}>
+        <ScrollView style={styles.pageBody}>
             <View style={styles.container}>
                 <Image style={styles.logo} source={logo}/>
                 <View style={styles.iconsContainer}>
@@ -29,14 +29,14 @@ export default function HomeScreen({navigation}) {
                     ))}
                 </View>
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
     pageBody: {
         backgroundColor:"#262626",
-        flex:1
+        flexGrow:1
     },
 
     container: {
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     icons: {
         height:60,
         flexBasis:'40%',
-        marginVertical:50,
-        display:'flex',
+        marginVertical:45,
+        display:'flex'
     }
 })

@@ -10,9 +10,9 @@ export default function DuvidasScreen({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
     const Duvidas = [
-        'Adicionar louvores ao repertório', 
-        'Importar novos louvores a lista', 
-        'Adicionar louvores a lista de favoritos'
+        'Adicionar louvores ao repertório',
+        'Importar novos louvores',
+        'Adicionar louvores a lista de favoritos'  
     ]
 
     return (

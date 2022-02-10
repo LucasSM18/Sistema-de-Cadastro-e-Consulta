@@ -60,8 +60,8 @@ export default function Repertorio({navigation, route}) {
 
             await getData()
             Alert.alert(
-                "Exclusão de Louvor",
-                `"${name}" excluído com sucesso!`
+                "Remoção de Louvor",
+                `"${name}" removido com sucesso!`
             )             
         }
         catch(err) {

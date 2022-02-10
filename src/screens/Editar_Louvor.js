@@ -15,7 +15,7 @@ import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-
 
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
-    const Theme = Themes[deviceTheme].subColor || Themes.light.subColor;
+    const Theme = Themes[deviceTheme] || Themes.light;
     const [louvor, setLouvor] = useState({
         id: route.params.id,
         title: route.params.title,
@@ -52,9 +52,10 @@ export default function EditarLouvor({navigation, route}) {
 
             <CustomView style={styles.formArea}>  
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
-                        placeholderTextColor={Theme}
-                        placeholder={'Título'}       
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        placeholderTextColor={Theme.subColor}
+                        placeholder={'Título'}     
+                        selectionColor={Theme.color} 
                         value={louvor.title}    
                         onChangeText={(text)=>{
                             console.log(text)
@@ -63,26 +64,29 @@ export default function EditarLouvor({navigation, route}) {
                     />
                 
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
-                        placeholderTextColor={Theme}
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        placeholderTextColor={Theme.subColor}
                         placeholder={'Ministério'}       
+                        selectionColor={Theme.color}
                         value={louvor.group}    
                         onChangeText={(text)=> setLouvor({...louvor, group: text})}            
                     />
 
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme } ]}   
-                        placeholderTextColor={Theme}
-                        placeholder={'Cifras (Opcional)'}       
+                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        placeholderTextColor={Theme.subColor}
+                        placeholder={'Cifras (Opcional)'}
+                        selectionColor={Theme.color}       
                         value={louvor.cipher}    
                         onChangeText={(text)=> setLouvor({...louvor, cipher: text})}            
                     />
 
                     <Search
-                        style={[ styles.textInput, { height:300, borderBottomColor:Theme, textAlignVertical:'top' } ]}   
+                        style={[ styles.textInput, { height:300, borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}   
                         multiline={true}
-                        placeholderTextColor={Theme}
-                        placeholder={"Letra da Musica..."}                  
+                        placeholderTextColor={Theme.subColor}
+                        placeholder={"Letra da Musica..."}
+                        selectionColor={Theme.color}                  
                         value={louvor.lyrics}   
                         onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                     />
