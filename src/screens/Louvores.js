@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import TabBar from '../components/TabBar';
 import Card from '../components/Card'; 
+import Modal from '../components/Modal';
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font } from '../components/Styles';
@@ -19,20 +20,27 @@ const emptyList = () => {
 export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
+    const [loaded, setLoaded] = useState(false);
     const [louvores, setLouvores] = useState([]);
     const { logo } = route.params
 
     const deleteLouvor = async ({keyID, name}) => {
         try {               
-            await deleteDoc(doc(firebaseConnection.db, 'louvores', keyID))
+            setLoaded(true)
+            
+            await deleteDoc(doc(firebaseConnection.db, 'louvores', keyID));
+            await getData();
+
+            setLoaded(false)
+            
             Alert.alert(
                 "Exclusão de Louvor",
                 `"${name}" excluído com sucesso!`
             )   
-            await getData()
 
         }
         catch(err) {
+            setLoaded(false)
             Alert.alert(
                 "Erro",
                 `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
@@ -96,14 +104,15 @@ export default function LouvoresScreen({navigation, route}) {
 
     //função para enviar os louvores para o repertório
     const sendLouvor = async (props) => {
-        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
-        const docLouvor = await getDoc(docRef)
+        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado');
+        const docLouvor = await getDoc(docRef);
         if (docLouvor.exists()) {
             const louvor = {...docLouvor.data()}
             let hasMusic = !louvor.musics.some(music=> {
                 return music.id === props.keyID
             })
-            if (hasMusic) {
+            if (hasMusic) {               
+                setLoaded(true);
 
                 louvor.musics.push({
                     id: props.keyID,
@@ -114,9 +123,10 @@ export default function LouvoresScreen({navigation, route}) {
                 })
                 
                 const newDoc = {...docLouvor.data(), musics: louvor.musics}
- 
             
                 await updateDoc(docRef, newDoc)
+                
+                setLoaded(false);
                 
                 Alert.alert("Repertório",
                 `${props.name} adicionado com sucesso ao repertório 🎉`)
@@ -125,7 +135,7 @@ export default function LouvoresScreen({navigation, route}) {
             else {
                 Alert.alert("Repertório",
                 `O louvor "${props.name}" já está no repertório!`)
-            }
+            }            
         }
         return
     }    
@@ -139,19 +149,18 @@ export default function LouvoresScreen({navigation, route}) {
             lyrics: louvor.letra
         }
     
-        try {
+        try {     
             await addDoc(collection(firebaseConnection.db, 'louvores'), newLouvor)
+
             Alert.alert("Novo louvor",
             `"${louvor.titulo}" adicionado com sucesso! 🎉`)
 
-            
             await getData()
         }
         catch(err) {
             Alert.alert('Houve um erro ao tentar adicionar esse louvor! Tente novamente mais tarde')
             console.log(err)
         }
-
     }
 
     useEffect(() => {       
@@ -244,8 +253,9 @@ export default function LouvoresScreen({navigation, route}) {
             ));            
         }
 
-        const removeFavoritos = async({keyID}) => {
+        const removeFavoritos = async({keyID, name}) => {
             try {               
+                setLoaded(true);
                 const favs = await getFavoritosList();
                 const removeFav = favs.findIndex(({id}) => id === keyID);
                 favs.splice(removeFav, 1);
@@ -253,16 +263,17 @@ export default function LouvoresScreen({navigation, route}) {
                 await AsyncStorage.removeItem('@favoritos');
                 await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
 
+                setLoaded(false);
                 Alert.alert(
-                    "Remoção do Louvor da lista",
-                    `"${name}" removido com sucesso!😁'`
+                    "Louvor removido da lista",
+                    `"${name}" foi removido com sucesso!😁'`
                 )   
     
             }
             catch(err) {
                 Alert.alert(
                     "Erro",
-                    `${err}: Ocorreu um erro e não foi possível remover o louvor da lista no momento. Tente novamente mais tarde`
+                    `Ocorreu um erro e não foi possível remover o louvor da lista no momento. Tente novamente mais tarde`
                 )
             }
         }
@@ -313,6 +324,7 @@ export default function LouvoresScreen({navigation, route}) {
 
     return (
         <View style={{flex:1}}>       
+            {loaded && <Modal/>}
             {shouldShow? 
                 (
                     <SearchBar 

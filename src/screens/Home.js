@@ -4,8 +4,8 @@ import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Alert, Image } fr
 
 export default function HomeScreen({navigation}) {
     const logo = require('../../assets/logo.png');
-    const icons = ["music-note-outline", "playlist-music-outline", "calendar-month-outline", "lightbulb-on-outline", "comment-question-outline"]
-    const text = ["Músicas", "Repertório", "Escala", "Sugestões", "Dúvidas"]
+    const icons = ["music-note-outline", "playlist-music-outline", /*"calendar-month-outline",*/ "lightbulb-on-outline", "comment-question-outline"]
+    const text = ["Músicas", "Repertório", /*"Escala",*/ "Sugestões", "Dúvidas"]
     
     return (
         <ScrollView style={styles.pageBody}>
@@ -14,14 +14,7 @@ export default function HomeScreen({navigation}) {
                 <View style={styles.iconsContainer}>
                     {text.map((elements, index) => (
                         <View key={index} style={styles.icons}>
-                            <TouchableOpacity 
-                                onPress={() => 
-                                    index === 2 ? Alert.alert( 
-                                        "AVISO", 
-                                        "Esta opção ainda está em desenvolvimento"
-                                    ):     
-                                    navigation.navigate(elements)}
-                            >
+                            <TouchableOpacity onPress={() => navigation.navigate(elements)}>
                                 <Icon size={55} name={icons[index]} type="material-community" color="#fff"/>
                                 <Text style={styles.text}>{elements.toUpperCase()}</Text>
                             </TouchableOpacity>

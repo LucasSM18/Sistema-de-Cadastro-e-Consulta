@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import { FlatList, TouchableOpacity } from "react-native";
+import { FlatList } from "react-native";
 
 export const BarComponent = styled.View`
     background: ${props => props.theme.barComponent};
@@ -31,6 +31,6 @@ export const Searchbar = styled.TextInput`
     color: #fff;
 `;
 
-export const CustomButtom = styled(TouchableOpacity)`
-    background: ${props => props.theme.barComponent};
-`;
+// export const CustomButtom = styled(TouchableOpacity)`
+//     background: ${props => props.theme.barComponent};
+// `;

@@ -13,7 +13,7 @@ export default function DuvidasScreen({navigation, route}) {
     const input = React.useRef(null);
 
     React.useEffect(() => {
-        input.current && input.current.focus();
+        input.current.focus();
     }, []);
 
     return (

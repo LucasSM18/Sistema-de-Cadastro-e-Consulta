@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import Themes from '../themes/Themes';
 import Card from '../components/Card';
+import Modal from '../components/Modal';
 import Header from '../components/Header';
 import { CheckBox, Icon } from 'react-native-elements';
 import { collection, getDocs } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import { CustomView, Search, Font, Flatlist } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, ActivityIndicator, Modal, View, Keyboard } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme, View, Keyboard } from 'react-native';
 
 const emptyList = (content) => {
     return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>{content}</Font>   
@@ -176,6 +177,7 @@ export default function ImportaLouvores({navigation, route}) {
      
     return (
         <View style={{flex:1}}>
+            {!loaded && <Modal/>}
             <Header
                 title="IMPORTAR MÚSICAS"
                 myLeftContainer={(
@@ -191,18 +193,6 @@ export default function ImportaLouvores({navigation, route}) {
             />
 
             <CustomView style={styles.pageBody}>
-                <Modal
-                    animationType={'fade'}
-                    style={styles.modal}
-                    visible={!loaded}
-                    statusBarTranslucent
-                    transparent
-                >
-                    <CustomView style={styles.modalBackground}>
-                        <ActivityIndicator size={100} color="#a6a6a6"/>
-                    </CustomView>
-                </Modal>
-
                 <View style={[styles.search, {borderBottomColor:Theme.subColor}]}>
                     <Search
                         style={{ flex:3, fontSize:16 }}
@@ -244,7 +234,7 @@ export default function ImportaLouvores({navigation, route}) {
                             cifraUrl={item.cifra}
                             icon="add"
                             iconType="material"
-                            caretFunction={()=> route.params.addLouvor(item)}
+                            caretFunction={() => route.params.addLouvor(item) }
                             add={true}
                         />
                     }    
@@ -282,17 +272,5 @@ const styles = StyleSheet.create({
         borderWidth:0, 
         paddingHorizontal:2
     },
-
-    modal: {
-        flex:1, 
-        justifyContent: "center", 
-        alignContent: "center"
-    },
-
-    modalBackground: {
-        backgroundColor: "rgba(0, 0, 0, 0.6)",
-        justifyContent: "center",
-        height:'100%'
-    }
 })
 

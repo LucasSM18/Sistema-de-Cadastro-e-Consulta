@@ -3,8 +3,8 @@ import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
-import { CustomView, Search, CustomButtom } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, Text, View } from 'react-native';
+import { CustomView, Search } from '../components/Styles';
+import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 
 // const UploadFile = async () => {
@@ -48,11 +48,21 @@ export default function EditarLouvor({navigation, route}) {
                 //         <Icon name='file-edit-outline' type='material-community' color='#a6a6a6' size={30}/>
                 //     </TouchableOpacity>
                 // )}
+                complement={( 
+                    <TouchableOpacity onPress={() => updateHandler()} style={styles.headerComponents}>
+                        <Icon
+                            name={'send'} 
+                            type="material-community"
+                            color='#a6a6a6'
+                            size={25}
+                        />
+                    </TouchableOpacity>
+                )}
             />
 
             <CustomView style={styles.formArea}>  
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Título'}     
                         selectionColor={Theme.color} 
@@ -64,7 +74,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
                 
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, {flex:1, borderBottomColor:Theme.subColor } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Ministério'}       
                         selectionColor={Theme.color}
@@ -73,7 +83,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, { height:50, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, {flex:1, borderBottomColor:Theme.subColor } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Cifras (Opcional)'}
                         selectionColor={Theme.color}       
@@ -82,7 +92,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, { height:300, borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}   
+                        style={[ styles.textInput, {flex:10, borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}   
                         multiline={true}
                         placeholderTextColor={Theme.subColor}
                         placeholder={"Letra da Musica..."}
@@ -91,9 +101,9 @@ export default function EditarLouvor({navigation, route}) {
                         onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                     />
 
-                <CustomButtom style={styles.button} onPress={() => updateHandler()}>                    
+                {/* <CustomButtom style={styles.button} onPress={() => updateHandler()}>                    
                     <Text style={{color:'#fff'}}>Editar</Text>                       
-                </CustomButtom>                              
+                </CustomButtom>                               */}
             </CustomView>     
         </View>        
     )
@@ -106,6 +116,7 @@ const styles = StyleSheet.create({
     },
 
     formArea: {
+        flex:1,
         padding:20,
         paddingHorizontal:15,
     },

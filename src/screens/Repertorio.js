@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import Card from '../components/Card'; 
+import Modal from '../components/Modal';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
@@ -41,10 +42,12 @@ export default function Repertorio({navigation, route}) {
     const { goBack, logo } = route.params;
     const [louvores, setLouvores] = useState([]);
     const [loaded, setLoaded] = useState(false);
+    const [remove, setRemove] = useState(false)
     
 
     const deleteLouvor = async ({keyID, name}) => {
         try {               
+            setRemove(true);
             // console.log(keyID + ' ' + name)
             const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
             const docRepertorio = await getDoc(docRef)
@@ -59,9 +62,10 @@ export default function Repertorio({navigation, route}) {
             //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
 
             await getData()
+            setRemove(false);
             Alert.alert(
                 "Remoção de Louvor",
-                `"${name}" removido com sucesso!`
+                `"${name}" foi removido com sucesso!`
             )             
         }
         catch(err) {
@@ -91,13 +95,13 @@ export default function Repertorio({navigation, route}) {
         }
 
         setLouvores(data)
-        setLoaded(true);
     }
         
 
     useEffect(() => {       
         async function loadLouvores() {
             await getData();
+            setLoaded(true);
         }
 
         loadLouvores()
@@ -106,6 +110,7 @@ export default function Repertorio({navigation, route}) {
 
     return (
         <View style={{flex:1}}>
+            {remove && <Modal/>}
             <Header
                 title={"REPERTÓRIO" + ' - ' + filtroData()} 
                 myLeftContainer={(
@@ -179,6 +184,18 @@ const styles = StyleSheet.create({
         padding:5,
         height:"100%",
         justifyContent:'center'
+    },
+
+    modal: {
+        flex:1, 
+        justifyContent: "center", 
+        alignContent: "center"
+    },
+
+    modalBackground: {
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        justifyContent: "center",
+        height:'100%'
     }
 })
 
