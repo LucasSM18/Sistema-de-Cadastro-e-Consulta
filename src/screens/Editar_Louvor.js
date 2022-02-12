@@ -62,7 +62,7 @@ export default function EditarLouvor({navigation, route}) {
 
             <CustomView style={styles.formArea}>  
                     <Search
-                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Título'}     
                         selectionColor={Theme.color} 
@@ -74,7 +74,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
                 
                     <Search
-                        style={[ styles.textInput, {flex:1, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Ministério'}       
                         selectionColor={Theme.color}
@@ -83,7 +83,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, {flex:1, borderBottomColor:Theme.subColor } ]}   
+                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Cifras (Opcional)'}
                         selectionColor={Theme.color}       
@@ -92,7 +92,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, {flex:10, borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}   
+                        style={[ styles.textInput, { flex:10, borderColor:Theme.subColor,  borderRadius:4, borderWidth:1 } ]}   
                         multiline={true}
                         placeholderTextColor={Theme.subColor}
                         placeholder={"Letra da Musica..."}
@@ -124,17 +124,7 @@ const styles = StyleSheet.create({
     textInput: {        
         padding:10,
         marginBottom:30,
-        fontSize:16, 
-        borderBottomWidth:1, 
-    },
-
-    button: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        borderRadius: 4,
-        elevation: 3,
+        fontSize:16,
     }
 })
 

@@ -166,7 +166,7 @@ export default function Repertorio({navigation, route}) {
                             ListEmptyComponent={emptyList()}
                             keyExtractor={item=>item.id}
                         />
-                    ) : <ActivityIndicator size={100} color="#191919"/> 
+                    ) : <ActivityIndicator size={100} color="#000000"/> 
                 }
             </CustomView>          
         </View>        

@@ -152,7 +152,7 @@ export default class TabBar extends React.Component {
             </BarComponent>    
         ) : ( 
             <CustomView style={{flex:1, justifyContent: "center"}}>
-                <ActivityIndicator size={100} color="#191919" />        
+                <ActivityIndicator size={100} color="#000000"/>        
             </CustomView>
         )
     }
