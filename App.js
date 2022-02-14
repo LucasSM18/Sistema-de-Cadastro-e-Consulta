@@ -11,7 +11,7 @@ import Importa_Louvores from './src/screens/Importar_Louvores';
 import { ThemeProvider } from 'styled-components/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useColorScheme, StatusBar } from 'react-native';
+import { Platform, useColorScheme, StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,12 +19,13 @@ export default function App(){
   const deviceTheme = useColorScheme();
   const theme = Themes[deviceTheme] || Themes.light;
   const logo = { size: 60, margim: 5, image: require('./assets/home.png') };
+  const initialPage = Platform.OS !== "web" ? "Home" : "Repertório";
 
   return (    
       <NavigationContainer theme={{colors:{background:theme.body}}}>
         <ThemeProvider theme={theme}>
           <StatusBar translucent backgroundColor='transparent' barStyle='light-content'/>
-          <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
+          <Stack.Navigator initialRouteName={initialPage} screenOptions={{headerShown:false}}>
             <Stack.Screen name="Home" component={Home}/>
             <Stack.Screen name="Músicas" component={Louvores} initialParams={{logo:logo}}/>
             <Stack.Screen name="Importar" component={Importa_Louvores}/>

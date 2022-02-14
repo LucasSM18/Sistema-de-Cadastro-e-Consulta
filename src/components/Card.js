@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
-import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard } from 'react-native';
+import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -39,10 +39,10 @@ export default class CardFactory extends React.Component {
         );
     }
 
-    youtubeHandler = async () => {         
-            const supported = await Linking.canOpenURL(this.url);
+    linkHandler = async (url) => {         
+            const supported = await Linking.canOpenURL(url);
             //
-            if(supported) await Linking.openURL(this.url);
+            if(supported) await Linking.openURL(url);
             else Alert.alert('Link inacessível! Por favor entre em contato com o administrador');       
     }
 
@@ -133,7 +133,7 @@ export default class CardFactory extends React.Component {
                         <View style={{flexDirection:'row', marginVertical:20}}>
                             <Text style={styles.linkContainer}>
                                 (
-                                    <TouchableOpacity onPress={this.youtubeHandler}>                                    
+                                    <TouchableOpacity onPress={() => this.linkHandler(this.url)}>                                    
                                         <Text style={styles.link}>Youtube</Text>
                                     </TouchableOpacity>
                                 )
@@ -142,7 +142,7 @@ export default class CardFactory extends React.Component {
                             {this.props.cifraUrl &&
                                 <Text style={styles.linkContainer}>
                                     (
-                                        <TouchableOpacity onPress={() => this.setState({showWebView: true})}>                                    
+                                        <TouchableOpacity onPress={() => Platform.OS !== "web" ? this.setState({showWebView: true}) : this.linkHandler(this.props.cifraUrl) }>                                    
                                             <Text style={styles.link}>Cifras</Text>
                                         </TouchableOpacity>
                                     )

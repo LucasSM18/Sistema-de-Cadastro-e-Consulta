@@ -7,7 +7,7 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
-import { StyleSheet, TouchableOpacity, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, Platform, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
 
 const emptyList = () => {
      return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Repertório Vazio</Font>   
@@ -44,7 +44,6 @@ export default function Repertorio({navigation, route}) {
     const [loaded, setLoaded] = useState(false);
     const [remove, setRemove] = useState(false)
     
-
     const deleteLouvor = async ({keyID, name}) => {
         try {               
             setRemove(true);
@@ -114,7 +113,7 @@ export default function Repertorio({navigation, route}) {
             <Header
                 title={"REPERTÓRIO" + ' - ' + filtroData()} 
                 myLeftContainer={(
-                    <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{paddingLeft:5, resizeMode:'contain'}}>
+                    <TouchableOpacity disabled={Platform.OS !== "web" ? false : true} onPress={() => navigation.navigate('Home')} style={{ paddingLeft:5, resizeMode:'contain' }}>
                         <Image 
                             style={{width:logo.size, height:logo.size, margin:logo.margim}}
                             source={logo.image}
@@ -122,6 +121,7 @@ export default function Repertorio({navigation, route}) {
                     </TouchableOpacity>   
                 )}
                 myRightContainer={
+                    Platform.OS !== "web" &&
                     <TouchableOpacity onPress={() => sendLouvores(louvores)} style={ styles.headerComponents }>
                         <Icon
                             name="share" 
@@ -132,7 +132,7 @@ export default function Repertorio({navigation, route}) {
                     </TouchableOpacity>                               
                 }
                 complement={
-                    goBack?
+                    goBack &&
                         <TouchableOpacity onPress={() => navigation.goBack()} style={ styles.headerComponents }>
                              <Icon
                                 name="music-note-outline"
@@ -140,9 +140,7 @@ export default function Repertorio({navigation, route}) {
                                 color='#a6a6a6'
                                 size={30}
                             />
-                        </TouchableOpacity>
-                    :
-                    null                             
+                        </TouchableOpacity>                        
                 }
             />  
             <CustomView style={styles.pageBody}>
@@ -160,7 +158,7 @@ export default function Repertorio({navigation, route}) {
                                     content={item.lyrics} 
                                     icon="cross"
                                     iconType="entypo"
-                                    caretFunction={deleteLouvor}
+                                    caretFunction={ Platform.OS !== "web" && deleteLouvor}
                                 />
                             } 
                             ListEmptyComponent={emptyList()}
