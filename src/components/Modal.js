@@ -7,6 +7,7 @@ export default function ModalScreen() {
         <Modal
             animationType={'fade'}
             style={styles.modal}
+            statusBarTranslucent
             transparent
         >
             <CustomView style={styles.modalBackground}>
