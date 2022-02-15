@@ -169,8 +169,8 @@ export default function ImportaLouvores({navigation, route}) {
     }
 
     const sortedList = (list) => {
-        const resultTrim = result.trim().toLowerCase();
         if(isChecked) return list.sort((a,b) => a.titulo > b.titulo ? 1 : b.titulo > a.titulo ? -1 : 0 ); 
+        const resultTrim = result.trim().toLowerCase();
         return list.sort((a,b) => b.titulo > a.titulo && a.titulo.toLowerCase().includes(resultTrim) ? -1 : 
                                   a.titulo > b.titulo && b.titulo.toLowerCase().includes(resultTrim) ? 1 : 0 ); 
     }
