@@ -138,7 +138,7 @@ export default function ImportaLouvores({navigation, route}) {
 
             // console.log(i)
 
-            while(i < 20){
+            while(i <= 20){
                 ++i;
                 const itemStart = getPosition(items, "<span>", i) + 6;
                 // console.log(itemStart);
