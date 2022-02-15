@@ -23,10 +23,18 @@ const filtroData = () => {
 }
 
 const sendLouvores = (louvores) => {    
+    if(!louvores.length) {
+        Alert.alert(
+            "Repertório vazio",
+            "Inclua alguns louvores antes de enviar para o WhatsApp."
+        )
+        return;
+    }
+
     let message = `Repertório - ${filtroData()}\n`
     louvores.map((item, index) => {
        const song = item.title + ' - ' + item.group;
-       message += `\n ${index+1}. ${song}`
+       message += `\n${index+1}. ${song}\n`
     })
    
     // console.log(message)
@@ -34,7 +42,10 @@ const sendLouvores = (louvores) => {
     Linking.canOpenURL('whatsapp://send?text=').then(() => {
         Linking.openURL(`whatsapp://send?text=${message}`)
     }).catch(() => {
-        alert("Houve um erro ao tentar enviar o Repertório!\n Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema.")
+        Alert.alert(
+            "Erro ao se conectar ao WhatsApp",
+            "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema."
+        )
     })
 }
 
@@ -73,7 +84,6 @@ export default function Repertorio({navigation, route}) {
                 `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
             )
         }
-
      }
 
     const getData = async () => {
