@@ -7,6 +7,7 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
+import  CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
 import { StyleSheet, TouchableOpacity, Platform, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
 
 const emptyList = () => {
@@ -24,10 +25,12 @@ const filtroData = () => {
 
 const sendLouvores = (louvores) => {    
     if(!louvores.length) {
-        Alert.alert(
-            "Repertório vazio",
-            "Inclua alguns louvores antes de enviar para o WhatsApp."
-        )
+        showAlert({
+            title: "Repertório vazio!",
+            message: "Inclua alguns louvores antes de enviar para o WhatsApp.",
+            alertType: "warning",
+        });  
+        //
         return;
     }
 
@@ -42,10 +45,11 @@ const sendLouvores = (louvores) => {
     Linking.canOpenURL('whatsapp://send?text=').then(() => {
         Linking.openURL(`whatsapp://send?text=${message}`)
     }).catch(() => {
-        Alert.alert(
-            "Erro ao se conectar ao WhatsApp",
-            "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema."
-        )
+        showAlert({
+            title: "Erro ao se conectar ao WhatsApp!",
+            message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema.",
+            alertType: "warning",
+        });
     })
 }
 
@@ -71,20 +75,42 @@ export default function Repertorio({navigation, route}) {
             }
             //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
 
-            await getData()
+            await getData();
             setRemove(false);
-            Alert.alert(
-                "Remoção de Louvor",
-                `"${name}" foi removido com sucesso!`
-            )             
+
+            showAlert({
+                title: "Louvor removido!",
+                message: `"${name}" foi removido com sucesso!`,
+                alertType: "success",
+            });     
         }
         catch(err) {
-            Alert.alert(
-                "Erro",
-                `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
-            )
+            showAlert({
+                title: "ERRO!",
+                message: "Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde",
+                alertType: "error",
+            });
         }
-     }
+    }
+
+    const clearRepertório = async () => {
+        const today = moment();
+        const dateEvent = moment().day(6);
+        
+        if(today > dateEvent){
+            const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado');
+            const docRepertorio = await getDoc(docRef);
+      
+            if (docRepertorio.exists()) {
+                const repertorio = {...docRepertorio.data()}
+                const clearRepertorio = {...repertorio }
+                clearRepertorio.musics = []
+      
+                await updateDoc(docRef, clearRepertorio)
+            }
+            //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id)     
+        }  
+      }
 
     const getData = async () => {
         const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
@@ -109,6 +135,7 @@ export default function Repertorio({navigation, route}) {
 
     useEffect(() => {       
         async function loadLouvores() {
+            await clearRepertório()
             await getData();
             setLoaded(true);
         }
@@ -120,8 +147,16 @@ export default function Repertorio({navigation, route}) {
     return (
         <View style={{flex:1}}>
             {remove && <Modal/>}
+
+            <CustomisableAlert
+                alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
+                titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
+                textStyle={{color:"white", fontSize:15}}
+                btnLabelStyle={{textTransform:"uppercase"}}
+            />
+
             <Header
-                title={"REPERTÓRIO" + ' - ' + filtroData()} 
+                title={"REPERTÓRIO"} 
                 myLeftContainer={(
                     <TouchableOpacity disabled={Platform.OS !== "web" ? false : true} onPress={() => navigation.navigate('Home')} style={{ paddingLeft:5, resizeMode:'contain' }}>
                         <Image 

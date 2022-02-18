@@ -6,7 +6,8 @@ import Modal from '../components/Modal';
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font } from '../components/Styles';
-import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image, Alert } from 'react-native';
+import  CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
+import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image} from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,19 +33,22 @@ export default function LouvoresScreen({navigation, route}) {
             await getData();
 
             setLoaded(false)
-            
-            Alert.alert(
-                "Exclusão de Louvor",
-                `"${name}" excluído com sucesso!`
-            )   
+
+            showAlert({
+                title: "Exclusão de louvor",
+                message: `"${name}" excluído com sucesso!`,
+                alertType: "success",
+            });
 
         }
         catch(err) {
-            setLoaded(false)
-            Alert.alert(
-                "Erro",
-                `${err}: Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde`
-            )
+            setLoaded(false);
+            //
+            showAlert({
+                title: "ERROR!",
+                message: "Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde",
+                alertType: "error"
+            });
         }
     }
 
@@ -57,10 +61,12 @@ export default function LouvoresScreen({navigation, route}) {
             group: louvor.group,
             lyrics: louvor.lyrics
         })
-        Alert.alert(
-            "Alteração de Louvor",
-            "Sucesso!😁 "
-        )
+
+        showAlert({
+            title: "Alteração de louvor",
+            message: "Sucesso!😁 ",
+            alertType: "success"
+        });
 
         await getData()
 
@@ -128,13 +134,19 @@ export default function LouvoresScreen({navigation, route}) {
                 
                 setLoaded(false);
                 
-                Alert.alert("Repertório",
-                `${props.name} adicionado com sucesso ao repertório 🎉`)
+                showAlert({
+                    title: "Louvor adicionado!",
+                    message: `${props.name} adicionado com sucesso ao repertório 🎉`,
+                    alertType: "success",
+                });
                
             }
             else {
-                Alert.alert("Repertório",
-                `O louvor "${props.name}" já está no repertório!`)
+                showAlert({
+                    title: "Louvor não adicionado!",
+                    message: `O louvor "${props.name}" já está no repertório!`,
+                    alertType: "warning",
+                });
             }            
         }
         return
@@ -152,14 +164,21 @@ export default function LouvoresScreen({navigation, route}) {
         try {     
             await addDoc(collection(firebaseConnection.db, 'louvores'), newLouvor)
 
-            Alert.alert("Novo louvor",
-            `"${louvor.titulo}" adicionado com sucesso! 🎉`)
+            showAlert({
+                title: "Novo louvor adcionado!",
+                message: `"${louvor.titulo}" adicionado com sucesso! 🎉`,
+                alertType: "success",
+            });
 
             await getData()
         }
         catch(err) {
-            Alert.alert('Houve um erro ao tentar adicionar esse louvor! Tente novamente mais tarde')
-            console.log(err)
+            showAlert({
+                title: "ERROR!",
+                message: 'Houve um erro ao tentar adicionar esse louvor! Tente novamente mais tarde',
+                alertType: "error",
+            });
+            // console.log(err)
         }
     }
 
@@ -221,7 +240,11 @@ export default function LouvoresScreen({navigation, route}) {
             return fav ? JSON.parse(fav) : []
         }
         catch(err) {
-            Alert.alert('Erro', `Erro de conexão. Entre em contato com o adminstrador! ${err}`)
+            showAlert({
+                title: "ERROR!",
+                message: `Erro de conexão. Entre em contato com o adminstrador! ${err}`,
+                alertType: "error",
+            });
         }
     }
 
@@ -264,17 +287,19 @@ export default function LouvoresScreen({navigation, route}) {
                 await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
 
                 setLoaded(false);
-                Alert.alert(
-                    "Louvor removido da lista",
-                    `"${name}" foi removido com sucesso!😁'`
-                )   
-    
+
+                showAlert({
+                    title: "Louvor removido da lista",
+                    message: `"${name}" foi removido com sucesso!😁'`,
+                    alertType: "success",
+                });    
             }
             catch(err) {
-                Alert.alert(
-                    "Erro",
-                    `Ocorreu um erro e não foi possível remover o louvor da lista no momento. Tente novamente mais tarde`
-                )
+                showAlert({
+                    title: "ERROR!",
+                    message: "Ocorreu um erro e não foi possível remover o louvor da lista no momento. Tente novamente mais tarde",
+                    alertType: "error",
+                });  
             }
         }
 
@@ -325,6 +350,14 @@ export default function LouvoresScreen({navigation, route}) {
     return (
         <View style={{flex:1}}>       
             {loaded && <Modal/>}
+            
+            <CustomisableAlert
+                alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
+                titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
+                textStyle={{color:"white", fontSize:15}}
+                btnLabelStyle={{textTransform:"uppercase"}}
+            />
+            
             {shouldShow? 
                 (
                     <SearchBar 

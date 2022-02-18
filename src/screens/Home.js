@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from 'react-native-elements';
-import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Alert, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Image } from 'react-native';
 
 export default function HomeScreen({navigation}) {
     const logo = require('../../assets/logo.png');
