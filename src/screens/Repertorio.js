@@ -7,8 +7,8 @@ import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
-import  CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
-import { StyleSheet, TouchableOpacity, Platform, Alert, Image, View, Linking, ActivityIndicator } from 'react-native';
+import  CustomisableAlert, { showAlert, closeAlert } from 'react-native-customisable-alert';
+import { StyleSheet, TouchableOpacity, Platform, Image, View, Linking, ActivityIndicator } from 'react-native';
 
 const emptyList = () => {
      return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Repertório Vazio</Font>   
@@ -28,7 +28,7 @@ const sendLouvores = (louvores) => {
         showAlert({
             title: "Repertório vazio!",
             message: "Inclua alguns louvores antes de enviar para o WhatsApp.",
-            alertType: "warning",
+            alertType: "error",
         });  
         //
         return;
@@ -48,7 +48,7 @@ const sendLouvores = (louvores) => {
         showAlert({
             title: "Erro ao se conectar ao WhatsApp!",
             message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema.",
-            alertType: "warning",
+            alertType: "error",
         });
     })
 }
@@ -94,23 +94,19 @@ export default function Repertorio({navigation, route}) {
     }
 
     const clearRepertório = async () => {
-        const today = moment();
-        const dateEvent = moment().day(6);
-        
-        if(today > dateEvent){
-            const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado');
-            const docRepertorio = await getDoc(docRef);
+        const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado');
+        const docRepertorio = await getDoc(docRef);
       
-            if (docRepertorio.exists()) {
-                const repertorio = {...docRepertorio.data()}
-                const clearRepertorio = {...repertorio }
-                clearRepertorio.musics = []
+        if (docRepertorio.exists()) {
+            const repertorio = {...docRepertorio.data()}
+            const clearRepertorio = {...repertorio }
+            clearRepertorio.musics = []
       
-                await updateDoc(docRef, clearRepertorio)
-            }
-            //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id)     
-        }  
-      }
+            await updateDoc(docRef, clearRepertorio)
+        }
+
+        await getData();           
+    }
 
     const getData = async () => {
         const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
@@ -132,10 +128,15 @@ export default function Repertorio({navigation, route}) {
         setLouvores(data)
     }
         
+    const alertHandler = async () => {
+        closeAlert(); 
+        setRemove(true);
+        await clearRepertório();
+        setRemove(false);
+    }
 
     useEffect(() => {       
         async function loadLouvores() {
-            await clearRepertório()
             await getData();
             setLoaded(true);
         }
@@ -148,12 +149,15 @@ export default function Repertorio({navigation, route}) {
         <View style={{flex:1}}>
             {remove && <Modal/>}
 
-            <CustomisableAlert
-                alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
-                titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
-                textStyle={{color:"white", fontSize:15}}
-                btnLabelStyle={{textTransform:"uppercase"}}
-            />
+            {Platform.OS !== "web" && 
+                <CustomisableAlert
+                    alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
+                    titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
+                    textStyle={{color:"white", fontSize:15}}
+                    btnLabelStyle={{textTransform:"uppercase"}}
+                    dismissable={true}
+                />
+            }
 
             <Header
                 title={"REPERTÓRIO"} 
@@ -167,14 +171,38 @@ export default function Repertorio({navigation, route}) {
                 )}
                 myRightContainer={
                     Platform.OS !== "web" &&
-                    <TouchableOpacity onPress={() => sendLouvores(louvores)} style={ styles.headerComponents }>
-                        <Icon
-                            name="share" 
-                            type='entypo'
-                            color='#a6a6a6'
-                            size={25}
-                        />
-                    </TouchableOpacity>                               
+                        <View style={{flexDirection:"row"}}>
+                            <TouchableOpacity 
+                                onPress={() => 
+                                    showAlert({
+                                        title: "Você tem certeza?",
+                                        message: "Todos os louvores serão excluidos do repertório",
+                                        alertType: "warning",
+                                        leftBtnLabel: "CANCELAR",
+                                        btnLabel: "CONTINUAR",
+                                        onPress: () => alertHandler() 
+                                    })
+                                } 
+                                style={ styles.headerComponents }
+                            >
+                                <Icon
+                                    name="trash-o" 
+                                    type='font-awesome'
+                                    color='#a6a6a6'
+                                    size={25}
+                                />
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity onPress={() => sendLouvores(louvores)} style={ styles.headerComponents }>
+                                <Icon
+                                    name="share" 
+                                    type='entypo'
+                                    color='#a6a6a6'
+                                    size={25}
+                                />
+                            </TouchableOpacity>
+                    </View>
+
                 }
                 complement={
                     goBack &&

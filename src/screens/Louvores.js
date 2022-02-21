@@ -137,7 +137,7 @@ export default function LouvoresScreen({navigation, route}) {
                 showAlert({
                     title: "Louvor adicionado!",
                     message: `${props.name} adicionado com sucesso ao repertório 🎉`,
-                    alertType: "success",
+                    alertType: "success"
                 });
                
             }
@@ -145,7 +145,7 @@ export default function LouvoresScreen({navigation, route}) {
                 showAlert({
                     title: "Louvor não adicionado!",
                     message: `O louvor "${props.name}" já está no repertório!`,
-                    alertType: "warning",
+                    alertType: "error"
                 });
             }            
         }
@@ -165,7 +165,7 @@ export default function LouvoresScreen({navigation, route}) {
             await addDoc(collection(firebaseConnection.db, 'louvores'), newLouvor)
 
             showAlert({
-                title: "Novo louvor adcionado!",
+                title: "Novo louvor adicionado!",
                 message: `"${louvor.titulo}" adicionado com sucesso! 🎉`,
                 alertType: "success",
             });
@@ -250,7 +250,6 @@ export default function LouvoresScreen({navigation, route}) {
 
     const Favoritos = ({ filter, favoritos }) => {
         const [favList, setFavList] = useState(favoritos);
-        setFilter(filter);
 
         const searchFavorites = async () => {
             if(!filter){
@@ -285,6 +284,8 @@ export default function LouvoresScreen({navigation, route}) {
                 
                 await AsyncStorage.removeItem('@favoritos');
                 await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
+
+                setFavList(favoritos)
 
                 setLoaded(false);
 
@@ -356,6 +357,7 @@ export default function LouvoresScreen({navigation, route}) {
                 titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
                 textStyle={{color:"white", fontSize:15}}
                 btnLabelStyle={{textTransform:"uppercase"}}
+                dismissable={true}
             />
             
             {shouldShow? 
