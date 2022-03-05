@@ -131,13 +131,7 @@ export default class TabBar extends React.Component {
                                 
                             }}
                         >
-                            {() => 
-                                this.props.filter? (
-                                    <elements.route louvores={this.props.louvores} setLouvores={this.props.setLouvores} filter={this.props.filter} favoritos={this.state.favs}/>
-                                ):(
-                                    <elements.route louvores={this.props.louvores} favoritos={this.state.favs}/>
-                                )
-                            }
+                         { () => <elements.route {...this.props.routesProps} favoritos={this.state.favs}/> }
                         </Tab.Screen>                      
                     ))                     
                 }</Tab.Navigator>

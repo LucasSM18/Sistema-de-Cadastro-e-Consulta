@@ -34,10 +34,10 @@ const sendLouvores = (louvores) => {
         return;
     }
 
-    let message = `Repertório - ${filtroData()}\n`
-    louvores.map((item, index) => {
+    let message = `Louvores (${filtroData()}):\n`
+    louvores.map(item => {
        const song = item.title + ' - ' + item.group;
-       message += `\n${index+1}. ${song}\n`
+       message += `\n${song}\n`
     })
    
     // console.log(message)
@@ -171,7 +171,7 @@ export default function Repertorio({navigation, route}) {
                 )}
                 myRightContainer={
                     Platform.OS !== "web" &&
-                        <View style={{flexDirection:"row"}}>
+                        <View style={{flexDirection:"row", display: louvores.length ? 'flex' : 'none'}}>                  
                             <TouchableOpacity 
                                 onPress={() => 
                                     showAlert({
@@ -183,7 +183,7 @@ export default function Repertorio({navigation, route}) {
                                         onPress: () => alertHandler() 
                                     })
                                 } 
-                                style={ styles.headerComponents }
+                                style={[styles.headerComponents]}
                             >
                                 <Icon
                                     name="trash-o" 
@@ -202,7 +202,6 @@ export default function Repertorio({navigation, route}) {
                                 />
                             </TouchableOpacity>
                     </View>
-
                 }
                 complement={
                     goBack &&

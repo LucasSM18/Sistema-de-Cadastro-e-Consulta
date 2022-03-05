@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
-import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
+import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -10,19 +10,14 @@ export default class CardFactory extends React.Component {
     constructor(props){
         super(props);
         this.icon = {'up': 'caret-up', 'down': 'caret-down'};
-        this.state = { expanded: false, showWebView: false };          
+        this.state = { expanded: false, showWebView: false, checked: false };          
         this.url = `https://www.youtube.com/results?search_query=${props.name}+${props.complement}`
         this.updateFunc = this.props.updateFunc
     }  
 
-    stringFormat = (string) => {
-        if(string==='GL Adolescentes') return `drops-gl-adolescentes`
-        return string.toLowerCase().replace(/\'|\?/g, '').replace(/ /g, '-').replace(/í/g,'i').replace(/é/g,'e');
-    }
-
     renderWebView() {
         return (
-            this.state.showWebView&&
+            this.state.showWebView &&
             <Modal
                 animationType={'slide'}
                 visible={this.state.showWebView}
@@ -55,7 +50,7 @@ export default class CardFactory extends React.Component {
         try {
             const favs = await this.props.favfunc()
 
-            const found = favs.find(fav=> fav.id == this.props.keyID)
+            const found = favs.find(fav => fav.id == this.props.keyID)
 
             if (found) {
                 Alert.alert('Louvor já está na lista de favoritos!')
@@ -76,6 +71,24 @@ export default class CardFactory extends React.Component {
 
     }
 
+    longPressHandler = async () => {
+        this.props.longPress(this.props);
+        this.setState({checked: true})    
+    }
+
+    checkMode = async (checked) => {
+        this.setState({checked: checked});
+        if(checked){ 
+            this.props.longPress(this.props);
+            return;
+        }    
+        this.props.longPress(this.props, true);        
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.multiSelect !== this.props.multiSelect) this.setState({checked: false})
+    }
+
     render(){          
         let icon = this.icon['down'];
         if(this.state.expanded) icon = this.icon['up'];
@@ -91,22 +104,23 @@ export default class CardFactory extends React.Component {
                 <Collapse 
                     isExpanded={this.state.expanded} 
                     onToggle={(isExpanded) => this.onToggleHandler(isExpanded)}
+                    handleLongPress={() => this.longPressHandler()}
                     style={{ 
                         backgroundColor: 'transparent'
                     }}
                 >
-                    <CollapseHeader 
-                        style={{
-                            flexDirection:'row', 
-                            justifyContent:'space-between',
-                            alignItems:'center',
-                            padding:10
-                        }}
-                    >
-                        {this.props.addFavorites &&
-                            <TouchableOpacity onPress={this.addToFavoriteList}>
-                                <Icon name={'md-heart'} type={'ionicon'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
-                            </TouchableOpacity>
+                    <CollapseHeader style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:10 }}>
+                        {this.props.multiSelect ? 
+                            ( 
+                                <TouchableOpacity onPress={() => this.state.checked ? this.checkMode(false) : this.checkMode(true)}>
+                                    <Icon name={this.state.checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'} type={'material-community'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
+                                </TouchableOpacity>
+                            ) : (
+                                this.props.addFavorites &&
+                                    <TouchableOpacity onPress={this.addToFavoriteList}>
+                                        <Icon name={'md-heart'} type={'ionicon'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
+                                    </TouchableOpacity>
+                            )
                         }
                         <View style={{flex:1}}>
                             <Text style={{ color:'#fff', fontSize:18 }}>{this.props.name}</Text>
@@ -124,69 +138,65 @@ export default class CardFactory extends React.Component {
                             </TouchableOpacity>
                         }                               
                     </CollapseHeader>      
-
-                    <CollapseBody 
-                        style={{
-                            paddingHorizontal:30
-                        }}
-                    >
-                        <View style={{flexDirection:'row', marginVertical:20}}>
-                            <Text style={styles.linkContainer}>
-                                (
-                                    <TouchableOpacity onPress={() => this.linkHandler(this.url)}>                                    
-                                        <Text style={styles.link}>Youtube</Text>
-                                    </TouchableOpacity>
-                                )
-                            </Text>
-                            
-                            {this.props.cifraUrl &&
+                    <CollapseBody style={{ paddingHorizontal:30 }}>
+                        {this.props.complement !== "Ministério de Louvor - ICM" &&
+                            <View style={{flexDirection:'row', marginVertical:20}}>
                                 <Text style={styles.linkContainer}>
                                     (
-                                        <TouchableOpacity onPress={() => Platform.OS !== "web" ? this.setState({showWebView: true}) : this.linkHandler(this.props.cifraUrl) }>                                    
-                                            <Text style={styles.link}>Cifras</Text>
+                                        <TouchableOpacity onPress={() => this.linkHandler(this.url)}>                                    
+                                            <Text style={styles.link}>Youtube</Text>
                                         </TouchableOpacity>
                                     )
                                 </Text>
-                            }
+                            
+                                {this.props.cifraUrl &&
+                                    <Text style={styles.linkContainer}>
+                                        (
+                                            <TouchableOpacity onPress={() => Platform.OS !== "web" ? this.setState({showWebView: true}) : this.linkHandler(this.props.cifraUrl) }>                                    
+                                                <Text style={styles.link}>Cifras</Text>
+                                            </TouchableOpacity>
+                                    )
+                                    </Text>
+                                }
                     
                                     
-                            {this.props.keyID&&this.props.updateLouvor &&
-                                <Text style={styles.linkContainer}>
-                                    (
-                                        <TouchableOpacity 
-                                            onPress={() => 
-                                                this.props.editableRoute.navigate('Editar', 
-                                                {
-                                                    id:this.props.keyID,
-                                                    title:this.props.name,
-                                                    group:this.props.complement,
-                                                    lyrics:this.props.content,
-                                                    link:this.props.link,
-                                                    updateLouvor: this.props.updateLouvor
-                                                })
-                                            }
-                                        >                                    
-                                            <Text style={styles.link}>Editar</Text>                                    
-                                        </TouchableOpacity>
-                                    )
-                                </Text>  
-                            }
+                                {this.props.keyID && this.props.updateLouvor &&
+                                    <Text style={styles.linkContainer}>
+                                        (
+                                            <TouchableOpacity 
+                                                onPress={() => 
+                                                    this.props.editableRoute.navigate('Editar', 
+                                                    {
+                                                        id:this.props.keyID,
+                                                        title:this.props.name,
+                                                        group:this.props.complement,
+                                                        lyrics:this.props.content,
+                                                        cipher:this.props.cifraUrl,
+                                                        updateLouvor: this.props.updateLouvor
+                                                    })
+                                                }
+                                            >                                    
+                                                <Text style={styles.link}>Editar</Text>                                    
+                                            </TouchableOpacity>
+                                        )
+                                    </Text>  
+                                }
 
-                            {this.props.keyID&&this.props.deleteLouvor&&
-                                <Text style={styles.linkContainer}>
-                                    (
-                                        <TouchableOpacity 
-                                            onPress={()=> {
-                                                this.props.deleteLouvor(this.props)
-                                            }}
-                                        >                                    
-                                            <Text style={styles.link}>Remover</Text>
-                                        </TouchableOpacity>
-                                    )
-                                </Text>                                      
-                            }                         
-                        </View>
-                        
+                                {this.props.keyID && this.props.deleteLouvor &&
+                                    <Text style={styles.linkContainer}>
+                                        (
+                                            <TouchableOpacity 
+                                                onPress={()=> {
+                                                    this.props.deleteLouvor(this.props)
+                                                }}
+                                            >                                    
+                                                <Text style={styles.link}>Remover</Text>
+                                            </TouchableOpacity>
+                                        )
+                                    </Text>                                      
+                                }                         
+                            </View>
+                        }                        
                         <Text style={{ color:'#fff' }}>{this.props.content}</Text>
                     </CollapseBody>                          
                 </Collapse>

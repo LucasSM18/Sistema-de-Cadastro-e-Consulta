@@ -22,9 +22,12 @@ export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
     const [loaded, setLoaded] = useState(false);
+    const [isMedley, setIsMedley] = useState(false);
     const [louvores, setLouvores] = useState([]);
+    const [medley, setMedley] = useState([]);
     const { logo } = route.params
 
+    //Exclui um louvor da base
     const deleteLouvor = async ({keyID, name}) => {
         try {               
             setLoaded(true)
@@ -52,7 +55,7 @@ export default function LouvoresScreen({navigation, route}) {
         }
     }
 
-
+    //Altera alguns dados do louvor
     const updateLouvor = async (louvor) => {        
         const docRef = doc(firebaseConnection.db, "louvores", louvor.id)
 
@@ -72,6 +75,7 @@ export default function LouvoresScreen({navigation, route}) {
 
     }
 
+    //pega os louvores da base
     const getData = async () => {
         const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
         const data = [];
@@ -152,6 +156,7 @@ export default function LouvoresScreen({navigation, route}) {
         return
     }    
 
+    //Adciona um novo louvor na base
     const addLouvor = async (louvor) => {
                         
         const newLouvor = {
@@ -182,6 +187,51 @@ export default function LouvoresScreen({navigation, route}) {
         }
     }
 
+    //Função para criar um medley com os louvores
+    const MedleyHandler = async (props, remove) => {        
+        if(remove) {
+            setMedley(medley => [...medley.filter(obj => obj.keyID !== props.keyID)])
+            return;
+        }
+        //
+        setIsMedley(true);
+        setMedley(medley => [
+            ...medley,
+            {
+                keyID: props.keyID,
+                name: props.name,
+                content: props.content
+            }
+        ]) 
+    }
+
+    const closeMedleyHandler = async () =>  {
+        setMedley([])
+        setIsMedley(false);
+    }
+
+    //função que envia os medleys para o repertório
+    const sendMedley = async () => {
+        const newMedley = {};
+        medley.forEach((louvor, index) => {
+            if(!index){
+                newMedley.keyID = louvor.keyID;
+                newMedley.name = louvor.name;
+                newMedley.complement = "Ministério de Louvor - ICM";
+                newMedley.cifraUrl = "";
+                newMedley.content = louvor.content;
+                return;
+            }
+
+            newMedley.name += " + " + louvor.name;
+            newMedley.content += "_".repeat(40) + "\n".repeat(2) + louvor.content;
+        });
+
+        setMedley([])
+        sendLouvor(newMedley);
+        setIsMedley(false);
+    }
+
     useEffect(() => {       
         async function loadLouvores() {
             await getData();
@@ -197,10 +247,11 @@ export default function LouvoresScreen({navigation, route}) {
         async function loadFavs() {
             await getFavoritosList()
         }
+
         loadFavs()
     }, [])
 
-    const Louvores = ({ louvores }) => {  
+    const Louvores = ({ louvores, multiSelect }) => {  
         return (        
             <TouchableWithoutFeedback onPress={() => hideSearch()}>
                 <Flatlist
@@ -222,7 +273,8 @@ export default function LouvoresScreen({navigation, route}) {
                             caretFunction={sendLouvor}
                             favfunc={getFavoritosList}
                             updateFunc={getData}
-                            
+                            longPress={MedleyHandler}
+                            multiSelect={multiSelect}
                         />
                     } 
                     ListEmptyComponent={emptyList()}
@@ -248,7 +300,7 @@ export default function LouvoresScreen({navigation, route}) {
         }
     }
 
-    const Favoritos = ({ filter, favoritos }) => {
+    const Favoritos = ({ filter, favoritos, multiSelect }) => {
         const [favList, setFavList] = useState(favoritos);
 
         const searchFavorites = async () => {
@@ -325,6 +377,7 @@ export default function LouvoresScreen({navigation, route}) {
                             complement={item.group} 
                             content={item.lyrics} 
                             cifraUrl={item.cipher}
+                            cipher={true}
                             // editableRoute={navigation}
                             addFavorites={false}
                             icon="playlist-music-outline"
@@ -333,6 +386,8 @@ export default function LouvoresScreen({navigation, route}) {
                             // updateLouvor={updateLouvor}
                             caretFunction={sendLouvor}
                             updateFunc={getData}
+                            longPress={MedleyHandler}
+                            multiSelect={multiSelect}
                         />
                     } 
                     ListEmptyComponent={emptyList()}
@@ -360,44 +415,67 @@ export default function LouvoresScreen({navigation, route}) {
                 dismissable={true}
             />
             
-            {shouldShow? 
-                (
-                    <SearchBar 
-                        onChange={value => setFilter(value)}
-                        leftComponent={
-                            <TouchableOpacity onPress={() => hideSearch()}>     
-                                <Icon
-                                    name={'md-arrow-back-outline'} 
-                                    type='ionicon'
-                                    color='#a6a6a6'
-                                    size={30}
-                                />
-                            </TouchableOpacity>                                         
+            {shouldShow ? (
+                <SearchBar 
+                    onChange={value => setFilter(value)}
+                    leftComponent={
+                        <TouchableOpacity onPress={() => hideSearch()}>     
+                            <Icon
+                                name={'md-arrow-back-outline'} 
+                                type='ionicon'
+                                color='#a6a6a6'
+                                size={30}
+                            />
+                        </TouchableOpacity>                                         
+                    }
+                />
+            ) : (
+                <Header
+                    title={isMedley ? "MEDLEY" : "MÚSICAS"} 
+                    myLeftContainer={
+                        <TouchableOpacity 
+                            onPress={() => !isMedley ? navigation.navigate('Home') : closeMedleyHandler()} 
+                            style={{paddingLeft:5, resizeMode:'contain'}}
+                        >
+                                {!isMedley ?
+                                    <Image 
+                                        style={{width:logo.size, height:logo.size, margin:logo.margim}}
+                                        source={logo.image}
+                                    />
+                                :
+                                    <Icon
+                                        style={{paddingHorizontal: 10, resizeMode: 'contain'}}
+                                        name={'md-arrow-back-outline'} 
+                                        type='ionicon'
+                                        color='#a6a6a6'
+                                        size={30}
+                                    />
+                                }
+                        </TouchableOpacity>   
                         }
-                    />
-                ):
-                (
-                    <Header
-                        title="MÚSICAS" 
-                        myLeftContainer={(
-                            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{paddingLeft:5, resizeMode:'contain'}}>
-                                <Image 
-                                    style={{width:logo.size, height:logo.size, margin:logo.margim}}
-                                    source={logo.image}
-                                />
-                            </TouchableOpacity>   
-                        )}
                         myRightContainer={
-                            <TouchableOpacity onPress={() => setShouldShow(!shouldShow)} style={styles.headerComponents}>
-                                <Icon
-                                    name={'md-search'} 
-                                    type='ionicon'
-                                    color='#a6a6a6'
-                                    size={25}
-                                />
-                            </TouchableOpacity>                               
+                            <TouchableOpacity 
+                                onPress={() => !isMedley ? setShouldShow(!shouldShow) : sendMedley()} 
+                                style={styles.headerComponents}
+                            >
+                                {!isMedley ?
+                                    <Icon
+                                        name={'md-search'} 
+                                        type='ionicon'
+                                        color='#a6a6a6'
+                                        size={25}
+                                    />
+                                :
+                                    <Icon
+                                        name={'check'} 
+                                        type='feather'
+                                        color='#a6a6a6'
+                                        size={30}
+                                    />
+                                }
+                            </TouchableOpacity>        
                         }
-                        complement={                
+                        complement={!isMedley &&                
                             <TouchableOpacity onPress={() => navigation.navigate('Repertório', {goBack:true})} style={ styles.headerComponents }>
                                 <Icon
                                     name="playlist-music-outline" 
@@ -409,16 +487,20 @@ export default function LouvoresScreen({navigation, route}) {
                         }            
                     />     
                 )
-            }            
+            }
+
             <TabBar 
                 name={['Favoritos','Louvores']} 
                 route={[Favoritos,Louvores]} 
                 type='ionicon'
-                filter={filter}
-                disable={shouldShow}
-                louvores={louvores}
+                disable={shouldShow || isMedley}
+                routesProps={{
+                    filter: filter,
+                    louvores: louvores,
+                    setLouvores: setLouvores,
+                    multiSelect: isMedley
+                }}
                 getFavoritosList={getFavoritosList}
-                setLouvores={setLouvores}
                 addLouvor={addLouvor}
                 navigation={navigation}
                 customButtomRoute='Importar'                
