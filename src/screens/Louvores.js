@@ -212,6 +212,15 @@ export default function LouvoresScreen({navigation, route}) {
 
     //função que envia os medleys para o repertório
     const sendMedley = async () => {
+        if(medley.length < 2) {
+            showAlert({
+                title: "ERROR!",
+                message: 'Selecione no minimo 2 louvores!',
+                alertType: "error",
+            });
+            return;
+        }
+        
         const newMedley = {};
         medley.forEach((louvor, index) => {
             if(!index){
@@ -431,7 +440,7 @@ export default function LouvoresScreen({navigation, route}) {
                 />
             ) : (
                 <Header
-                    title={isMedley ? "MEDLEY" : "MÚSICAS"} 
+                    title={isMedley ? "MEDLEY" + (medley.length ?  ` - ${medley.length} ` + (medley.length < 2 ? "Selecionado" : "Selecionados") : "") : "MÚSICAS"} 
                     myLeftContainer={
                         <TouchableOpacity 
                             onPress={() => !isMedley ? navigation.navigate('Home') : closeMedleyHandler()} 
