@@ -30,7 +30,6 @@ const sendLouvores = (louvores) => {
             message: "Inclua alguns louvores antes de enviar para o WhatsApp.",
             alertType: "error",
         });  
-        //
         return;
     }
 
