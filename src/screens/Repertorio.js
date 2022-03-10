@@ -34,19 +34,18 @@ const sendLouvores = (louvores) => {
     }
 
     let message = `Louvores (${filtroData()}):\n`
-    louvores.map(item => {
-       const song = item.title + ' - ' + item.group;
-       message += `\n${song}\n`
+    louvores.map((item,index) => { 
+       message += `\n${index+1}. ${item.title.toLowerCase()}`
     })
    
-    // console.log(message)
+    console.log(message)
 
     Linking.canOpenURL('whatsapp://send?text=').then(() => {
         Linking.openURL(`whatsapp://send?text=${message}`)
     }).catch(() => {
         showAlert({
             title: "Erro ao se conectar ao WhatsApp!",
-            message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema.",
+            message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema",
             alertType: "error",
         });
     })
@@ -160,58 +159,64 @@ export default function Repertorio({navigation, route}) {
 
             <Header
                 title={"REPERTÓRIO"} 
-                myLeftContainer={(
-                    <TouchableOpacity disabled={Platform.OS !== "web" ? false : true} onPress={() => navigation.navigate('Home')} style={{ paddingLeft:5, resizeMode:'contain' }}>
-                        <Image 
-                            style={{width:logo.size, height:logo.size, margin:logo.margim}}
-                            source={logo.image}
-                        />
-                    </TouchableOpacity>   
-                )}
-                myRightContainer={
-                    Platform.OS !== "web" &&
-                        <View style={{flexDirection:"row", display: louvores.length ? 'flex' : 'none'}}>                  
-                            <TouchableOpacity 
-                                onPress={() => 
-                                    showAlert({
-                                        title: "Você tem certeza?",
-                                        message: "Todos os louvores serão excluidos do repertório",
-                                        alertType: "warning",
-                                        leftBtnLabel: "CANCELAR",
-                                        btnLabel: "CONTINUAR",
-                                        onPress: () => alertHandler() 
-                                    })
-                                } 
-                                style={[styles.headerComponents]}
-                            >
-                                <Icon
-                                    name="trash-o" 
-                                    type='font-awesome'
-                                    color='#a6a6a6'
-                                    size={25}
-                                />
-                            </TouchableOpacity>
-                            
-                            <TouchableOpacity onPress={() => sendLouvores(louvores)} style={ styles.headerComponents }>
-                                <Icon
-                                    name="share" 
-                                    type='entypo'
-                                    color='#a6a6a6'
-                                    size={25}
-                                />
-                            </TouchableOpacity>
-                    </View>
-                }
-                complement={
-                    goBack &&
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={ styles.headerComponents }>
-                             <Icon
-                                name="music-note-outline"
-                                type='material-community'
+                myLeftContainer={
+                    <TouchableOpacity 
+                        disabled={Platform.OS !== "web" ? false : true} 
+                        onPress={() => goBack ? navigation.goBack() : navigation.navigate('Home')} 
+                        style={{ paddingLeft:5, resizeMode:'contain' }}
+                    >
+                        {goBack ?
+                            <Icon
+                                style={{paddingHorizontal: 10, resizeMode: 'contain'}}
+                                name={'md-arrow-back-outline'} 
+                                type='ionicon'
                                 color='#a6a6a6'
                                 size={30}
                             />
-                        </TouchableOpacity>                        
+                        :
+                            <Image 
+                                style={{width:logo.size, height:logo.size, margin:logo.margim}}
+                                source={logo.image}
+                            />                            
+                        }
+                    </TouchableOpacity>   
+                }
+                myRightContainer={
+                    Platform.OS !== "web" &&
+                        <TouchableOpacity 
+                            onPress={() => 
+                                showAlert({
+                                    title: "Você tem certeza?",
+                                    message: "Todos os louvores serão excluidos do repertório",
+                                    alertType: "warning",
+                                    leftBtnLabel: "CANCELAR",
+                                    btnLabel: "CONTINUAR",
+                                    onPress: () => alertHandler() 
+                                })
+                            } 
+                            style={[styles.headerComponents, {display: louvores.length ? 'flex' : 'none'}]}
+                        >
+                            <Icon
+                                name="trash-o" 
+                                type='font-awesome'
+                                color='#a6a6a6'
+                                size={25}
+                            />
+                        </TouchableOpacity>
+                }
+                complement={   
+                    Platform.OS !== "web" &&                        
+                        <TouchableOpacity 
+                            onPress={() => sendLouvores(louvores)} 
+                            style={[styles.headerComponents, {display: louvores.length ? 'flex' : 'none'}]}
+                        >
+                            <Icon
+                                name="share" 
+                                type='entypo'
+                                color='#a6a6a6'
+                                size={25}
+                            />
+                        </TouchableOpacity>            
                 }
             />  
             <CustomView style={styles.pageBody}>

@@ -25,7 +25,13 @@ export default function EditarLouvor({navigation, route}) {
     })
 
     const updateHandler = () => {
-        route.params.updateLouvor(louvor)
+        const updated = {
+            ...louvor,
+            title: louvor.title.trim(), 
+            group: louvor.group.trim(),
+            cipher: louvor.cipher.trim(),
+        }
+        route.params.updateLouvor(updated)
         navigation.goBack()
     }
 

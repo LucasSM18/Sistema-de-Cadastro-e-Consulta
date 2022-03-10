@@ -139,7 +139,7 @@ export default class CardFactory extends React.Component {
                         }                               
                     </CollapseHeader>      
                     <CollapseBody style={{ paddingHorizontal:30 }}>
-                        {this.props.complement !== "Ministério de Louvor - ICM" &&
+                        {this.props.complement !== "Medley" &&
                             <View style={{flexDirection:'row', marginVertical:20}}>
                                 <Text style={styles.linkContainer}>
                                     (
@@ -149,7 +149,7 @@ export default class CardFactory extends React.Component {
                                     )
                                 </Text>
                             
-                                {this.props.cifraUrl &&
+                                {(this.props.cifraUrl.split("/").length - 1) > 4 &&
                                     <Text style={styles.linkContainer}>
                                         (
                                             <TouchableOpacity onPress={() => Platform.OS !== "web" ? this.setState({showWebView: true}) : this.linkHandler(this.props.cifraUrl) }>                                    

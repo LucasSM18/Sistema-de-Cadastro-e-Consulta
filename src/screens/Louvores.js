@@ -62,6 +62,7 @@ export default function LouvoresScreen({navigation, route}) {
         await updateDoc(docRef, {
             title: louvor.title,
             group: louvor.group,
+            cipher: louvor.cipher,
             lyrics: louvor.lyrics
         })
 
@@ -140,7 +141,7 @@ export default function LouvoresScreen({navigation, route}) {
                 
                 showAlert({
                     title: "Louvor adicionado!",
-                    message: `${props.name} adicionado com sucesso ao repertório 🎉`,
+                    message: `"${props.name}" adicionado com sucesso ao repertório 🎉`,
                     alertType: "success"
                 });
                
@@ -226,13 +227,13 @@ export default function LouvoresScreen({navigation, route}) {
             if(!index){
                 newMedley.keyID = louvor.keyID;
                 newMedley.name = louvor.name;
-                newMedley.complement = "Ministério de Louvor - ICM";
+                newMedley.complement = "Medley";
                 newMedley.cifraUrl = "";
                 newMedley.content = louvor.content;
                 return;
             }
 
-            newMedley.name += " + " + louvor.name;
+            newMedley.name += " / " + louvor.name;
             newMedley.content += "_".repeat(40) + "\n".repeat(2) + louvor.content;
         });
 
