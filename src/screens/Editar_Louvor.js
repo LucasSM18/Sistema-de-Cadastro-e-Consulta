@@ -31,7 +31,7 @@ export default function EditarLouvor({navigation, route}) {
             group: louvor.group.trim(),
             cipher: louvor.cipher.trim(),
         }
-        route.params.updateLouvor(updated)
+        route.params.updateLouvor(louvor)
         navigation.goBack()
     }
 

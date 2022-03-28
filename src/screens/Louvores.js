@@ -7,7 +7,7 @@ import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font } from '../components/Styles';
 import  CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
-import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Image} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Keyboard, Image} from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -131,12 +131,14 @@ export default function LouvoresScreen({navigation, route}) {
                     cipher: props.cifraUrl,
                     group: props.complement,
                     lyrics: props.content
-                })
+                })      
                 
                 const newDoc = {...docLouvor.data(), musics: louvor.musics}
             
                 await updateDoc(docRef, newDoc)
                 
+                setShouldShow(false);  
+                getData();
                 setLoaded(false);
                 
                 showAlert({
@@ -152,7 +154,7 @@ export default function LouvoresScreen({navigation, route}) {
                     message: `O louvor "${props.name}" já está no repertório!`,
                     alertType: "error"
                 });
-            }            
+            }    
         }
         return
     }    
@@ -164,7 +166,8 @@ export default function LouvoresScreen({navigation, route}) {
             title: louvor.titulo,
             group: louvor.artista,
             cipher: louvor.cifra,
-            lyrics: louvor.letra
+            lyrics: louvor.letra,
+            isNotBase: true,
         }
     
         try {     
@@ -189,12 +192,7 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     //Função para criar um medley com os louvores
-    const MedleyHandler = async (props, remove) => {        
-        if(remove) {
-            setMedley(medley => [...medley.filter(obj => obj.keyID !== props.keyID)])
-            return;
-        }
-        //
+    const addMedley = async (props) => {        
         setIsMedley(true);
         setMedley(medley => [
             ...medley,
@@ -206,6 +204,12 @@ export default function LouvoresScreen({navigation, route}) {
         ]) 
     }
 
+    //remove musica do medley
+    const removeMedley = (key) => {
+        setMedley(medley => [...medley.filter(obj => obj.keyID !== key)])
+    }
+
+    //fecha o handler do medley
     const closeMedleyHandler = async () =>  {
         setMedley([])
         setIsMedley(false);
@@ -227,7 +231,7 @@ export default function LouvoresScreen({navigation, route}) {
             if(!index){
                 newMedley.keyID = louvor.keyID;
                 newMedley.name = louvor.name;
-                newMedley.complement = "Medley";
+                newMedley.complement = "ICM Worship - Medley";
                 newMedley.cifraUrl = "";
                 newMedley.content = louvor.content;
                 return;
@@ -254,44 +258,56 @@ export default function LouvoresScreen({navigation, route}) {
         
 
     useEffect(()=> {
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setShouldShow(false) });
         async function loadFavs() {
             await getFavoritosList()
         }
 
-        loadFavs()
+        loadFavs();
+        return () => {
+            keyboardDidHideListener.remove();
+        };
     }, [])
+
+    // useEffect(()=> {
+    //     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setShouldShow(false) });
+      
+    //     return () => {
+    //         keyboardDidHideListener.remove();
+    //     };
+    // }, [])
 
     const Louvores = ({ louvores, multiSelect }) => {  
         return (        
-            <TouchableWithoutFeedback onPress={() => hideSearch()}>
-                <Flatlist
-                    style={styles.pageBody}
-                    data={louvores} 
-                    renderItem={({item}) => 
-                        <Card 
-                            keyID={item.id} 
-                            name={item.title} 
-                            complement={item.group} 
-                            content={item.lyrics} 
-                            cifraUrl={item.cipher}
-                            editableRoute={navigation}
-                            addFavorites={true}
-                            icon="playlist-music-outline"
-                            iconType="material-community"
-                            deleteLouvor={deleteLouvor}
-                            updateLouvor={updateLouvor}
-                            caretFunction={sendLouvor}
-                            favfunc={getFavoritosList}
-                            updateFunc={getData}
-                            longPress={MedleyHandler}
-                            multiSelect={multiSelect}
-                        />
-                    } 
-                    ListEmptyComponent={emptyList()}
-                    keyboardShouldPersistTaps="handled" 
-                    keyExtractor={item=>item.id.toString()}
-                />        
-            </TouchableWithoutFeedback>
+            <Flatlist
+                style={styles.pageBody}
+                data={louvores} 
+                renderItem={({item}) => 
+                    <Card 
+                        keyID={item.id} 
+                        name={item.title} 
+                        complement={item.group} 
+                        content={item.lyrics} 
+                        cifraUrl={item.cipher}
+                        isNotBase={item.isNotBase}
+                        editableRoute={navigation}
+                        addFavorites={true}
+                        icon="playlist-music-outline"
+                        iconType="material-community"
+                        deleteLouvor={deleteLouvor}
+                        updateLouvor={updateLouvor}
+                        caretFunction={sendLouvor}
+                        favfunc={getFavoritosList}
+                        updateFunc={getData}
+                        longPress={addMedley}
+                        uncheckFunction={removeMedley}
+                        multiSelect={multiSelect}
+                    />
+                } 
+                ListEmptyComponent={emptyList()}
+                keyboardShouldPersistTaps="handled" 
+                keyExtractor={item=>item.id.toString()}
+            />        
         );
     };   
     
@@ -376,35 +392,35 @@ export default function LouvoresScreen({navigation, route}) {
         },[filter])
 
         return (                   
-            <TouchableWithoutFeedback onPress={() => setShouldShow(false)}>
-               <Flatlist
-                    style={styles.pageBody}
-                    data={favList} 
-                    renderItem={({item}) => 
-                        <Card 
-                            keyID={item.id} 
-                            name={item.title} 
-                            complement={item.group} 
-                            content={item.lyrics} 
-                            cifraUrl={item.cipher}
-                            cipher={true}
-                            // editableRoute={navigation}
-                            addFavorites={false}
-                            icon="playlist-music-outline"
-                            iconType="material-community"
-                            deleteLouvor={removeFavoritos}
-                            // updateLouvor={updateLouvor}
-                            caretFunction={sendLouvor}
-                            updateFunc={getData}
-                            longPress={MedleyHandler}
-                            multiSelect={multiSelect}
-                        />
-                    } 
-                    ListEmptyComponent={emptyList()}
-                    keyboardShouldPersistTaps="handled" 
-                    keyExtractor={(item, idx) => idx}
-                />        
-            </TouchableWithoutFeedback>
+            <Flatlist
+                style={styles.pageBody}
+                data={favList} 
+                renderItem={({item}) => 
+                    <Card 
+                        keyID={item.id} 
+                        name={item.title} 
+                        complement={item.group} 
+                        content={item.lyrics} 
+                        cifraUrl={item.cipher}
+                        isNotBase={true}
+                        cipher={true}
+                        // editableRoute={navigation}
+                        addFavorites={false}
+                        icon="playlist-music-outline"
+                        iconType="material-community"
+                        deleteLouvor={removeFavoritos}
+                        // updateLouvor={updateLouvor}
+                        caretFunction={sendLouvor}
+                        updateFunc={getData}
+                        longPress={addMedley}
+                        uncheckFunction={removeMedley}
+                        multiSelect={multiSelect}
+                    />
+                } 
+                ListEmptyComponent={emptyList()}
+                keyboardShouldPersistTaps="handled" 
+                keyExtractor={(item, idx) => idx}
+            />        
         );
     };    
 

@@ -20,6 +20,7 @@ export default function App(){
   const theme = Themes[deviceTheme] || Themes.light;
   const logo = { size: 60, margim: 5, image: require('./assets/home.png') };
   const initialPage = Platform.OS !== "web" ? "Home" : "Repertório";
+  // const initialPage = "Home";
 
   return (    
       <NavigationContainer theme={{colors:{background:theme.body}}}>

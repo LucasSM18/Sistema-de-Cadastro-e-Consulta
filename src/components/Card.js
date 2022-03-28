@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
-import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -73,16 +73,16 @@ export default class CardFactory extends React.Component {
 
     longPressHandler = async () => {
         this.props.longPress(this.props);
-        this.setState({checked: true})    
+        this.setState({checked: true, expanded: false})    
     }
 
-    checkMode = async (checked) => {
-        this.setState({checked: checked});
-        if(checked){ 
-            this.props.longPress(this.props);
+    checkMode = async () => {
+        this.setState({checked: !this.state.checked});
+        if(this.state.checked){ 
+            this.props.uncheckFunction(this.props.keyID); 
             return;
         }    
-        this.props.longPress(this.props, true);        
+        this.props.longPress(this.props);       
     }
 
     componentWillReceiveProps(nextProps) {
@@ -105,15 +105,25 @@ export default class CardFactory extends React.Component {
                     isExpanded={this.state.expanded} 
                     onToggle={(isExpanded) => this.onToggleHandler(isExpanded)}
                     handleLongPress={() => this.longPressHandler()}
+                    disabled={!this.state.expanded && this.props.multiSelect}
                     style={{ 
                         backgroundColor: 'transparent'
                     }}
                 >
-                    <CollapseHeader style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:10 }}>
+                    <CollapseHeader>
+                        <TouchableOpacity 
+                            style={{ 
+                                flexDirection:'row', 
+                                justifyContent:'space-between', 
+                                alignItems:'center', 
+                                padding:10 
+                            }}
+                            onPress={() => this.checkMode()}
+                            disabled={!this.props.multiSelect || this.state.expanded}
+                        >
                         {this.props.multiSelect ? 
-                            ( 
-                                <TouchableOpacity onPress={() => this.state.checked ? this.checkMode(false) : this.checkMode(true)}>
-                                    <Icon name={this.state.checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'} type={'material-community'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
+                            ( <TouchableOpacity onPress={() => this.checkMode()}>
+                                <Icon name={this.state.checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'} type={'material-community'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
                                 </TouchableOpacity>
                             ) : (
                                 this.props.addFavorites &&
@@ -128,7 +138,7 @@ export default class CardFactory extends React.Component {
                         </View> 
                               
                         {this.props.caretFunction &&
-                            <TouchableOpacity onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
+                            <TouchableOpacity disabled={this.props.multiSelect} onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
                                 <Icon
                                     name={this.props?.icon}
                                     type={this.props?.iconType}
@@ -136,10 +146,11 @@ export default class CardFactory extends React.Component {
                                     size={35}
                                 />  
                             </TouchableOpacity>
-                        }                               
+                        }                
+                        </TouchableOpacity>              
                     </CollapseHeader>      
                     <CollapseBody style={{ paddingHorizontal:30 }}>
-                        {this.props.complement !== "Medley" &&
+                        {/* {this.props.complement !== "ICM Worship - Medley" && */}
                             <View style={{flexDirection:'row', marginVertical:20}}>
                                 <Text style={styles.linkContainer}>
                                     (
@@ -182,7 +193,7 @@ export default class CardFactory extends React.Component {
                                     </Text>  
                                 }
 
-                                {this.props.keyID && this.props.deleteLouvor &&
+                                {this.props.keyID && this.props.deleteLouvor && this.props.isNotBase &&
                                     <Text style={styles.linkContainer}>
                                         (
                                             <TouchableOpacity 
@@ -196,7 +207,7 @@ export default class CardFactory extends React.Component {
                                     </Text>                                      
                                 }                         
                             </View>
-                        }                        
+                        {/* }                         */}
                         <Text style={{ color:'#fff' }}>{this.props.content}</Text>
                     </CollapseBody>                          
                 </Collapse>

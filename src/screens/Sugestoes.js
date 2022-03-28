@@ -3,6 +3,9 @@ import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { CustomView, Search } from '../components/Styles';
+import firebaseConnection from '../services/firebaseConnection';
+import { collection, addDoc } from 'firebase/firestore';
+import { showAlert } from 'react-native-customisable-alert';
 import { StyleSheet, useColorScheme, TouchableOpacity, Image, View } from 'react-native';
 
 export default function DuvidasScreen({navigation, route}) {
@@ -16,6 +19,24 @@ export default function DuvidasScreen({navigation, route}) {
         input.current.focus();
     }, []);
 
+    const addSugestao = async () => {
+        try {     
+            await addDoc(collection(firebaseConnection.db, 'sugestoes'), {sugestao: sugestão})
+
+            showAlert({
+                title: "Sugestão Enviada",
+                message: `"A sugestão foi enviada para os administradores, muito obrigado pela contribuição!`,
+                alertType: "success",
+            });
+        }
+        catch(err) {
+            showAlert({
+                title: "ERROR!",
+                message: 'Houve um erro ao tentar enviar, tente novamente mais tarde',
+                alertType: "error",
+            });
+        }
+    }
     return (
         <View style={{flex:1}}>
             <Header
@@ -29,7 +50,7 @@ export default function DuvidasScreen({navigation, route}) {
                     </TouchableOpacity>   
                 )}
                 myRightContainer={
-                    <TouchableOpacity onPress={() => console.log('teste')} style={styles.headerComponents}>
+                    <TouchableOpacity onPress={() => addSugestao()} style={styles.headerComponents}>
                         <Icon
                             name={'send'} 
                             type="material-community"
