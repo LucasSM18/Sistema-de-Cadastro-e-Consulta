@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Themes from '../themes/Themes';
 import Header from '../components/Header';
+import { Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
 import { CustomView, Search } from '../components/Styles';
@@ -16,6 +17,8 @@ import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native
 export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
+    const [keyboardActivate, setKeyboardActivate] = useState(false);
+    const textAreaSizeHandler = !keyboardActivate ? { height:"60%" } : { height:"18%"} 
     const [louvor, setLouvor] = useState({
         id: route.params.id,
         title: route.params.title,
@@ -31,9 +34,19 @@ export default function EditarLouvor({navigation, route}) {
             group: louvor.group.trim(),
             cipher: louvor.cipher.trim(),
         }
-        route.params.updateLouvor(louvor)
+        route.params.updateLouvor(updated)
         navigation.goBack()
     }
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardActivate(true) });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardActivate(false) });
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    })
 
     return (
         <View style={{flex:1}}>
@@ -57,8 +70,8 @@ export default function EditarLouvor({navigation, route}) {
                 complement={( 
                     <TouchableOpacity onPress={() => updateHandler()} style={styles.headerComponents}>
                         <Icon
-                            name={'send'} 
-                            type="material-community"
+                            name={'upload'} 
+                            type="feather"
                             color='#a6a6a6'
                             size={25}
                         />
@@ -68,7 +81,7 @@ export default function EditarLouvor({navigation, route}) {
 
             <CustomView style={styles.formArea}>  
                     <Search
-                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Título'}     
                         selectionColor={Theme.color} 
@@ -80,7 +93,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
                 
                     <Search
-                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Ministério'}       
                         selectionColor={Theme.color}
@@ -89,7 +102,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, { flex:1, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Cifras (Opcional)'}
                         selectionColor={Theme.color}       
@@ -98,7 +111,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, { flex:10, borderColor:Theme.subColor,  borderRadius:4, borderWidth:1 } ]}   
+                        style={[ styles.textInput, textAreaSizeHandler, { borderColor:Theme.subColor,  borderRadius:4, borderWidth:1 } ]}   
                         multiline={true}
                         placeholderTextColor={Theme.subColor}
                         placeholder={"Letra da Musica..."}
