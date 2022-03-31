@@ -3,7 +3,7 @@ import Themes from '../themes/Themes';
 import Header from '../components/Header';
 import { Video } from 'expo-av';
 import { Icon } from 'react-native-elements';
-import { CustomView ,Font } from '../components/Styles';
+import { CustomView, Font } from '../components/Styles';
 import { StyleSheet, useColorScheme, ActivityIndicator, TouchableOpacity, Image, Modal, View } from 'react-native';
 
 export default function DuvidasScreen({navigation, route}) {

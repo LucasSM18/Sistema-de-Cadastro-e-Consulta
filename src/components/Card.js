@@ -2,6 +2,7 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
+import { showAlert } from 'react-native-customisable-alert';
 import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -53,7 +54,11 @@ export default class CardFactory extends React.Component {
             const found = favs.find(fav => fav.id == this.props.keyID)
 
             if (found) {
-                Alert.alert('Louvor já está na lista de favoritos!')
+                showAlert({
+                    title: "Erro",
+                    message: `"${this.props.name}" já está na lista de favoritos!`,
+                    alertType: "Erro",
+                });
                 return
             }
 
@@ -62,16 +67,26 @@ export default class CardFactory extends React.Component {
             })
 
             await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
-            Alert.alert('Louvor adicionado com sucesso aos favoritos! 😁')
+            showAlert({
+                title: "Adicionado",
+                message: `"${this.props.name}" adicionado com sucesso aos favoritos! 😁`,
+                alertType: "success",
+            });
             await this.updateFunc()
         }
         catch(err) {
-            Alert.alert('Erro', `${err} Não foi possível registrar esse favorito! Tente novamente mais tarde!`)
+            showAlert({
+                title: "Erro",
+                message: `Não foi possível registrar esse favorito! Tente novamente mais tarde!`,
+                alertType: "Erro",
+            });
         }
 
     }
 
     longPressHandler = async () => {
+        if(!this.props.longPress) return;
+
         this.props.longPress(this.props);
         this.setState({checked: true, expanded: false})    
     }
@@ -110,17 +125,7 @@ export default class CardFactory extends React.Component {
                         backgroundColor: 'transparent'
                     }}
                 >
-                    <CollapseHeader>
-                        <TouchableOpacity 
-                            style={{ 
-                                flexDirection:'row', 
-                                justifyContent:'space-between', 
-                                alignItems:'center', 
-                                padding:10 
-                            }}
-                            onPress={() => this.checkMode()}
-                            disabled={!this.props.multiSelect || this.state.expanded}
-                        >
+                    <CollapseHeader style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:10 }}>
                         {this.props.multiSelect ? 
                             ( <TouchableOpacity onPress={() => this.checkMode()}>
                                 <Icon name={this.state.checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'} type={'material-community'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
@@ -146,8 +151,7 @@ export default class CardFactory extends React.Component {
                                     size={35}
                                 />  
                             </TouchableOpacity>
-                        }                
-                        </TouchableOpacity>              
+                        }                            
                     </CollapseHeader>      
                     <CollapseBody style={{ paddingHorizontal:30 }}>
                         {/* {this.props.complement !== "ICM Worship - Medley" && */}

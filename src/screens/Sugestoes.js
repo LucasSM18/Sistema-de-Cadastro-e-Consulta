@@ -52,8 +52,8 @@ export default function DuvidasScreen({navigation, route}) {
                 myRightContainer={
                     <TouchableOpacity onPress={() => addSugestao()} style={styles.headerComponents}>
                         <Icon
-                            name={'send'} 
-                            type="material-community"
+                            name={'upload'} 
+                            type="feather"
                             color='#a6a6a6'
                             size={25}
                         />

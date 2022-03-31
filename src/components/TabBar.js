@@ -49,8 +49,8 @@ export default class TabBar extends React.Component {
         this.state = { tab, loaded: false, favs: []}
     }    
 
-    getFavoritosFromDB = async()=> {
-        this.setState({...this.state, loaded: false})
+    getFavoritosFromDB = async () => {
+        this.setState({...this.state})
         const favoritos = await this.props.getFavoritosList()   
         const listOfFavoritos = favoritos.map(favorito=>favorito.id)
         const favoritosFromDB = []
@@ -58,8 +58,7 @@ export default class TabBar extends React.Component {
         const louvoresFromDb = []
         louvoresSnap.forEach(louvor=> {
             louvoresFromDb.push({id:louvor.id, ...louvor.data()})
-        })    
-        
+        })            
 
         listOfFavoritos.forEach(id=> {
 
@@ -72,9 +71,7 @@ export default class TabBar extends React.Component {
         })
        
         this.setState({...this.state, loaded: true, favs: favoritosFromDB })
-        
-    }
-    
+    }   
 
     componentDidMount() {
         // console.log('mounted')        
@@ -131,7 +128,7 @@ export default class TabBar extends React.Component {
                                 
                             }}
                         >
-                         { () => <elements.route {...this.props.routesProps} favoritos={this.state.favs}/> }
+                         { () => <elements.route {...this.props.routesProps} favoritos={this.state.favs} updateFavs={this.getFavoritosFromDB}/> }
                         </Tab.Screen>                      
                     ))                     
                 }</Tab.Navigator>

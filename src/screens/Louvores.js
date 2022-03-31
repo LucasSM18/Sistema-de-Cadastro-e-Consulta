@@ -258,7 +258,7 @@ export default function LouvoresScreen({navigation, route}) {
         
 
     useEffect(()=> {
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setShouldShow(false) });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {  hideSearch() });
         async function loadFavs() {
             await getFavoritosList()
         }
@@ -277,7 +277,8 @@ export default function LouvoresScreen({navigation, route}) {
     //     };
     // }, [])
 
-    const Louvores = ({ louvores, multiSelect }) => {  
+    const Louvores = ({ louvores, multiSelect, updateFavs }) => { 
+
         return (        
             <Flatlist
                 style={styles.pageBody}
@@ -298,7 +299,7 @@ export default function LouvoresScreen({navigation, route}) {
                         updateLouvor={updateLouvor}
                         caretFunction={sendLouvor}
                         favfunc={getFavoritosList}
-                        updateFunc={getData}
+                        updateFunc={updateFavs}
                         longPress={addMedley}
                         uncheckFunction={removeMedley}
                         multiSelect={multiSelect}
@@ -326,35 +327,19 @@ export default function LouvoresScreen({navigation, route}) {
         }
     }
 
-    const Favoritos = ({ filter, favoritos, multiSelect }) => {
-        const [favList, setFavList] = useState(favoritos);
-
-        const searchFavorites = async () => {
-            if(!filter){
-                favoritos.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
-                setFavList(favoritos);                
-                return;
-            } 
-
-            if(filter.length > 2){
-                favoritos.sort((a, b) => ( 
-                        a.title.toLowerCase().includes(filter.toLowerCase()) ? -1 
-                    : 
-                        b.title.toLowerCase().includes(filter.toLowerCase()) ? 1 : 0 
-                ));
-            }
-            
-            setFavList(favoritos.filter(item => 
-                (
-                    item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
-                    item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
-                    item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
-                )
-            ));            
-        }
+    const Favoritos = ({ filter, favoritos, multiSelect, updateFavs }) => {
+        const data = filter ? 
+            favoritos.filter(item => (
+                item.title.toLowerCase().indexOf(filter.toLowerCase()) > -1 ||
+                item.group.toLowerCase().indexOf(filter.toLowerCase()) > -1 || 
+                item.lyrics.toLowerCase().indexOf(filter.toLowerCase()) > -1 
+            )) 
+        :
+            favoritos;
 
         const removeFavoritos = async({keyID, name}) => {
-            try {               
+            try {      
+                updateFavs();         
                 setLoaded(true);
                 const favs = await getFavoritosList();
                 const removeFav = favs.findIndex(({id}) => id === keyID);
@@ -363,8 +348,7 @@ export default function LouvoresScreen({navigation, route}) {
                 await AsyncStorage.removeItem('@favoritos');
                 await AsyncStorage.setItem('@favoritos', JSON.stringify(favs))
 
-                setFavList(favoritos)
-
+                await updateFavs();
                 setLoaded(false);
 
                 showAlert({
@@ -384,7 +368,7 @@ export default function LouvoresScreen({navigation, route}) {
 
         useEffect(() => {
             async function filterFavs() {
-                await searchFavorites();
+                await updateFavs()
             }
 
             filterFavs();
@@ -394,7 +378,7 @@ export default function LouvoresScreen({navigation, route}) {
         return (                   
             <Flatlist
                 style={styles.pageBody}
-                data={favList} 
+                data={data} 
                 renderItem={({item}) => 
                     <Card 
                         keyID={item.id} 
@@ -411,7 +395,7 @@ export default function LouvoresScreen({navigation, route}) {
                         deleteLouvor={removeFavoritos}
                         // updateLouvor={updateLouvor}
                         caretFunction={sendLouvor}
-                        updateFunc={getData}
+                        // updateFunc={updateFavs}
                         longPress={addMedley}
                         uncheckFunction={removeMedley}
                         multiSelect={multiSelect}
@@ -514,7 +498,7 @@ export default function LouvoresScreen({navigation, route}) {
                     />     
                 )
             }
-
+            
             <TabBar 
                 name={['Favoritos','Louvores']} 
                 route={[Favoritos,Louvores]} 

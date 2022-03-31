@@ -57,38 +57,45 @@ export default function Repertorio({navigation, route}) {
     const [loaded, setLoaded] = useState(false);
     const [remove, setRemove] = useState(false)
     
-    const deleteLouvor = async ({keyID, name}) => {
-        try {               
+    const removeLouvor = async ({keyID, name}) => {
+        const removeFunction = async () => {
+            closeAlert(); 
             setRemove(true);
-            // console.log(keyID + ' ' + name)
-            const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
-            const docRepertorio = await getDoc(docRef)
-
-            if (docRepertorio.exists()) {
-                const repertorio = {...docRepertorio.data()}
-                const novoRepertorio = {...repertorio }
-                novoRepertorio.musics = repertorio.musics.filter(music=> music.id !== keyID)
-
-                await updateDoc(docRef, novoRepertorio)
+            try {               
+                // console.log(keyID + ' ' + name)
+                const docRef = await doc(firebaseConnection.db, "repertorio", 'sabado')
+                const docRepertorio = await getDoc(docRef)
+    
+                if (docRepertorio.exists()) {
+                    const repertorio = {...docRepertorio.data()}
+                    const novoRepertorio = {...repertorio }
+                    novoRepertorio.musics = repertorio.musics.filter(music=> music.id !== keyID)
+    
+                    await updateDoc(docRef, novoRepertorio)
+                }
+                //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
+    
+                await getData();
+                setRemove(false);    
             }
-            //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
-
-            await getData();
-            setRemove(false);
-
-            showAlert({
-                title: "Louvor removido!",
-                message: `"${name}" foi removido com sucesso!`,
-                alertType: "success",
-            });     
+            catch(err) {
+                setRemove(false);
+                showAlert({
+                    title: "ERRO!",
+                    message: "Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde",
+                    alertType: "error",
+                });
+            }
         }
-        catch(err) {
-            showAlert({
-                title: "ERRO!",
-                message: "Ocorreu um erro e não foi possível excluir o louvor no momento. Tente novamente mais tarde",
-                alertType: "error",
-            });
-        }
+
+        showAlert({
+            title: "Deseja Prosseguir?",
+            message: `"${name}" sera removido do repertório`,
+            alertType: "warning",
+            leftBtnLabel: "NÃO",
+            btnLabel: "SIM",
+            onPress: () => removeFunction()
+        }) 
     }
 
     const clearRepertório = async () => {
@@ -234,7 +241,7 @@ export default function Repertorio({navigation, route}) {
                                     content={item.lyrics} 
                                     icon="cross"
                                     iconType="entypo"
-                                    caretFunction={ Platform.OS !== "web" && deleteLouvor}
+                                    caretFunction={ Platform.OS !== "web" && removeLouvor }
                                 />
                             } 
                             ListEmptyComponent={emptyList()}
