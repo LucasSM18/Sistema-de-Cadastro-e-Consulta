@@ -1,12 +1,11 @@
 import * as React from 'react';
 import Themes from '../themes/Themes';
 import Header from '../components/Header';
-import { Icon } from 'react-native-elements';
-import { CustomView, Search } from '../components/Styles';
+import { CustomView, CustomButtom, Search } from '../components/Styles';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, addDoc } from 'firebase/firestore';
-import { showAlert } from 'react-native-customisable-alert';
-import { StyleSheet, useColorScheme, TouchableOpacity, Image, View } from 'react-native';
+import CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
+import { StyleSheet, useColorScheme, TouchableOpacity, Text, Image, View } from 'react-native';
 
 export default function DuvidasScreen({navigation, route}) {
     const { logo } = route.params;
@@ -21,13 +20,16 @@ export default function DuvidasScreen({navigation, route}) {
 
     const addSugestao = async () => {
         try {     
-            await addDoc(collection(firebaseConnection.db, 'sugestoes'), {sugestao: sugestão})
+            if(sugestão){
+                await addDoc(collection(firebaseConnection.db, 'sugestoes'), {sugestao: sugestão})
 
-            showAlert({
-                title: "Sugestão Enviada",
-                message: `"A sugestão foi enviada para os administradores, muito obrigado pela contribuição!`,
-                alertType: "success",
-            });
+                showAlert({
+                    title: "Sugestão Enviada",
+                    message: "A sugestão foi enviada para os administradores, muito obrigado pela contribuição!",
+                    alertType: "success",
+                });
+                setSugestão("")
+            }
         }
         catch(err) {
             showAlert({
@@ -39,6 +41,13 @@ export default function DuvidasScreen({navigation, route}) {
     }
     return (
         <View style={{flex:1}}>
+            <CustomisableAlert
+                alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
+                titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 
+                textStyle={{color:"white", fontSize:15}}
+                btnLabelStyle={{textTransform:"uppercase"}}
+                dismissable={true}
+            />
             <Header
                 title={"SUGESTÕES"} 
                 myLeftContainer={(
@@ -49,20 +58,10 @@ export default function DuvidasScreen({navigation, route}) {
                         />
                     </TouchableOpacity>   
                 )}
-                myRightContainer={
-                    <TouchableOpacity onPress={() => addSugestao()} style={styles.headerComponents}>
-                        <Icon
-                            name={'upload'} 
-                            type="feather"
-                            color='#a6a6a6'
-                            size={25}
-                        />
-                    </TouchableOpacity>                               
-                }
             />
              <CustomView style={styles.pageBody}>
                 <Search
-                    style={[ styles.textInput, { maxHeight:"55%", borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}
+                    style={[ styles.textInput, { borderBottomColor:Theme.subColor, textAlignVertical:'top' } ]}
                     autoFocus={true}
                     ref={input}
                     multiline={true} 
@@ -72,6 +71,10 @@ export default function DuvidasScreen({navigation, route}) {
                     value={sugestão}   
                     onChangeText={text => setSugestão(text)}
                 />             
+
+                <CustomButtom onPress={() => addSugestao()}>
+                    <Text style={styles.textbuttom}>ENVIAR</Text>
+                </CustomButtom>
              </CustomView>          
         </View> 
     )
@@ -86,6 +89,7 @@ const styles = StyleSheet.create({
 
     pageBody: {
         flex:1,
+        
         padding:"4%",
         height:"100%"
     },
@@ -95,6 +99,11 @@ const styles = StyleSheet.create({
         marginBottom:30,
         fontSize:16, 
         borderBottomWidth:1
+    },
+
+    textbuttom: {
+        color:'#fff',
+        fontSize:15
     }
 })
 

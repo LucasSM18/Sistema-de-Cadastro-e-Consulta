@@ -4,8 +4,8 @@ import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Image } from 'rea
 
 export default function HomeScreen({navigation}) {
     const logo = require('../../assets/logo.png');
-    const icons = ["music-note-outline", "playlist-music-outline", /*"calendar-month-outline",*/ "lightbulb-on-outline", "comment-question-outline"]
-    const text = ["Músicas", "Repertório", /*"Escala",*/ "Sugestões", "Dúvidas"]
+    const icons = ["music-note-outline", "playlist-music-outline", "lightbulb-on-outline", "comment-question-outline"]
+    const text = ["Músicas", "Repertório", "Sugestões", "Dúvidas"]
     
     return (
         <ScrollView style={styles.pageBody}>

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
-import { showAlert } from 'react-native-customisable-alert';
+import { showAlert, closeAlert } from 'react-native-customisable-alert';
 import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -39,7 +39,13 @@ export default class CardFactory extends React.Component {
             const supported = await Linking.canOpenURL(url);
             //
             if(supported) await Linking.openURL(url);
-            else Alert.alert('Link inacessível! Por favor entre em contato com o administrador');       
+            else {
+                showAlert({
+                    title: "Erro",
+                    message: 'Link inacessível! Por favor entre em contato com o administrador',
+                    alertType: "Erro",
+                }); 
+            }    
     }
 
     onToggleHandler = async (expanded) => {
@@ -77,7 +83,7 @@ export default class CardFactory extends React.Component {
         catch(err) {
             showAlert({
                 title: "Erro",
-                message: `Não foi possível registrar esse favorito! Tente novamente mais tarde!`,
+                message: "Não foi possível registrar esse favorito! Tente novamente mais tarde!",
                 alertType: "Erro",
             });
         }
@@ -197,12 +203,26 @@ export default class CardFactory extends React.Component {
                                     </Text>  
                                 }
 
-                                {this.props.keyID && this.props.deleteLouvor && this.props.isNotBase &&
+                                {this.props.keyID && this.props.deleteLouvor && 
+                                //  this.props.isNotBase &&
                                     <Text style={styles.linkContainer}>
                                         (
                                             <TouchableOpacity 
                                                 onPress={()=> {
-                                                    this.props.deleteLouvor(this.props)
+                                                    this.props?.deleteMessage ?
+                                                        showAlert({
+                                                            title: "Você tem certeza?",
+                                                            message: this.props?.deleteMessage,
+                                                            alertType: "warning",
+                                                            leftBtnLabel: "CANCELAR",
+                                                            btnLabel: "CONTINUAR",
+                                                            onPress: () => { 
+                                                                closeAlert()
+                                                                this.props.deleteLouvor(this.props);
+                                                            }
+                                                        })
+                                                    :
+                                                        this.props.deleteLouvor(this.props);
                                                 }}
                                             >                                    
                                                 <Text style={styles.link}>Remover</Text>

@@ -6,8 +6,9 @@ import Modal from '../components/Modal';
 import SearchBar from '../components/SearchBar'
 import { Icon } from 'react-native-elements';
 import { Flatlist, Font } from '../components/Styles';
+import { useIsFocused } from '@react-navigation/native';
 import  CustomisableAlert, { showAlert } from 'react-native-customisable-alert';
-import { StyleSheet, View, TouchableOpacity, Keyboard, Image} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Linking, Keyboard, Image} from 'react-native';
 import firebaseConnection from '../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,15 +23,62 @@ export default function LouvoresScreen({navigation, route}) {
     const [shouldShow, setShouldShow] = useState(false);
     const [filter, setFilter] = useState('');    
     const [loaded, setLoaded] = useState(false);
+    const [search, setSearch] = useState(false);
     const [isMedley, setIsMedley] = useState(false);
+    const [empty, setEmpty] = useState(true)
     const [louvores, setLouvores] = useState([]);
+    const [repertorio, setRepertorio] = useState([]);
     const [medley, setMedley] = useState([]);
-    const { logo } = route.params
+    const isFocused = useIsFocused();
+    const { logo, filtroData } = route.params;
+
+    const sendToWhatsapp = () => {    
+        let message = `Louvores (${filtroData()}):\n`
+        repertorio.map((item,index) => { 
+           message += `\n${index+1}. ${item.toLowerCase()}`
+        })
+       
+        console.log(message)
+    
+        Linking.canOpenURL('whatsapp://send?text=').then(() => {
+            Linking.openURL(`whatsapp://send?text=${message}`)
+        }).catch(() => {
+            showAlert({
+                title: "Erro ao se conectar ao WhatsApp!",
+                message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema",
+                alertType: "error",
+            });
+        })
+    }
+
+    const getRepertorio = async () => {
+        setRepertorio([])
+        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado');
+        const docLouvor = await getDoc(docRef);
+        if(docLouvor.data()['musics'].length === 0){
+            setEmpty(true)
+            return
+        }
+        await docLouvor.data()['musics'].forEach(({title}) => {
+            setRepertorio(prev => [...prev, title])
+        });
+        setEmpty(false)
+    }
 
     //Exclui um louvor da base
     const deleteLouvor = async ({keyID, name}) => {
         try {               
             setLoaded(true)
+            const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
+
+            if(querySnapshot.size === 1){
+                showAlert({
+                    title: "Erro!",
+                    message: "A lista não pode ficar vazia!",
+                    alertType: "error",
+                });
+                return
+            }
             
             await deleteDoc(doc(firebaseConnection.db, 'louvores', keyID));
             await getData();
@@ -78,7 +126,18 @@ export default function LouvoresScreen({navigation, route}) {
 
     //pega os louvores da base
     const getData = async () => {
+        setSearch(false)
         const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
+        
+        if(querySnapshot.empty){
+            showAlert({
+                title: "Erro na Conexão!",
+                message: "Verifique sua rede, ou entre em contato com o administrador!",
+                alertType: "error",
+            });
+            return
+        }
+
         const data = [];
         querySnapshot.forEach((doc)=> {
             data.push({
@@ -95,7 +154,7 @@ export default function LouvoresScreen({navigation, route}) {
                         b.title.toLowerCase().includes(filter.toLowerCase()) ? 1 : 0 
                 ));
             }
-
+            //
             setLouvores(
                 data.filter(item => 
                     (
@@ -105,12 +164,11 @@ export default function LouvoresScreen({navigation, route}) {
                     )
                 )
             );    
+            setSearch(true)
         }else{
             data.sort((a, b) => ( a.title > b.title ? 1 : b.title > a.title ? -1 : 0 ));
             setLouvores(data); 
         }
-
-        return
     }
 
     //função para enviar os louvores para o repertório
@@ -131,14 +189,14 @@ export default function LouvoresScreen({navigation, route}) {
                     cipher: props.cifraUrl,
                     group: props.complement,
                     lyrics: props.content
-                })      
+                });      
                 
-                const newDoc = {...docLouvor.data(), musics: louvor.musics}
-            
-                await updateDoc(docRef, newDoc)
+                const newDoc = {...docLouvor.data(), musics: louvor.musics};
+                getRepertorio();
+
+                await updateDoc(docRef, newDoc);
                 
                 setShouldShow(false);  
-                getData();
                 setLoaded(false);
                 
                 showAlert({
@@ -260,22 +318,22 @@ export default function LouvoresScreen({navigation, route}) {
     useEffect(()=> {
         const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {  hideSearch() });
         async function loadFavs() {
-            await getFavoritosList()
+            await getFavoritosList();
         }
 
         loadFavs();
         return () => {
             keyboardDidHideListener.remove();
         };
-    }, [])
+    }, []);
 
-    // useEffect(()=> {
-    //     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setShouldShow(false) });
-      
-    //     return () => {
-    //         keyboardDidHideListener.remove();
-    //     };
-    // }, [])
+    useEffect(()=> {
+        async function loadRep() {
+            await getRepertorio();
+        }
+
+        loadRep();
+    }, [isFocused]);
 
     const Louvores = ({ louvores, multiSelect, updateFavs }) => { 
 
@@ -290,12 +348,13 @@ export default function LouvoresScreen({navigation, route}) {
                         complement={item.group} 
                         content={item.lyrics} 
                         cifraUrl={item.cipher}
-                        isNotBase={item.isNotBase}
+                        // isNotBase={item.isNotBase}
                         editableRoute={navigation}
                         addFavorites={true}
                         icon="playlist-music-outline"
                         iconType="material-community"
                         deleteLouvor={deleteLouvor}
+                        deleteMessage={`O louvor "${item.title}" será excluido permanentemente!`}
                         updateLouvor={updateLouvor}
                         caretFunction={sendLouvor}
                         favfunc={getFavoritosList}
@@ -386,13 +445,14 @@ export default function LouvoresScreen({navigation, route}) {
                         complement={item.group} 
                         content={item.lyrics} 
                         cifraUrl={item.cipher}
-                        isNotBase={true}
+                        // isNotBase={true}
                         cipher={true}
                         // editableRoute={navigation}
                         addFavorites={false}
                         icon="playlist-music-outline"
                         iconType="material-community"
                         deleteLouvor={removeFavoritos}
+                        // deleteMessage={`"${item.title}" será removido de sua lista de favoritos!`}
                         // updateLouvor={updateLouvor}
                         caretFunction={sendLouvor}
                         // updateFunc={updateFavs}
@@ -428,6 +488,7 @@ export default function LouvoresScreen({navigation, route}) {
             {shouldShow ? (
                 <SearchBar 
                     onChange={value => setFilter(value)}
+                    search={search}
                     leftComponent={
                         <TouchableOpacity onPress={() => hideSearch()}>     
                             <Icon
@@ -463,37 +524,25 @@ export default function LouvoresScreen({navigation, route}) {
                                 }
                         </TouchableOpacity>   
                         }
-                        myRightContainer={
-                            <TouchableOpacity 
-                                onPress={() => !isMedley ? setShouldShow(!shouldShow) : sendMedley()} 
-                                style={styles.headerComponents}
-                            >
-                                {!isMedley ?
-                                    <Icon
-                                        name={'md-search'} 
-                                        type='ionicon'
-                                        color='#a6a6a6'
-                                        size={25}
-                                    />
-                                :
-                                    <Icon
-                                        name={'check'} 
-                                        type='feather'
-                                        color='#a6a6a6'
-                                        size={30}
-                                    />
-                                }
-                            </TouchableOpacity>        
+                        myRightContainer={!isMedley && 
+                            <View style={{ flexDirection:"row", alignItems:'center' }}>
+                                <TouchableOpacity onPress={() => setShouldShow(!shouldShow)} style={styles.headerComponents}>
+                                    <Icon name={'md-search'} type='ionicon' color='#a6a6a6' size={25}/>
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity onPress={() => navigation.navigate('Repertório', {goBack:true})} style={styles.headerComponents}>
+                                    <Icon name="playlist-music-outline" type='material-community' color='#a6a6a6' size={35}/>
+                                </TouchableOpacity>
+                            </View>        
                         }
-                        complement={!isMedley &&                
-                            <TouchableOpacity onPress={() => navigation.navigate('Repertório', {goBack:true})} style={ styles.headerComponents }>
-                                <Icon
-                                    name="playlist-music-outline" 
-                                    type='material-community'
-                                    color='#a6a6a6'
-                                    size={35}
-                                />
-                            </TouchableOpacity>                
+                        complement={!isMedley ?           
+                            <TouchableOpacity onPress={() => sendToWhatsapp()} style={[styles.headerComponents, {display:!empty?'flex':'none'}]}>
+                                <Icon name="share" type='entypo' color='#a6a6a6' size={25}/>
+                            </TouchableOpacity>        
+                        :        
+                            <TouchableOpacity onPress={() => sendMedley()} style={ styles.headerComponents }>
+                                <Icon name={'check'} type='feather' color='#a6a6a6' size={30}/>
+                            </TouchableOpacity>    
                         }            
                     />     
                 )
@@ -503,7 +552,7 @@ export default function LouvoresScreen({navigation, route}) {
                 name={['Favoritos','Louvores']} 
                 route={[Favoritos,Louvores]} 
                 type='ionicon'
-                disable={shouldShow || isMedley}
+                disable={shouldShow}
                 routesProps={{
                     filter: filter,
                     louvores: louvores,

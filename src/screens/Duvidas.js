@@ -14,8 +14,9 @@ export default function DuvidasScreen({navigation, route}) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [url, setUrl] = React.useState(null);
     const Duvidas = [
-        {text: 'Adicionar louvores ao repertório', url: require('../../utils/Adicionar.mp4')},
-        {text: 'Importar novos louvores', url: require('../../utils/Importar.mp4')}
+        {text: 'Adicionar Louvores ao Repertório', url: require('../../utils/Adicionar.mp4')},
+        {text: 'Importar Novos Louvores', url: require('../../utils/Importar.mp4')},
+        {text: 'Criar Medleys', url: require('../../utils/Medley.mp4')}
     ]
     
 

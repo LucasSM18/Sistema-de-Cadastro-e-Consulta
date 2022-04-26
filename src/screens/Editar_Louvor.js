@@ -4,8 +4,8 @@ import Header from '../components/Header';
 import { Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 // import * as DocumentPicker from 'expo-document-picker';
-import { CustomView, Search } from '../components/Styles';
-import { StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { CustomView, CustomButtom, Search } from '../components/Styles';
+import { StyleSheet, TouchableOpacity, Text, useColorScheme, View } from 'react-native';
 
 
 // const UploadFile = async () => {
@@ -18,7 +18,7 @@ export default function EditarLouvor({navigation, route}) {
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
     const [keyboardActivate, setKeyboardActivate] = useState(false);
-    const textAreaSizeHandler = !keyboardActivate ? { height:"60%" } : { height:"18%"} 
+    const textAreaSizeHandler = !keyboardActivate ? { height:"60%" } : { height:"17%"} 
     const [louvor, setLouvor] = useState({
         id: route.params.id,
         title: route.params.title,
@@ -67,21 +67,11 @@ export default function EditarLouvor({navigation, route}) {
                 //         <Icon name='file-edit-outline' type='material-community' color='#a6a6a6' size={30}/>
                 //     </TouchableOpacity>
                 // )}
-                complement={( 
-                    <TouchableOpacity onPress={() => updateHandler()} style={styles.headerComponents}>
-                        <Icon
-                            name={'upload'} 
-                            type="feather"
-                            color='#a6a6a6'
-                            size={25}
-                        />
-                    </TouchableOpacity>
-                )}
             />
 
             <CustomView style={styles.formArea}>  
                     <Search
-                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:40, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Título'}     
                         selectionColor={Theme.color} 
@@ -93,7 +83,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
                 
                     <Search
-                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:40, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Ministério'}       
                         selectionColor={Theme.color}
@@ -102,7 +92,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, { height:60, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
+                        style={[ styles.textInput, { height:40, borderBottomColor:Theme.subColor, borderBottomWidth:1 } ]}   
                         placeholderTextColor={Theme.subColor}
                         placeholder={'Cifras (Opcional)'}
                         selectionColor={Theme.color}       
@@ -111,7 +101,7 @@ export default function EditarLouvor({navigation, route}) {
                     />
 
                     <Search
-                        style={[ styles.textInput, textAreaSizeHandler, { borderColor:Theme.subColor,  borderRadius:4, borderWidth:1 } ]}   
+                        style={[ styles.textInput, textAreaSizeHandler, { borderColor:Theme.subColor, marginBottom:20, borderRadius:4, borderWidth:1 } ]}   
                         multiline={true}
                         placeholderTextColor={Theme.subColor}
                         placeholder={"Letra da Musica..."}
@@ -120,9 +110,9 @@ export default function EditarLouvor({navigation, route}) {
                         onChangeText={text=> setLouvor({...louvor, lyrics: text })}
                     />
 
-                {/* <CustomButtom style={styles.button} onPress={() => updateHandler()}>                    
-                    <Text style={{color:'#fff'}}>Editar</Text>                       
-                </CustomButtom>                               */}
+                <CustomButtom onPress={() => updateHandler()}>                    
+                    <Text style={{color:'#fff'}}>ATUALIZAR</Text>                       
+                </CustomButtom>                              
             </CustomView>     
         </View>        
     )

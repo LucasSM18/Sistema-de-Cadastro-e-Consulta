@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
 import Card from '../components/Card'; 
 import Modal from '../components/Modal';
 import Header from '../components/Header';
 import { Icon } from 'react-native-elements';
 import { Flatlist, CustomView, Font } from '../components/Styles';
-import { getDoc, doc, updateDoc } from 'firebase/firestore';
+import { getDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import firebaseConnection from '../services/firebaseConnection';
 import  CustomisableAlert, { showAlert, closeAlert } from 'react-native-customisable-alert';
 import { StyleSheet, TouchableOpacity, Platform, Image, View, Linking, ActivityIndicator } from 'react-native';
@@ -14,48 +13,31 @@ const emptyList = () => {
      return <Font style={{ fontSize:20, alignSelf:'center', marginTop:'2%' }}>Repertório Vazio</Font>   
 }
 
-const filtroData = () => {
-    const today = moment();
-    const dateEvent = moment().day(6);
-    //
-    if(today > dateEvent) return dateEvent.add(1, 'week').format("DD/MM");
-
-    return dateEvent.format('DD/MM');
-}
-
-const sendLouvores = (louvores) => {    
-    if(!louvores.length) {
-        showAlert({
-            title: "Repertório vazio!",
-            message: "Inclua alguns louvores antes de enviar para o WhatsApp.",
-            alertType: "error",
-        });  
-        return;
-    }
-
-    let message = `Louvores (${filtroData()}):\n`
-    louvores.map((item,index) => { 
-       message += `\n${index+1}. ${item.title.toLowerCase()}`
-    })
-   
-    console.log(message)
-
-    Linking.canOpenURL('whatsapp://send?text=').then(() => {
-        Linking.openURL(`whatsapp://send?text=${message}`)
-    }).catch(() => {
-        showAlert({
-            title: "Erro ao se conectar ao WhatsApp!",
-            message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema",
-            alertType: "error",
-        });
-    })
-}
-
 export default function Repertorio({navigation, route}) {
-    const { goBack, logo } = route.params;
+    const { goBack, logo, filtroData } = route.params;
     const [louvores, setLouvores] = useState([]);
     const [loaded, setLoaded] = useState(false);
-    const [remove, setRemove] = useState(false)
+    const [remove, setRemove] = useState(false);
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    const sendLouvores = (louvores) => {    
+        let message = `Louvores (${filtroData()}):\n`
+        louvores.map((item,index) => { 
+           message += `\n${index+1}. ${item.title.toLowerCase()}`
+        })
+       
+        console.log(message)
+    
+        Linking.canOpenURL('whatsapp://send?text=').then(() => {
+            Linking.openURL(`whatsapp://send?text=${message}`)
+        }).catch(() => {
+            showAlert({
+                title: "Erro ao se conectar ao WhatsApp!",
+                message: "Verifique se o WhatsApp está instalado corretamente, ou contate o administrador do sistema",
+                alertType: "error",
+            });
+        })
+    }
     
     const removeLouvor = async ({keyID, name}) => {
         const removeFunction = async () => {
@@ -74,8 +56,6 @@ export default function Repertorio({navigation, route}) {
                     await updateDoc(docRef, novoRepertorio)
                 }
                 //await deleteDoc(doc(firebaseConnection.db, 'repertorio', id))
-    
-                await getData();
                 setRemove(false);    
             }
             catch(err) {
@@ -108,30 +88,22 @@ export default function Repertorio({navigation, route}) {
             clearRepertorio.musics = []
       
             await updateDoc(docRef, clearRepertorio)
-        }
-
-        await getData();           
+        }         
     }
 
-    const getData = async () => {
-        const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado')
-        const docLouvor = await getDoc(docRef)
-        const data = [];
-        if (docLouvor.exists()) {
-            docLouvor.data()['musics'].forEach((doc)=> {
-                // console.log(doc)
-                data.push({
-                    id: doc.id,
-                    title: doc.title,
-                    cipher: doc.cipher,
-                    group: doc.group,
-                    lyrics: doc.lyrics
-                })
-            })
+    const getData = onSnapshot(doc(firebaseConnection.db, 'repertorio', 'sabado'), async (querySnapshot) => {
+        if(querySnapshot.exists()){
+            const data = querySnapshot.data()['musics'];
+            setLouvores(data);
+            getData()
+        } else {
+            showAlert({
+                title: "Erro na Conexão!",
+                message: "Verifique sua rede, ou entre em contato com o administrador!",
+                alertType: "error",
+            });
         }
-
-        setLouvores(data)
-    }
+    });
         
     const alertHandler = async () => {
         closeAlert(); 
@@ -142,7 +114,8 @@ export default function Repertorio({navigation, route}) {
 
     useEffect(() => {       
         async function loadLouvores() {
-            await getData();
+            await delay(1500);
+            getData();
             setLoaded(true);
         }
 

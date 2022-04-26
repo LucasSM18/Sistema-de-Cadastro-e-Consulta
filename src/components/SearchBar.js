@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from 'react-native-elements';
-import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, View, Platform } from 'react-native';
 import { BarComponent, SearchContainer, Searchbar } from './Styles';
 
 
@@ -42,14 +42,18 @@ export default class SearchBar extends React.Component {
                         value={this.state.result}
                     />
 
-                    <TouchableOpacity onPress={this.eraseAll} style={{ display:this.state.result?'flex':'none' }}>
-                        <Icon
-                            name='cross' 
-                            type='entypo'
-                            color='#a6a6a6'
-                            size={25}
-                        />
-                    </TouchableOpacity>
+                    {this.props.search ?
+                        <TouchableOpacity style={{ display:this.state.result?'flex':'none' }} onPress={this.eraseAll}>
+                            <Icon
+                                name='cross' 
+                                type='entypo'
+                                color='#a6a6a6'
+                                size={25}
+                            />
+                        </TouchableOpacity>     
+                    :
+                        <ActivityIndicator style={{ display:this.state.result?'flex':'none' }} size={25} color="#a6a6a6"/>                   
+                    }
                 </SearchContainer>
             </BarComponent>
         )
