@@ -1,11 +1,22 @@
 import React from 'react';
+import moment from 'moment';
 import { Icon } from 'react-native-elements';
 import { StyleSheet, TouchableOpacity, ScrollView, View, Text, Image } from 'react-native';
+
 
 export default function HomeScreen({navigation}) {
     const logo = require('../../assets/logo.png');
     const icons = ["music-note-outline", "playlist-music-outline", "lightbulb-on-outline", "comment-question-outline"]
     const text = ["Músicas", "Repertório", "Sugestões", "Dúvidas"]
+
+    const filtroData = () => {
+        const today = moment();
+        const dateEvent = moment().day(6);
+        //
+        if(today > dateEvent) return dateEvent.add(1, 'week').format("DD/MM");
+      
+        return dateEvent.format('DD/MM');
+    }      
     
     return (
         <ScrollView style={styles.pageBody}>
@@ -14,7 +25,7 @@ export default function HomeScreen({navigation}) {
                 <View style={styles.iconsContainer}>
                     {text.map((elements, index) => (
                         <View key={index} style={styles.icons}>
-                            <TouchableOpacity onPress={() => navigation.navigate(elements)}>
+                            <TouchableOpacity onPress={() => navigation.navigate(elements, {filtroData:filtroData})}>
                                 <Icon size={55} name={icons[index]} type="material-community" color="#fff"/>
                                 <Text style={styles.text}>{elements.toUpperCase()}</Text>
                             </TouchableOpacity>
