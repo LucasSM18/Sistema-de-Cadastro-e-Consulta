@@ -14,19 +14,16 @@ const emptyList = () => {
 }
 
 export default function Repertorio({navigation, route}) {
-    const { goBack, logo, filtroData } = route.params;
+    const { goBack, logo, filtroData, delay } = route.params;
     const [louvores, setLouvores] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const [remove, setRemove] = useState(false);
-    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     const sendLouvores = (louvores) => {    
         let message = `Louvores (${filtroData()}):\n`
         louvores.map((item,index) => { 
            message += `\n${index+1}. ${item.title.toLowerCase()}`
         })
-       
-        console.log(message)
     
         Linking.canOpenURL('whatsapp://send?text=').then(() => {
             Linking.openURL(`whatsapp://send?text=${message}`)
@@ -92,17 +89,9 @@ export default function Repertorio({navigation, route}) {
     }
 
     const getData = onSnapshot(doc(firebaseConnection.db, 'repertorio', 'sabado'), async (querySnapshot) => {
-        if(querySnapshot.exists()){
-            const data = querySnapshot.data()['musics'];
-            setLouvores(data);
-            getData()
-        } else {
-            showAlert({
-                title: "Erro na Conexão!",
-                message: "Verifique sua rede, ou entre em contato com o administrador!",
-                alertType: "error",
-            });
-        }
+        const data = querySnapshot.data()['musics'];
+        setLouvores(data);
+        getData();
     });
         
     const alertHandler = async () => {
@@ -127,7 +116,7 @@ export default function Repertorio({navigation, route}) {
         <View style={{flex:1}}>
             {remove && <Modal/>}
 
-            {Platform.OS !== "web" && 
+            {Platform.OS !== "web" && !goBack &&
                 <CustomisableAlert
                     alertContainerStyle={{backgroundColor:"#000000", width:"85%"}} 
                     titleStyle={{color:"white", fontSize:20, fontWeight:"bold"}} 

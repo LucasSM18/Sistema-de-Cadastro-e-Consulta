@@ -68,22 +68,12 @@ export default function LouvoresScreen({navigation, route}) {
     //Exclui um louvor da base
     const deleteLouvor = async ({keyID, name}) => {
         try {               
-            setLoaded(true)
-            const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
-
-            if(querySnapshot.size === 1){
-                showAlert({
-                    title: "Erro!",
-                    message: "A lista não pode ficar vazia!",
-                    alertType: "error",
-                });
-                return
-            }
+            setLoaded(true);
             
             await deleteDoc(doc(firebaseConnection.db, 'louvores', keyID));
             await getData();
 
-            setLoaded(false)
+            setLoaded(false);
 
             showAlert({
                 title: "Exclusão de louvor",
@@ -128,15 +118,6 @@ export default function LouvoresScreen({navigation, route}) {
     const getData = async () => {
         setSearch(false)
         const querySnapshot = await getDocs(collection(firebaseConnection.db, 'louvores'));
-        
-        if(querySnapshot.empty){
-            showAlert({
-                title: "Erro na Conexão!",
-                message: "Verifique sua rede, ou entre em contato com o administrador!",
-                alertType: "error",
-            });
-            return
-        }
 
         const data = [];
         querySnapshot.forEach((doc)=> {
@@ -452,7 +433,7 @@ export default function LouvoresScreen({navigation, route}) {
                         icon="playlist-music-outline"
                         iconType="material-community"
                         deleteLouvor={removeFavoritos}
-                        // deleteMessage={`"${item.title}" será removido de sua lista de favoritos!`}
+                        deleteMessage={`"${item.title}" será removido de sua lista de favoritos!`}
                         // updateLouvor={updateLouvor}
                         caretFunction={sendLouvor}
                         // updateFunc={updateFavs}
