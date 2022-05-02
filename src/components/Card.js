@@ -118,7 +118,7 @@ export default class CardFactory extends React.Component {
                 style={{
                     borderRadius:10, 
                     margin:15, 
-                    marginBottom:1
+                    marginBottom:3
                 }}
             >     
                 {this.renderWebView()}
