@@ -31,8 +31,6 @@ const CustomAddButtom = function(props) {
 export default class TabBar extends React.Component { 
     constructor(props){
         super(props);
-        this.favdb = []
-        this.updateFunc = this.props.updateFunc
         const tab = [];
         if(this.props.name.length === this.props.route.length){
             let i = this.props.name.length;
@@ -78,7 +76,6 @@ export default class TabBar extends React.Component {
         const load = async( )=> {
         try {
             await this.getFavoritosFromDB()
-            await this.updateFunc()
         }
         catch(err) {
             console.log(err)

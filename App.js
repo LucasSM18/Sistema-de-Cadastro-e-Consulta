@@ -5,6 +5,7 @@ import Duvidas from './src/screens/Duvidas';
 import Louvores from './src/screens/Louvores';
 import Sugestoes from './src/screens/Sugestoes';
 import Repertorio from './src/screens/Repertorio';
+import Editar_Medley from './src/screens/Editar_Medley';
 import Editar_Louvor from './src/screens/Editar_Louvor';
 import Importa_Louvores from './src/screens/Importar_Louvores';
 import { ThemeProvider } from 'styled-components/native';
@@ -31,6 +32,7 @@ export default function App(){
             <Stack.Screen name="Músicas" component={Louvores} initialParams={{logo:logo}}/>
             <Stack.Screen name="Importar" component={Importa_Louvores}/>
             <Stack.Screen name="Editar" component={Editar_Louvor}/>
+            <Stack.Screen name="Medley" component={Editar_Medley} initialParams={{delay:delay}}/>
             <Stack.Screen name="Repertório" component={Repertorio} initialParams={{logo:logo, delay:delay}}/>
             <Stack.Screen name="Dúvidas" component={Duvidas} initialParams={{logo:logo}}/>
             <Stack.Screen name="Sugestões" component={Sugestoes} initialParams={{logo:logo}}/>

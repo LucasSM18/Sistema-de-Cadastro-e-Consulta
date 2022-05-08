@@ -3,7 +3,7 @@ import { BarComponent } from './Styles';
 import { Icon } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
 import { showAlert, closeAlert } from 'react-native-customisable-alert';
-import { StyleSheet, Alert, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
+import { StyleSheet, View, Modal, Text, Linking, TouchableOpacity, Keyboard, Platform } from 'react-native';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -118,7 +118,7 @@ export default class CardFactory extends React.Component {
                 style={{
                     borderRadius:10, 
                     margin:15, 
-                    marginBottom:3
+                    marginBottom:1
                 }}
             >     
                 {this.renderWebView()}
@@ -133,8 +133,14 @@ export default class CardFactory extends React.Component {
                 >
                     <CollapseHeader style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:10 }}>
                         {this.props.multiSelect ? 
-                            ( <TouchableOpacity onPress={() => this.checkMode()}>
-                                <Icon name={this.state.checked ? 'checkbox-marked-outline' : 'checkbox-blank-outline'} type={'material-community'} size={28} color='#a6a6a6' style={{marginRight: 10}}/>
+                            (   <TouchableOpacity onPress={() => this.checkMode()}>
+                                    <Icon 
+                                        name={this.state.checked ? "checkbox-marked-outline" : "checkbox-blank-outline"} 
+                                        type={'material-community'} 
+                                        size={30} 
+                                        color='#a6a6a6' 
+                                        style={{marginRight: 10}}
+                                    />
                                 </TouchableOpacity>
                             ) : (
                                 this.props.addFavorites &&
@@ -149,7 +155,7 @@ export default class CardFactory extends React.Component {
                         </View> 
                               
                         {this.props.caretFunction &&
-                            <TouchableOpacity disabled={this.props.multiSelect} onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
+                            <TouchableOpacity style={{display:this.props.multiSelect?'none':'flex'}} disabled={this.props.multiSelect} onPress={() => this.props.caretFunction(this.props)&&Keyboard.dismiss()}>
                                 <Icon
                                     name={this.props?.icon}
                                     type={this.props?.iconType}
@@ -160,7 +166,7 @@ export default class CardFactory extends React.Component {
                         }                            
                     </CollapseHeader>      
                     <CollapseBody style={{ paddingHorizontal:30 }}>
-                        {/* {this.props.complement !== "ICM Worship - Medley" && */}
+                        {this.props.complement !== "ICM Worship - Medley" && 
                             <View style={{flexDirection:'row', marginVertical:20}}>
                                 <Text style={styles.linkContainer}>
                                     (
@@ -231,13 +237,14 @@ export default class CardFactory extends React.Component {
                                     </Text>                                      
                                 }                         
                             </View>
-                        {/* }                         */}
+                        }     
                         <Text style={{ color:'#fff' }}>{this.props.content}</Text>
                     </CollapseBody>                          
                 </Collapse>
 
                 <TouchableOpacity 
                     onPress={() => this.setState({expanded: !this.state.expanded})}
+                    onLongPress={() => !this.props.multiSelect && this.longPressHandler()}
                     style={{
                         alignItems:'center',
                         justifyContent:'center',

@@ -13,6 +13,12 @@ export const Font = styled.Text`
     color: ${props => props.theme.subColor};    
 `;
 
+export const Title = styled.Text`
+    color: ${props => props.theme.color};    
+    font-weight: bold;
+    font-size: 30px;
+`;
+
 export const CustomView = styled.View`
     background: ${props => props.theme.body};
 `;

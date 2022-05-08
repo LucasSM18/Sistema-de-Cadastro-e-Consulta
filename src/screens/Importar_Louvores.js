@@ -215,8 +215,9 @@ export default function ImportaLouvores({navigation, route}) {
                 <CheckBox 
                     containerStyle={styles.checkBox} 
                     textStyle={{color:Theme.subColor}}
-                    checkedIcon='check-square-o'
-                    uncheckedIcon='square-o'
+                    checkedIcon='checkbox-marked-outline'
+                    uncheckedIcon='checkbox-blank-outline'
+                    iconType='material-community'
                     title="Pesquisar por artista"
                     checked={isChecked}
                     checkedColor={Theme.subColor}

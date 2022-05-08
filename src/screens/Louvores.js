@@ -20,17 +20,17 @@ const emptyList = () => {
 }
 
 export default function LouvoresScreen({navigation, route}) {
-    const [shouldShow, setShouldShow] = useState(false);
-    const [filter, setFilter] = useState('');    
+    const [filter, setFilter] = useState('');
+    const [empty, setEmpty] = useState(true);    
     const [loaded, setLoaded] = useState(false);
     const [search, setSearch] = useState(false);
     const [isMedley, setIsMedley] = useState(false);
-    const [empty, setEmpty] = useState(true)
+    const [shouldShow, setShouldShow] = useState(false);
     const [louvores, setLouvores] = useState([]);
     const [repertorio, setRepertorio] = useState([]);
     const [medley, setMedley] = useState([]);
-    const isFocused = useIsFocused();
     const { logo, filtroData } = route.params;
+    const isFocused = useIsFocused();
 
     const sendToWhatsapp = () => {    
         let message = `Louvores (${filtroData()}):\n`
@@ -64,6 +64,7 @@ export default function LouvoresScreen({navigation, route}) {
         });
         setEmpty(false)
     }
+
 
     //Exclui um louvor da base
     const deleteLouvor = async ({keyID, name}) => {
@@ -238,6 +239,7 @@ export default function LouvoresScreen({navigation, route}) {
             {
                 keyID: props.keyID,
                 name: props.name,
+                complement: props.complement,
                 content: props.content
             }
         ]) 
@@ -251,37 +253,6 @@ export default function LouvoresScreen({navigation, route}) {
     //fecha o handler do medley
     const closeMedleyHandler = async () =>  {
         setMedley([])
-        setIsMedley(false);
-    }
-
-    //função que envia os medleys para o repertório
-    const sendMedley = async () => {
-        if(medley.length < 2) {
-            showAlert({
-                title: "ERROR!",
-                message: 'Selecione no minimo 2 louvores!',
-                alertType: "error",
-            });
-            return;
-        }
-        
-        const newMedley = {};
-        medley.forEach((louvor, index) => {
-            if(!index){
-                newMedley.keyID = louvor.keyID;
-                newMedley.name = louvor.name;
-                newMedley.complement = "ICM Worship - Medley";
-                newMedley.cifraUrl = "";
-                newMedley.content = louvor.content;
-                return;
-            }
-
-            newMedley.name += " / " + louvor.name;
-            newMedley.content += "_".repeat(40) + "\n".repeat(2) + louvor.content;
-        });
-
-        setMedley([])
-        sendLouvor(newMedley);
         setIsMedley(false);
     }
 
@@ -444,7 +415,7 @@ export default function LouvoresScreen({navigation, route}) {
                 } 
                 ListEmptyComponent={emptyList()}
                 keyboardShouldPersistTaps="handled" 
-                keyExtractor={(item, idx) => idx}
+                keyExtractor={(item, idx) => idx.toString()}
             />        
         );
     };    
@@ -452,6 +423,11 @@ export default function LouvoresScreen({navigation, route}) {
     const hideSearch = async () => {
         setFilter('');
         setShouldShow(false);
+    }
+
+    const navigateMedley = async () => {
+        navigation.navigate("Medley", {medley:medley, sendLouvor:sendLouvor});
+        closeMedleyHandler();
     }
 
     return (
@@ -483,7 +459,7 @@ export default function LouvoresScreen({navigation, route}) {
                 />
             ) : (
                 <Header
-                    title={isMedley ? "MEDLEY" + (medley.length ?  ` - ${medley.length} ` + (medley.length < 2 ? "Selecionado" : "Selecionados") : "") : "MÚSICAS"} 
+                    title={isMedley ? (medley.length === 1 ? medley.length + " Selecionada" : medley.length > 1 ? medley.length + " Selecionadas" : "MÚSICAS") : "MÚSICAS"} 
                     myLeftContainer={
                         <TouchableOpacity 
                             onPress={() => !isMedley ? navigation.navigate('Home') : closeMedleyHandler()} 
@@ -521,8 +497,8 @@ export default function LouvoresScreen({navigation, route}) {
                                 <Icon name="share" type='entypo' color='#a6a6a6' size={25}/>
                             </TouchableOpacity>        
                         :        
-                            <TouchableOpacity onPress={() => sendMedley()} style={ styles.headerComponents }>
-                                <Icon name={'check'} type='feather' color='#a6a6a6' size={30}/>
+                            <TouchableOpacity disabled={medley.length < 2 || medley.length > 4 ? true : false} onPress={() => navigateMedley()} style={ styles.headerComponents }>
+                                <Icon name={'check'} type='feather' color={medley.length < 2 || medley.length > 4 ? '#4d4d4d' : '#a6a6a6'} size={30}/>
                             </TouchableOpacity>    
                         }            
                     />     
