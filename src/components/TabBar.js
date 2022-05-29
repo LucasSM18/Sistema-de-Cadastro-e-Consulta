@@ -122,7 +122,6 @@ export default class TabBar extends React.Component {
                                         active={focused} 
                                     />
                                 ),
-                                
                             }}
                         >
                          { () => <elements.route {...this.props.routesProps} favoritos={this.state.favs} updateFavs={this.getFavoritosFromDB}/> }

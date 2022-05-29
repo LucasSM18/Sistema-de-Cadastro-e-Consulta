@@ -1,137 +1,138 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Themes from '../themes/Themes';
-import { Icon } from 'react-native-elements';
+import { CheckBox, Icon } from 'react-native-elements';
+import { showAlert, closeAlert } from 'react-native-customisable-alert';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { CustomView, CustomButtom, Flatlist, BarComponent, Title, Font } from '../components/Styles';
 import { StyleSheet, ActivityIndicator, TouchableOpacity, useColorScheme, View, Text } from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
+const MedleyArea = (props) => {
+    const medleyContent = props.content.split("\n\n");
+
+    const filterParagraph = (id) => {
+        if(props.indexArray[props.keyID].includes(id)){
+            const index = props.indexArray[props.keyID].indexOf(id);
+            props.indexArray[props.keyID].splice(index,1);                
+        } else {
+            props.indexArray[props.keyID].push(id);
+        }
+
+        props.setIndexArray(props.indexArray);
+        const content = medleyContent.filter((obj,index) => !props.indexArray[props.keyID].includes(index)).join("\n\n");
+        props.setMedleyHandler(prev => [
+            ...prev.filter(obj => obj.keyID !== props.keyID), 
+            {
+                keyID:props.keyID, 
+                position:props.position, 
+                name:props.name, 
+                complement:props.complement, 
+                cipher:props.cipher,
+                content:content
+            }
+        ]);
+    }
+
+    const addAll = async () => {
+        props.indexArray[props.keyID] = [];
+        props.setIndexArray(props.indexArray);
+        props.setMedleyHandler(prev => [
+            ...prev, 
+            {
+                keyID:props.keyID, 
+                position:props.position, 
+                name:props.name, 
+                complement:props.complement, 
+                cipher:props.cipher,
+                content:medleyContent.join("\n\n")
+            }
+        ])
+    }
+
+    const removeAll = async () => {
+        medleyContent.map((obj,index) => {
+            props.indexArray[props.keyID].push(index);
+        });
+        props.setMedleyHandler(prev => [...prev.filter(obj => obj.keyID !== props.keyID)])
+    }
+
+    return (
+        <View style={{flex:1}}>
+            <View style={[styles.titleArea, { borderBottomColor:props.theme.subColor }]}>
+                <View style={{maxWidth:"60%"}}>
+                    <Title>{props.name}</Title>
+                    <Font style={{fontSize:15}}>{props.complement}</Font>
+                </View>
+
+                <TouchableOpacity onPress={() => props.medleyHandler.find(obj => obj.keyID === props.keyID) ? removeAll() : addAll()}>
+                    <Icon
+                        name={props.medleyHandler.find(obj => obj.keyID === props.keyID) ? "minus-a" : "plus-a"}
+                        type="fontisto"
+                        color={props.theme.subColor}
+                        size={25}
+                    />  
+                </TouchableOpacity>   
+            </View>
+
+            <Flatlist
+                data={medleyContent} 
+                renderItem={({item, index}) => 
+                    <TouchableOpacity 
+                        onPress={() => filterParagraph(index)} 
+                        style={[
+                            styles.contentList, 
+                            {
+                                borderColor:props.theme.subColor, 
+                                backgroundColor:!props.indexArray[props.keyID].includes(index) && props.theme.cell
+                            }
+                        ]}
+                    >
+                        <Text style={{color:props.theme.color, maxWidth:"50%"}}>{item}</Text>
+                        <Icon 
+                            name={!props.indexArray[props.keyID].includes(index) ? "circle-slice-8" : "checkbox-blank-circle-outline"}
+                            type="material-community"
+                            color={props.theme.subColor}
+                            size={25}
+                        />
+                    </TouchableOpacity>
+                }
+                keyExtractor={(item, idx) => idx.toString()}
+            />
+        </View>
+    )
+}
 
 export default function MedleyScreen({navigation, route}) { 
     const deviceTheme = useColorScheme();
     const Theme = Themes[deviceTheme] || Themes.light;
-    const { medley, delay, sendLouvor } = route.params;
+    const { medley, delay, sendLouvor, addLouvor } = route.params;
     const [isLoading, setIsLoading] = useState(true);
+    const [isChecked, setChecked] = useState(false);
     const [medleyHandler, setMedleyHandler] = useState([]);
     const [indexArray, setIndexArray] = useState({}); 
     const indexObject = {};
 
     useEffect(() => {
-        medley.map(({keyID, name, complement, content}, index) => {
+        medley.map(({keyID, name, complement, cipher, content}, index) => {
             indexObject[keyID] = [];
-            setMedleyHandler(prev => [...prev, {keyID:keyID, position:index+1, name:name, complement:complement, content:content}]);
+            setMedleyHandler(prev => [...prev, {keyID:keyID, position:index+1, name:name, cipher:cipher, complement:complement, content:content}]);
         }); 
         setIndexArray(indexObject)
     },[]);
 
-
-    const MedleyArea = ({keyID, name, content, complement, position}) => {
-        const medleyContent = content.split("\n\n");
-
-        //arrumar
-        const filterParagraph = (id) => {
-            if(indexArray[keyID].includes(id)){
-                const index = indexArray[keyID].indexOf(id);
-                indexArray[keyID].splice(index,1);                
-            } else {
-                indexArray[keyID].push(id);
-            }
-
-            console.log(indexArray)
-            setIndexArray(indexArray);
-            const content = medleyContent.filter((obj,index) => !indexArray[keyID].includes(index)).join("\n\n");
-            setMedleyHandler(prev => [
-                ...prev.filter(obj => obj.keyID !== keyID), 
-                {
-                    keyID:keyID, 
-                    position:position, 
-                    name:name, 
-                    complement:complement, 
-                    content:content
-                }
-            ]);
-        }
-
-        const addAll = async () => {
-            indexArray[keyID] = [];
-            setIndexArray(indexArray);
-            setMedleyHandler(prev => [
-                ...prev, 
-                {
-                    keyID:keyID, 
-                    position:position, 
-                    name:name, 
-                    complement:complement, 
-                    content:medleyContent.join("\n\n")
-                }
-            ])
-        }
-
-        const removeAll = async () => {
-            medleyContent.map((obj,index) => {
-                indexArray[keyID].push(index);
-            });
-            setMedleyHandler(prev => [...prev.filter(obj => obj.keyID !== keyID)])
-        }
-
-        return (
-            <View style={{flex:1}}>
-                <View style={[styles.titleArea, { borderBottomColor:Theme.subColor }]}>
-                    <View>
-                        <Title>{name}</Title>
-                        <Font style={{fontSize:15}}>{complement}</Font>
-                    </View>
-
-                    <TouchableOpacity onPress={() => medleyHandler.find(obj => obj.keyID === keyID) ? removeAll() : addAll()}>
-                        <Icon
-                            name={medleyHandler.find(obj => obj.keyID === keyID) ? "minus-a" : "plus-a"}
-                            type="fontisto"
-                            color={Theme.subColor}
-                            size={25}
-                        />  
-                    </TouchableOpacity>   
-                </View>
-
-                <Flatlist
-                    data={medleyContent} 
-                    renderItem={({item, index}) => 
-                        <TouchableOpacity 
-                            onPress={() => filterParagraph(index)} 
-                            style={[
-                                styles.contentList, 
-                                {
-                                    borderColor:Theme.subColor, 
-                                    backgroundColor:!indexArray[keyID].includes(index) && Theme.cell
-                                }
-                            ]}
-                        >
-                            <Text style={{color:Theme.color, maxWidth:"50%"}}>{item}</Text>
-                            <Icon 
-                                name={!indexArray[keyID].includes(index) ? "circle-slice-8" : "checkbox-blank-circle-outline"}
-                                type="material-community"
-                                color={Theme.subColor}
-                                size={25}
-                            />
-                        </TouchableOpacity>
-                    }
-                    keyExtractor={(item, idx) => idx.toString()}
-                />
-            </View>
-        )
-    }
-
     //função que envia os medleys para o repertório
-    const sendMedley = async () => {        
+    const sendMedley = async () => {    
         const newMedley = {};
         const subs = medleyHandler.length % 2 === 0 ? Math.floor(15/medleyHandler.length) + 1 : Math.floor(15/medleyHandler.length);
+        //
         medleyHandler.sort((a,b) => a.position - b.position).forEach((louvor, index) => {
             if(!index){
                 newMedley.keyID = medleyHandler.length > 1 ?  "MeDlEy" + louvor.keyID.substring(0,subs) : louvor.keyID;
                 newMedley.name = louvor.name;
                 newMedley.complement = medleyHandler.length > 1 ? "ICM Worship - Medley" : louvor.complement;
-                newMedley.cifraUrl = "";
+                newMedley.cifraUrl = medleyHandler.length > 1 ? "" : louvor.cipher;
                 newMedley.content = louvor.content + "\n";
                 return;
             }
@@ -141,11 +142,30 @@ export default function MedleyScreen({navigation, route}) {
             newMedley.content += "_".repeat(40) + "\n".repeat(2) + louvor.content;
         });
 
+        if(isChecked) await saveMedley(newMedley);
+        else await sendLouvor(newMedley);
 
-        await sendLouvor(newMedley);
-        // setIndexArray({})
-        // setMedleyHandler([]);
-        navigation.goBack();
+        navigation.goBack(); 
+    }
+
+    const saveMedley = async (newMedley) => {
+        closeAlert();
+        const addMedley =  {
+            keyID: newMedley.keyID,
+            titulo: newMedley.name,
+            artista: "ICM Worship",
+            cifra: newMedley.cifraUrl,
+            letra: newMedley.content
+        }
+        //
+        sendLouvor(newMedley, true);
+        await addLouvor(addMedley, true);
+        //
+        showAlert({
+            title: "Sucesso!",
+            message: `"${newMedley.name}" salvo e adicionado ao repertório! 🎉`,
+            alertType: "success",
+        });
     }
 
     const loadingMedley = async () => {
@@ -191,13 +211,34 @@ export default function MedleyScreen({navigation, route}) {
                         >
                             {medley.map((props, index) => (
                                 <Tab.Screen key={index} name={`Louvor ${index+1}`}>
-                                    {() => <MedleyArea position={index+1} {...props}/>}
+                                    {() => 
+                                        <MedleyArea
+                                            {...props} 
+                                            theme={Theme}
+                                            indexArray={indexArray} 
+                                            setIndexArray={setIndexArray} 
+                                            medleyHandler={medleyHandler} 
+                                            setMedleyHandler={setMedleyHandler}  
+                                            position={index+1} 
+                                        />
+                                    }
                                 </Tab.Screen>
                             ))}
                         </Tab.Navigator>
                     </BarComponent>
 
-                
+                    <CheckBox 
+                        containerStyle={styles.checkBox} 
+                        textStyle={{color:Theme.subColor}}
+                        checkedIcon='checkbox-marked-outline'
+                        uncheckedIcon='checkbox-blank-outline'
+                        iconType='material-community'
+                        title="Salvar Medley"
+                        checked={isChecked}
+                        checkedColor={Theme.subColor}
+                        onPress={() => setChecked(!isChecked)}
+                    />
+
                     <CustomButtom onPress={() => sendMedley()}>                    
                         <Text style={{color:'#fff'}}>ENVIAR</Text>                       
                     </CustomButtom>          
@@ -229,12 +270,13 @@ const styles = StyleSheet.create({
     medleyArea: {
         flex:1,
         borderWidth:1,
-        marginBottom:15,
+        marginBottom:5,
         borderRadius:5,
         borderColor:'#737373'
     },
 
     titleArea: {
+        width:"100%",
         padding:15, 
         borderBottomWidth:1, 
         alignItems:"center",
@@ -249,5 +291,12 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center"
+    },
+
+    checkBox: {
+        backgroundColor: 'transparent', 
+        borderWidth:0, 
+        paddingHorizontal:2,
+        maxWidth:150
     }
 })

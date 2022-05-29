@@ -154,7 +154,7 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     //função para enviar os louvores para o repertório
-    const sendLouvor = async (props) => {
+    const sendLouvor = async (props, isMedley) => {
         const docRef = await doc(firebaseConnection.db, 'repertorio', 'sabado');
         const docLouvor = await getDoc(docRef);
         if (docLouvor.exists()) {
@@ -181,12 +181,13 @@ export default function LouvoresScreen({navigation, route}) {
                 setShouldShow(false);  
                 setLoaded(false);
                 
-                showAlert({
-                    title: "Louvor adicionado!",
-                    message: `"${props.name}" adicionado com sucesso ao repertório 🎉`,
-                    alertType: "success"
-                });
-               
+                if(!isMedley){
+                    showAlert({
+                        title: "Louvor adicionado!",
+                        message: `"${props.name}" adicionado com sucesso ao repertório 🎉`,
+                        alertType: "success"
+                    });
+                }
             }
             else {
                 showAlert({
@@ -200,7 +201,7 @@ export default function LouvoresScreen({navigation, route}) {
     }    
 
     //Adciona um novo louvor na base
-    const addLouvor = async (louvor) => {
+    const addLouvor = async (louvor, isMedley) => {
                         
         const newLouvor = {
             title: louvor.titulo,
@@ -213,11 +214,13 @@ export default function LouvoresScreen({navigation, route}) {
         try {     
             await addDoc(collection(firebaseConnection.db, 'louvores'), newLouvor)
 
-            showAlert({
-                title: "Novo louvor adicionado!",
-                message: `"${louvor.titulo}" adicionado com sucesso! 🎉`,
-                alertType: "success",
-            });
+            if(!isMedley){ 
+                showAlert({
+                    title: "Novo louvor adicionado!",
+                    message: `"${louvor.titulo}" adicionado com sucesso! 🎉`,
+                    alertType: "success",
+                });
+            }
 
             await getData()
         }
@@ -240,6 +243,7 @@ export default function LouvoresScreen({navigation, route}) {
                 keyID: props.keyID,
                 name: props.name,
                 complement: props.complement,
+                cipher: props.cifraUrl,
                 content: props.content
             }
         ]) 
@@ -426,7 +430,7 @@ export default function LouvoresScreen({navigation, route}) {
     }
 
     const navigateMedley = async () => {
-        navigation.navigate("Medley", {medley:medley, sendLouvor:sendLouvor});
+        navigation.navigate("Medley", {medley:medley, sendLouvor:sendLouvor, addLouvor:addLouvor});
         closeMedleyHandler();
     }
 
